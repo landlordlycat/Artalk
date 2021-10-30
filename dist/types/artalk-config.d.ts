@@ -25,14 +25,9 @@ export interface ArtalkConfig {
   defaultAvatar?: string
 
   /**
-   * 页面唯一标识
+   * 页面可访问链接（用于标识）
    */
   pageKey: string
-
-  /**
-   * 页面可访问链接
-   */
-  pageUrl?: string
 
   /**
    * 页面标题
@@ -43,7 +38,7 @@ export interface ArtalkConfig {
    * 服务器地址
    */
   server: string
- 
+
   /**
    * 站点名
    */

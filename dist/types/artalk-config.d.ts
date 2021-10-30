@@ -25,7 +25,7 @@ export interface ArtalkConfig {
   defaultAvatar?: string
 
   /**
-   * 页面可访问链接（用于标识）
+   * 页面唯一标识（完整 URL）
    */
   pageKey: string
 

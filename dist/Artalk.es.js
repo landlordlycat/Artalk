@@ -3029,11 +3029,12 @@ class Api {
         link: comment2.link,
         content: comment2.content,
         rid: comment2.rid,
-        page_key: this.ctx.conf.pageKey,
-        page_title: this.ctx.conf.pageTitle || ""
+        page_key: comment2.page_key
       };
-      if (this.ctx.conf.site)
-        params.site_name = this.ctx.conf.site;
+      if (comment2.page_title)
+        params.page_title = comment2.page_title;
+      if (comment2.site_name)
+        params.site_name = comment2.site_name;
       const data = yield POST(this.ctx, `${this.baseURL}/add`, params);
       return data.comment;
     });
@@ -3865,14 +3866,21 @@ class Editor extends Component {
           nick: this.user.data.nick,
           email: this.user.data.email,
           link: this.user.data.link,
-          rid: this.replyComment === null ? 0 : this.replyComment.id
+          rid: this.replyComment === null ? 0 : this.replyComment.id,
+          page_key: this.replyComment === null ? this.ctx.conf.pageKey : this.replyComment.page_key,
+          page_title: this.replyComment === null ? this.ctx.conf.pageTitle : void 0,
+          site_name: this.replyComment === null ? this.ctx.conf.site : this.replyComment.site_name
         });
+        if (this.replyComment !== null && this.replyComment.page_key !== this.ctx.conf.pageKey) {
+          window.open(`${this.replyComment.page_key}#atk-comment-${nComment.id}`);
+        }
         this.ctx.trigger("list-insert", nComment);
         this.clearEditor();
         this.ctx.trigger("editor-submitted");
       } catch (err) {
         console.error(err);
         this.showNotify(`\u8BC4\u8BBA\u5931\u8D25\uFF0C${err.msg || String(err)}`, "e");
+        return;
       } finally {
         hideLoading(this.$el);
       }
@@ -5483,7 +5491,11 @@ class MessageView extends SidebarView {
     this.list.pageMode = "pagination";
     this.list.noCommentText = '<div class="atk-sidebar-no-content">\u65E0\u5185\u5BB9</div>';
     this.list.renderComment = (comment2) => {
+      var _a;
       comment2.setOpenURL(`${comment2.data.page_key}#atk-comment-${comment2.data.id}`);
+      (_a = comment2.$actions.querySelector('[data-atk-action="comment-reply"]')) == null ? void 0 : _a.addEventListener("click", () => {
+        this.ctx.trigger("sidebar-hide");
+      });
     };
     this.list.paramsEditor = (params) => {
       params.site_name = siteName;
@@ -6074,12 +6086,11 @@ class SiteList extends Component {
   }
 }
 class SitesView extends SidebarView {
-  constructor(ctx) {
-    super(ctx);
+  constructor() {
+    super(...arguments);
     __publicField(this, "viewTabs", {});
     __publicField(this, "viewActiveTab", "");
     __publicField(this, "siteList");
-    this.$el = createElement(`<div class="atk-sidebar-view"></div>`);
   }
   mount(siteName) {
     if (!this.siteList) {

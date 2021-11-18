@@ -4610,31 +4610,6 @@ class Comment extends Component {
     this.openURL = url;
     this.$el.classList.add("atk-openable");
   }
-  checkMoreHide($target, allowHeight = 300) {
-    if (!$target)
-      return;
-    let $hideMoreOpenBtn = $target == null ? void 0 : $target.querySelector(".atk-more-hide-open-btn");
-    const removeHideMore = () => {
-      $target.classList.remove("atk-comment-more-hide");
-      if ($hideMoreOpenBtn)
-        $hideMoreOpenBtn.remove();
-      $target.style.height = "";
-      $target.style.overflow = "";
-    };
-    if (getHeight($target) > allowHeight) {
-      $target.classList.add("atk-comment-more-hide");
-      $target.style.height = `${allowHeight}px`;
-      $target.style.overflow = "hidden";
-      if (!$hideMoreOpenBtn) {
-        $hideMoreOpenBtn = createElement(`<div class="atk-more-hide-open-btn">\u9605\u8BFB\u66F4\u591A</span>`);
-        $hideMoreOpenBtn.onclick = (e) => {
-          e.stopPropagation();
-          removeHideMore();
-        };
-        $target.append($hideMoreOpenBtn);
-      }
-    }
-  }
 }
 var pagination = "";
 class Pagination {
@@ -5069,7 +5044,8 @@ class ListLite extends Component {
       });
     }
     this.eachComment(this.comments, (c) => {
-      this.checkMoreHide(c);
+      if (c.getIsRoot())
+        this.checkMoreHide(c);
     });
     this.refreshUI();
     this.ctx.trigger("comments-loaded");
@@ -5122,18 +5098,62 @@ class ListLite extends Component {
     this.ctx.trigger("comments-loaded");
   }
   checkMoreHide(c) {
+    if (c.getIsRoot()) {
+      this.checkMoreHideEl(c, "children");
+    }
+    this.checkMoreHideEl(c, "content");
+    if (c.$replyTo)
+      this.checkMoreHideEl(c, "replyTo");
+  }
+  checkMoreHideEl(comment2, area, allowHeight = 300) {
     var _a, _b;
     const childrenH = (_a = this.ctx.conf.heightLimit) == null ? void 0 : _a.children;
     const contentH = (_b = this.ctx.conf.heightLimit) == null ? void 0 : _b.content;
-    const isChildrenLimit = typeof childrenH === "number" && childrenH > 0;
-    const isContentLimit = typeof contentH === "number" && contentH > 0;
-    if (isChildrenLimit && c.getIsRoot()) {
-      c.checkMoreHide(c.$children, childrenH || 300);
-    }
-    if (isContentLimit) {
-      c.checkMoreHide(c.$content, contentH || 200);
-      if (c.$replyTo)
-        c.checkMoreHide(c.$replyTo, contentH || 200);
+    if (area === "children" && !childrenH)
+      return;
+    if ((area === "content" || area === "replyTo") && !contentH)
+      return;
+    if (area === "children")
+      allowHeight = childrenH || 300;
+    else
+      allowHeight = contentH || 200;
+    let $target;
+    if (area === "children")
+      $target = comment2.$children;
+    else if (area === "content")
+      $target = comment2.$content;
+    else if (area === "replyTo")
+      $target = comment2.$replyTo;
+    if (!$target)
+      return;
+    let $hideMoreOpenBtn = $target.querySelector(".atk-more-hide-open-btn");
+    const removeHideMore = () => {
+      $target.classList.remove("atk-comment-more-hide");
+      if ($hideMoreOpenBtn)
+        $hideMoreOpenBtn.remove();
+      $target.style.height = "";
+      $target.style.overflow = "";
+    };
+    if (getHeight($target) > allowHeight) {
+      $target.classList.add("atk-comment-more-hide");
+      $target.style.height = `${allowHeight}px`;
+      $target.style.overflow = "hidden";
+      if (!$hideMoreOpenBtn) {
+        $hideMoreOpenBtn = createElement(`<div class="atk-more-hide-open-btn">\u9605\u8BFB\u66F4\u591A</span>`);
+        $hideMoreOpenBtn.onclick = (e) => {
+          e.stopPropagation();
+          removeHideMore();
+          if (comment2.getIsRoot()) {
+            const children = comment2.getChildren();
+            if (children.length >= 1) {
+              this.eachComment(children, (c) => {
+                this.checkMoreHideEl(c, "content", contentH || 200);
+              });
+            }
+          }
+        };
+        $target.append($hideMoreOpenBtn);
+      }
     }
   }
   get commentsCount() {

@@ -4529,6 +4529,17 @@ class Comment extends Component {
   getParent() {
     return this.parent;
   }
+  getParents() {
+    const parents = [];
+    const once = (c) => {
+      if (c.parent) {
+        parents.push(c.parent);
+        once(c.parent);
+      }
+    };
+    once(this);
+    return parents;
+  }
   getEl() {
     return this.$el;
   }
@@ -5084,19 +5095,26 @@ class ListLite extends Component {
     this.checkMoreHide(comment2);
   }
   insertComment(commentData) {
-    var _a;
     if (!this.flatMode) {
       const comment2 = this.createComment(commentData);
       comment2.render();
-      if (commentData.rid !== 0) {
-        (_a = this.findComment(commentData.rid)) == null ? void 0 : _a.putChild(comment2);
-      } else {
+      if (commentData.rid === 0) {
         this.$commentsWrap.prepend(comment2.getEl());
         this.comments.unshift(comment2);
+        this.checkMoreHide(comment2);
+      } else {
+        const parent = this.findComment(commentData.rid);
+        if (parent) {
+          parent.putChild(comment2);
+          if (parent.$children)
+            this.removeHideMore(parent.$children);
+          this.eachComment(parent.children, (c) => {
+            this.checkMoreHide(c);
+          });
+        }
       }
       scrollIntoView(comment2.getEl());
       comment2.playFadeInAnim();
-      this.checkMoreHide(comment2);
     } else {
       this.putCommentFlatMode(commentData, this.comments.map((c) => c.data), "prepend");
     }
@@ -5106,9 +5124,7 @@ class ListLite extends Component {
     this.ctx.trigger("comments-loaded");
   }
   checkMoreHide(c) {
-    if (c.getIsRoot()) {
-      this.checkMoreHideEl(c, "children");
-    }
+    this.checkMoreHideEl(c, "children");
     this.checkMoreHideEl(c, "content");
     if (c.$replyTo)
       this.checkMoreHideEl(c, "replyTo");
@@ -5163,6 +5179,14 @@ class ListLite extends Component {
         $target.append($hideMoreOpenBtn);
       }
     }
+  }
+  removeHideMore($target) {
+    const $hideMoreOpenBtn = $target.querySelector(".atk-more-hide-open-btn");
+    $target.classList.remove("atk-comment-more-hide");
+    if ($hideMoreOpenBtn)
+      $hideMoreOpenBtn.remove();
+    $target.style.height = "";
+    $target.style.overflow = "";
   }
   get commentsCount() {
     var _a;

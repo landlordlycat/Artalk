@@ -113,8 +113,8 @@ const defaults$3 = {
     autoLoad: true
   },
   heightLimit: {
-    content: 200,
-    children: 300
+    content: 300,
+    children: 400
   },
   reqTimeout: 15e3,
   versionCheck: true
@@ -5169,7 +5169,7 @@ class ListLite extends Component {
           removeHideMore();
           if (comment2.getIsRoot()) {
             const children = comment2.getChildren();
-            if (children.length >= 1) {
+            if (children.length > 1) {
               this.eachComment(children, (c) => {
                 this.checkMoreHideEl(c, "content", contentH || 200);
               });

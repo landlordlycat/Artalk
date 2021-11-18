@@ -1,1 +1,6652 @@
-var t=Object.defineProperty,e=Object.defineProperties,i=Object.getOwnPropertyDescriptors,s=Object.getOwnPropertySymbols,n=Object.prototype.hasOwnProperty,r=Object.prototype.propertyIsEnumerable,a=(e,i,s)=>i in e?t(e,i,{enumerable:!0,configurable:!0,writable:!0,value:s}):e[i]=s,o=(t,e)=>{for(var i in e||(e={}))n.call(e,i)&&a(t,i,e[i]);if(s)for(var i of s(e))r.call(e,i)&&a(t,i,e[i]);return t},l=(t,s)=>e(t,i(s)),c=("undefined"!=typeof require&&require,(t,e,i)=>(a(t,"symbol"!=typeof e?e+"":e,i),i)),h=(t,e,i)=>new Promise(((s,n)=>{var r=t=>{try{o(i.next(t))}catch(e){n(e)}},a=t=>{try{o(i.throw(t))}catch(e){n(e)}},o=t=>t.done?s(t.value):Promise.resolve(t.value).then(r,a);o((i=i.apply(t,e)).next())}));class d{constructor(t){c(this,"data");const e=JSON.parse(window.localStorage.getItem("ArtalkUser")||"{}");this.data={nick:e.nick||"",email:e.email||"",link:e.link||"",token:e.token||"",isAdmin:e.isAdmin||!1}}save(){window.localStorage.setItem("ArtalkUser",JSON.stringify(this.data))}checkHasBasicUserInfo(){return!!this.data.nick&&!!this.data.email}}class u{constructor(t,e){c(this,"cid"),c(this,"$root"),c(this,"conf"),c(this,"user"),c(this,"eventList",[]),this.cid=+new Date,this.$root=t,this.conf=e,this.user=new d(this.conf),this.$root.setAttribute("atk-run-id",this.cid.toString())}on(t,e,i="internal"){this.eventList.push({name:t,handler:e,scope:i})}off(t,e,i="internal"){this.eventList=this.eventList.filter((s=>e?!(s.name===t&&s.handler===e&&s.scope===i):!(s.name===t&&s.scope===i)))}trigger(t,e,i){this.eventList.filter((e=>e.name===t&&(!i||e.scope===i))).map((t=>t.handler)).forEach((t=>t(e)))}}class p{constructor(t){c(this,"$el"),c(this,"ctx"),c(this,"conf"),this.ctx=t,this.conf=t.conf}}function m(){return{baseUrl:null,breaks:!1,extensions:null,gfm:!0,headerIds:!0,headerPrefix:"",highlight:null,langPrefix:"language-",mangle:!0,pedantic:!1,renderer:null,sanitize:!1,sanitizer:null,silent:!1,smartLists:!1,smartypants:!1,tokenizer:null,walkTokens:null,xhtml:!1}}let g={baseUrl:null,breaks:!1,extensions:null,gfm:!0,headerIds:!0,headerPrefix:"",highlight:null,langPrefix:"language-",mangle:!0,pedantic:!1,renderer:null,sanitize:!1,sanitizer:null,silent:!1,smartLists:!1,smartypants:!1,tokenizer:null,walkTokens:null,xhtml:!1};const f=/[&<>"']/,k=/[&<>"']/g,$=/[<>"']|&(?!#?\w+;)/,y=/[<>"']|&(?!#?\w+;)/g,x={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},v=t=>x[t];function w(t,e){if(e){if(f.test(t))return t.replace(k,v)}else if($.test(t))return t.replace(y,v);return t}const b=/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi;function S(t){return t.replace(b,((t,e)=>"colon"===(e=e.toLowerCase())?":":"#"===e.charAt(0)?"x"===e.charAt(1)?String.fromCharCode(parseInt(e.substring(2),16)):String.fromCharCode(+e.substring(1)):""))}const T=/(^|[^\[])\^/g;function L(t,e){t=t.source||t,e=e||"";const i={replace:(e,s)=>(s=(s=s.source||s).replace(T,"$1"),t=t.replace(e,s),i),getRegex:()=>new RegExp(t,e)};return i}const C=/[^\w:]/g,E=/^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;function A(t,e,i){if(t){let t;try{t=decodeURIComponent(S(i)).replace(C,"").toLowerCase()}catch(s){return null}if(0===t.indexOf("javascript:")||0===t.indexOf("vbscript:")||0===t.indexOf("data:"))return null}e&&!E.test(i)&&(i=function(t,e){_[" "+t]||(O.test(t)?_[" "+t]=t+"/":_[" "+t]=U(t,"/",!0));const i=-1===(t=_[" "+t]).indexOf(":");return"//"===e.substring(0,2)?i?e:t.replace(q,"$1")+e:"/"===e.charAt(0)?i?e:t.replace(B,"$1")+e:t+e}(e,i));try{i=encodeURI(i).replace(/%25/g,"%")}catch(s){return null}return i}const _={},O=/^[^:]+:\/*[^/]*$/,q=/^([^:]+:)[\s\S]*$/,B=/^([^:]+:\/*[^/]*)[\s\S]*$/;const M={exec:function(){}};function R(t){let e,i,s=1;for(;s<arguments.length;s++)for(i in e=arguments[s],e)Object.prototype.hasOwnProperty.call(e,i)&&(t[i]=e[i]);return t}function I(t,e){const i=t.replace(/\|/g,((t,e,i)=>{let s=!1,n=e;for(;--n>=0&&"\\"===i[n];)s=!s;return s?"|":" |"})).split(/ \|/);let s=0;if(i[0].trim()||i.shift(),i[i.length-1].trim()||i.pop(),i.length>e)i.splice(e);else for(;i.length<e;)i.push("");for(;s<i.length;s++)i[s]=i[s].trim().replace(/\\\|/g,"|");return i}function U(t,e,i){const s=t.length;if(0===s)return"";let n=0;for(;n<s;){const r=t.charAt(s-n-1);if(r!==e||i){if(r===e||!i)break;n++}else n++}return t.substr(0,s-n)}function z(t){t&&t.sanitize&&!t.silent&&console.warn("marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options")}function N(t,e){if(e<1)return"";let i="";for(;e>1;)1&e&&(i+=t),e>>=1,t+=t;return i+t}function P(t,e,i,s){const n=e.href,r=e.title?w(e.title):null,a=t[1].replace(/\\([\[\]])/g,"$1");if("!"!==t[0].charAt(0)){s.state.inLink=!0;const t={type:"link",raw:i,href:n,title:r,text:a,tokens:s.inlineTokens(a,[])};return s.state.inLink=!1,t}return{type:"image",raw:i,href:n,title:r,text:w(a)}}class W{constructor(t){this.options=t||g}space(t){const e=this.rules.block.newline.exec(t);if(e)return e[0].length>1?{type:"space",raw:e[0]}:{raw:"\n"}}code(t){const e=this.rules.block.code.exec(t);if(e){const t=e[0].replace(/^ {1,4}/gm,"");return{type:"code",raw:e[0],codeBlockStyle:"indented",text:this.options.pedantic?t:U(t,"\n")}}}fences(t){const e=this.rules.block.fences.exec(t);if(e){const t=e[0],i=function(t,e){const i=t.match(/^(\s+)(?:```)/);if(null===i)return e;const s=i[1];return e.split("\n").map((t=>{const e=t.match(/^\s+/);if(null===e)return t;const[i]=e;return i.length>=s.length?t.slice(s.length):t})).join("\n")}(t,e[3]||"");return{type:"code",raw:t,lang:e[2]?e[2].trim():e[2],text:i}}}heading(t){const e=this.rules.block.heading.exec(t);if(e){let t=e[2].trim();if(/#$/.test(t)){const e=U(t,"#");this.options.pedantic?t=e.trim():e&&!/ $/.test(e)||(t=e.trim())}const i={type:"heading",raw:e[0],depth:e[1].length,text:t,tokens:[]};return this.lexer.inline(i.text,i.tokens),i}}hr(t){const e=this.rules.block.hr.exec(t);if(e)return{type:"hr",raw:e[0]}}blockquote(t){const e=this.rules.block.blockquote.exec(t);if(e){const t=e[0].replace(/^ *> ?/gm,"");return{type:"blockquote",raw:e[0],tokens:this.lexer.blockTokens(t,[]),text:t}}}list(t){let e=this.rules.block.list.exec(t);if(e){let i,s,n,r,a,o,l,c,h,d,u=e[1].trim();const p=u.length>1,m={type:"list",raw:"",ordered:p,start:p?+u.slice(0,-1):"",loose:!1,items:[]};u=p?`\\d{1,9}\\${u.slice(-1)}`:`\\${u}`,this.options.pedantic&&(u=p?u:"[*+-]");const g=new RegExp(`^( {0,3}${u})((?: [^\\n]*| *)(?:\\n[^\\n]*)*(?:\\n|$))`);for(;t&&!this.rules.block.hr.test(t)&&(e=g.exec(t));){h=e[2].split("\n"),this.options.pedantic?(r=2,d=h[0].trimLeft()):(r=e[2].search(/[^ ]/),r=e[1].length+(r>4?1:r),d=h[0].slice(r-e[1].length)),o=!1,i=e[0],!h[0]&&/^ *$/.test(h[1])&&(i=e[1]+h.slice(0,2).join("\n")+"\n",m.loose=!0,h=[]);const u=new RegExp(`^ {0,${Math.min(3,r-1)}}(?:[*+-]|\\d{1,9}[.)])`);for(a=1;a<h.length;a++){if(c=h[a],this.options.pedantic&&(c=c.replace(/^ {1,4}(?=( {4})*[^ ])/g,"  ")),u.test(c)){i=e[1]+h.slice(0,a).join("\n")+"\n";break}if(o){if(!(c.search(/[^ ]/)>=r)&&c.trim()){i=e[1]+h.slice(0,a).join("\n")+"\n";break}d+="\n"+c.slice(r)}else c.trim()||(o=!0),c.search(/[^ ]/)>=r?d+="\n"+c.slice(r):d+="\n"+c}m.loose||(l?m.loose=!0:/\n *\n *$/.test(i)&&(l=!0)),this.options.gfm&&(s=/^\[[ xX]\] /.exec(d),s&&(n="[ ] "!==s[0],d=d.replace(/^\[[ xX]\] +/,""))),m.items.push({type:"list_item",raw:i,task:!!s,checked:n,loose:!1,text:d}),m.raw+=i,t=t.slice(i.length)}m.items[m.items.length-1].raw=i.trimRight(),m.items[m.items.length-1].text=d.trimRight(),m.raw=m.raw.trimRight();const f=m.items.length;for(a=0;a<f;a++)this.lexer.state.top=!1,m.items[a].tokens=this.lexer.blockTokens(m.items[a].text,[]),m.items[a].tokens.some((t=>"space"===t.type))&&(m.loose=!0,m.items[a].loose=!0);return m}}html(t){const e=this.rules.block.html.exec(t);if(e){const t={type:"html",raw:e[0],pre:!this.options.sanitizer&&("pre"===e[1]||"script"===e[1]||"style"===e[1]),text:e[0]};return this.options.sanitize&&(t.type="paragraph",t.text=this.options.sanitizer?this.options.sanitizer(e[0]):w(e[0]),t.tokens=[],this.lexer.inline(t.text,t.tokens)),t}}def(t){const e=this.rules.block.def.exec(t);if(e){e[3]&&(e[3]=e[3].substring(1,e[3].length-1));return{type:"def",tag:e[1].toLowerCase().replace(/\s+/g," "),raw:e[0],href:e[2],title:e[3]}}}table(t){const e=this.rules.block.table.exec(t);if(e){const t={type:"table",header:I(e[1]).map((t=>({text:t}))),align:e[2].replace(/^ *|\| *$/g,"").split(/ *\| */),rows:e[3]?e[3].replace(/\n$/,"").split("\n"):[]};if(t.header.length===t.align.length){t.raw=e[0];let i,s,n,r,a=t.align.length;for(i=0;i<a;i++)/^ *-+: *$/.test(t.align[i])?t.align[i]="right":/^ *:-+: *$/.test(t.align[i])?t.align[i]="center":/^ *:-+ *$/.test(t.align[i])?t.align[i]="left":t.align[i]=null;for(a=t.rows.length,i=0;i<a;i++)t.rows[i]=I(t.rows[i],t.header.length).map((t=>({text:t})));for(a=t.header.length,s=0;s<a;s++)t.header[s].tokens=[],this.lexer.inlineTokens(t.header[s].text,t.header[s].tokens);for(a=t.rows.length,s=0;s<a;s++)for(r=t.rows[s],n=0;n<r.length;n++)r[n].tokens=[],this.lexer.inlineTokens(r[n].text,r[n].tokens);return t}}}lheading(t){const e=this.rules.block.lheading.exec(t);if(e){const t={type:"heading",raw:e[0],depth:"="===e[2].charAt(0)?1:2,text:e[1],tokens:[]};return this.lexer.inline(t.text,t.tokens),t}}paragraph(t){const e=this.rules.block.paragraph.exec(t);if(e){const t={type:"paragraph",raw:e[0],text:"\n"===e[1].charAt(e[1].length-1)?e[1].slice(0,-1):e[1],tokens:[]};return this.lexer.inline(t.text,t.tokens),t}}text(t){const e=this.rules.block.text.exec(t);if(e){const t={type:"text",raw:e[0],text:e[0],tokens:[]};return this.lexer.inline(t.text,t.tokens),t}}escape(t){const e=this.rules.inline.escape.exec(t);if(e)return{type:"escape",raw:e[0],text:w(e[1])}}tag(t){const e=this.rules.inline.tag.exec(t);if(e)return!this.lexer.state.inLink&&/^<a /i.test(e[0])?this.lexer.state.inLink=!0:this.lexer.state.inLink&&/^<\/a>/i.test(e[0])&&(this.lexer.state.inLink=!1),!this.lexer.state.inRawBlock&&/^<(pre|code|kbd|script)(\s|>)/i.test(e[0])?this.lexer.state.inRawBlock=!0:this.lexer.state.inRawBlock&&/^<\/(pre|code|kbd|script)(\s|>)/i.test(e[0])&&(this.lexer.state.inRawBlock=!1),{type:this.options.sanitize?"text":"html",raw:e[0],inLink:this.lexer.state.inLink,inRawBlock:this.lexer.state.inRawBlock,text:this.options.sanitize?this.options.sanitizer?this.options.sanitizer(e[0]):w(e[0]):e[0]}}link(t){const e=this.rules.inline.link.exec(t);if(e){const t=e[2].trim();if(!this.options.pedantic&&/^</.test(t)){if(!/>$/.test(t))return;const e=U(t.slice(0,-1),"\\");if((t.length-e.length)%2==0)return}else{const t=function(t,e){if(-1===t.indexOf(e[1]))return-1;const i=t.length;let s=0,n=0;for(;n<i;n++)if("\\"===t[n])n++;else if(t[n]===e[0])s++;else if(t[n]===e[1]&&(s--,s<0))return n;return-1}(e[2],"()");if(t>-1){const i=(0===e[0].indexOf("!")?5:4)+e[1].length+t;e[2]=e[2].substring(0,t),e[0]=e[0].substring(0,i).trim(),e[3]=""}}let i=e[2],s="";if(this.options.pedantic){const t=/^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(i);t&&(i=t[1],s=t[3])}else s=e[3]?e[3].slice(1,-1):"";return i=i.trim(),/^</.test(i)&&(i=this.options.pedantic&&!/>$/.test(t)?i.slice(1):i.slice(1,-1)),P(e,{href:i?i.replace(this.rules.inline._escapes,"$1"):i,title:s?s.replace(this.rules.inline._escapes,"$1"):s},e[0],this.lexer)}}reflink(t,e){let i;if((i=this.rules.inline.reflink.exec(t))||(i=this.rules.inline.nolink.exec(t))){let t=(i[2]||i[1]).replace(/\s+/g," ");if(t=e[t.toLowerCase()],!t||!t.href){const t=i[0].charAt(0);return{type:"text",raw:t,text:t}}return P(i,t,i[0],this.lexer)}}emStrong(t,e,i=""){let s=this.rules.inline.emStrong.lDelim.exec(t);if(!s)return;if(s[3]&&i.match(/[\p{L}\p{N}]/u))return;const n=s[1]||s[2]||"";if(!n||n&&(""===i||this.rules.inline.punctuation.exec(i))){const i=s[0].length-1;let n,r,a=i,o=0;const l="*"===s[0][0]?this.rules.inline.emStrong.rDelimAst:this.rules.inline.emStrong.rDelimUnd;for(l.lastIndex=0,e=e.slice(-1*t.length+i);null!=(s=l.exec(e));){if(n=s[1]||s[2]||s[3]||s[4]||s[5]||s[6],!n)continue;if(r=n.length,s[3]||s[4]){a+=r;continue}if((s[5]||s[6])&&i%3&&!((i+r)%3)){o+=r;continue}if(a-=r,a>0)continue;if(r=Math.min(r,r+a+o),Math.min(i,r)%2){const e=t.slice(1,i+s.index+r);return{type:"em",raw:t.slice(0,i+s.index+r+1),text:e,tokens:this.lexer.inlineTokens(e,[])}}const e=t.slice(2,i+s.index+r-1);return{type:"strong",raw:t.slice(0,i+s.index+r+1),text:e,tokens:this.lexer.inlineTokens(e,[])}}}}codespan(t){const e=this.rules.inline.code.exec(t);if(e){let t=e[2].replace(/\n/g," ");const i=/[^ ]/.test(t),s=/^ /.test(t)&&/ $/.test(t);return i&&s&&(t=t.substring(1,t.length-1)),t=w(t,!0),{type:"codespan",raw:e[0],text:t}}}br(t){const e=this.rules.inline.br.exec(t);if(e)return{type:"br",raw:e[0]}}del(t){const e=this.rules.inline.del.exec(t);if(e)return{type:"del",raw:e[0],text:e[2],tokens:this.lexer.inlineTokens(e[2],[])}}autolink(t,e){const i=this.rules.inline.autolink.exec(t);if(i){let t,s;return"@"===i[2]?(t=w(this.options.mangle?e(i[1]):i[1]),s="mailto:"+t):(t=w(i[1]),s=t),{type:"link",raw:i[0],text:t,href:s,tokens:[{type:"text",raw:t,text:t}]}}}url(t,e){let i;if(i=this.rules.inline.url.exec(t)){let t,s;if("@"===i[2])t=w(this.options.mangle?e(i[0]):i[0]),s="mailto:"+t;else{let e;do{e=i[0],i[0]=this.rules.inline._backpedal.exec(i[0])[0]}while(e!==i[0]);t=w(i[0]),s="www."===i[1]?"http://"+t:t}return{type:"link",raw:i[0],text:t,href:s,tokens:[{type:"text",raw:t,text:t}]}}}inlineText(t,e){const i=this.rules.inline.text.exec(t);if(i){let t;return t=this.lexer.state.inRawBlock?this.options.sanitize?this.options.sanitizer?this.options.sanitizer(i[0]):w(i[0]):i[0]:w(this.options.smartypants?e(i[0]):i[0]),{type:"text",raw:i[0],text:t}}}}const D={newline:/^(?: *(?:\n|$))+/,code:/^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,fences:/^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?=\n|$)|$)/,hr:/^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,heading:/^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,blockquote:/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,list:/^( {0,3}bull)( [^\n]+?)?(?:\n|$)/,html:"^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$))",def:/^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,table:M,lheading:/^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,_paragraph:/^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html| +\n)[^\n]+)*)/,text:/^[^\n]+/,_label:/(?!\s*\])(?:\\[\[\]]|[^\[\]])+/,_title:/(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/};D.def=L(D.def).replace("label",D._label).replace("title",D._title).getRegex(),D.bullet=/(?:[*+-]|\d{1,9}[.)])/,D.listItemStart=L(/^( *)(bull) */).replace("bull",D.bullet).getRegex(),D.list=L(D.list).replace(/bull/g,D.bullet).replace("hr","\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))").replace("def","\\n+(?="+D.def.source+")").getRegex(),D._tag="address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul",D._comment=/<!--(?!-?>)[\s\S]*?(?:-->|$)/,D.html=L(D.html,"i").replace("comment",D._comment).replace("tag",D._tag).replace("attribute",/ +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(),D.paragraph=L(D._paragraph).replace("hr",D.hr).replace("heading"," {0,3}#{1,6} ").replace("|lheading","").replace("blockquote"," {0,3}>").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",D._tag).getRegex(),D.blockquote=L(D.blockquote).replace("paragraph",D.paragraph).getRegex(),D.normal=R({},D),D.gfm=R({},D.normal,{table:"^ *([^\\n ].*\\|.*)\\n {0,3}(?:\\| *)?(:?-+:? *(?:\\| *:?-+:? *)*)(?:\\| *)?(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)"}),D.gfm.table=L(D.gfm.table).replace("hr",D.hr).replace("heading"," {0,3}#{1,6} ").replace("blockquote"," {0,3}>").replace("code"," {4}[^\\n]").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",D._tag).getRegex(),D.pedantic=R({},D.normal,{html:L("^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:\"[^\"]*\"|'[^']*'|\\s[^'\"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))").replace("comment",D._comment).replace(/tag/g,"(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,heading:/^(#{1,6})(.*)(?:\n+|$)/,fences:M,paragraph:L(D.normal._paragraph).replace("hr",D.hr).replace("heading"," *#{1,6} *[^\n]").replace("lheading",D.lheading).replace("blockquote"," {0,3}>").replace("|fences","").replace("|list","").replace("|html","").getRegex()});const H={escape:/^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,autolink:/^<(scheme:[^\s\x00-\x1f<>]*|email)>/,url:M,tag:"^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>",link:/^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,reflink:/^!?\[(label)\]\[(?!\s*\])((?:\\[\[\]]?|[^\[\]\\])+)\]/,nolink:/^!?\[(?!\s*\])((?:\[[^\[\]]*\]|\\[\[\]]|[^\[\]])*)\](?:\[\])?/,reflinkSearch:"reflink|nolink(?!\\()",emStrong:{lDelim:/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,rDelimAst:/^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,rDelimUnd:/^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/},code:/^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,br:/^( {2,}|\\)\n(?!\s*$)/,del:M,text:/^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,punctuation:/^([\spunctuation])/};function F(t){return t.replace(/---/g,"—").replace(/--/g,"–").replace(/(^|[-\u2014/(\[{"\s])'/g,"$1‘").replace(/'/g,"’").replace(/(^|[-\u2014/(\[{\u2018\s])"/g,"$1“").replace(/"/g,"”").replace(/\.{3}/g,"…")}function V(t){let e,i,s="";const n=t.length;for(e=0;e<n;e++)i=t.charCodeAt(e),Math.random()>.5&&(i="x"+i.toString(16)),s+="&#"+i+";";return s}H._punctuation="!\"#$%&'()+\\-.,/:;<=>?@\\[\\]`^{|}~",H.punctuation=L(H.punctuation).replace(/punctuation/g,H._punctuation).getRegex(),H.blockSkip=/\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g,H.escapedEmSt=/\\\*|\\_/g,H._comment=L(D._comment).replace("(?:--\x3e|$)","--\x3e").getRegex(),H.emStrong.lDelim=L(H.emStrong.lDelim).replace(/punct/g,H._punctuation).getRegex(),H.emStrong.rDelimAst=L(H.emStrong.rDelimAst,"g").replace(/punct/g,H._punctuation).getRegex(),H.emStrong.rDelimUnd=L(H.emStrong.rDelimUnd,"g").replace(/punct/g,H._punctuation).getRegex(),H._escapes=/\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g,H._scheme=/[a-zA-Z][a-zA-Z0-9+.-]{1,31}/,H._email=/[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/,H.autolink=L(H.autolink).replace("scheme",H._scheme).replace("email",H._email).getRegex(),H._attribute=/\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/,H.tag=L(H.tag).replace("comment",H._comment).replace("attribute",H._attribute).getRegex(),H._label=/(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/,H._href=/<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/,H._title=/"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/,H.link=L(H.link).replace("label",H._label).replace("href",H._href).replace("title",H._title).getRegex(),H.reflink=L(H.reflink).replace("label",H._label).getRegex(),H.reflinkSearch=L(H.reflinkSearch,"g").replace("reflink",H.reflink).replace("nolink",H.nolink).getRegex(),H.normal=R({},H),H.pedantic=R({},H.normal,{strong:{start:/^__|\*\*/,middle:/^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,endAst:/\*\*(?!\*)/g,endUnd:/__(?!_)/g},em:{start:/^_|\*/,middle:/^()\*(?=\S)([\s\S]*?\S)\*(?!\*)|^_(?=\S)([\s\S]*?\S)_(?!_)/,endAst:/\*(?!\*)/g,endUnd:/_(?!_)/g},link:L(/^!?\[(label)\]\((.*?)\)/).replace("label",H._label).getRegex(),reflink:L(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label",H._label).getRegex()}),H.gfm=R({},H.normal,{escape:L(H.escape).replace("])","~|])").getRegex(),_extended_email:/[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,url:/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,_backpedal:/(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,del:/^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,text:/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/}),H.gfm.url=L(H.gfm.url,"i").replace("email",H.gfm._extended_email).getRegex(),H.breaks=R({},H.gfm,{br:L(H.br).replace("{2,}","*").getRegex(),text:L(H.gfm.text).replace("\\b_","\\b_| {2,}\\n").replace(/\{2,\}/g,"*").getRegex()});class j{constructor(t){this.tokens=[],this.tokens.links=Object.create(null),this.options=t||g,this.options.tokenizer=this.options.tokenizer||new W,this.tokenizer=this.options.tokenizer,this.tokenizer.options=this.options,this.tokenizer.lexer=this,this.inlineQueue=[],this.state={inLink:!1,inRawBlock:!1,top:!0};const e={block:D.normal,inline:H.normal};this.options.pedantic?(e.block=D.pedantic,e.inline=H.pedantic):this.options.gfm&&(e.block=D.gfm,this.options.breaks?e.inline=H.breaks:e.inline=H.gfm),this.tokenizer.rules=e}static get rules(){return{block:D,inline:H}}static lex(t,e){return new j(e).lex(t)}static lexInline(t,e){return new j(e).inlineTokens(t)}lex(t){let e;for(t=t.replace(/\r\n|\r/g,"\n").replace(/\t/g,"    "),this.blockTokens(t,this.tokens);e=this.inlineQueue.shift();)this.inlineTokens(e.src,e.tokens);return this.tokens}blockTokens(t,e=[]){let i,s,n,r;for(this.options.pedantic&&(t=t.replace(/^ +$/gm,""));t;)if(!(this.options.extensions&&this.options.extensions.block&&this.options.extensions.block.some((s=>!!(i=s.call({lexer:this},t,e))&&(t=t.substring(i.raw.length),e.push(i),!0)))))if(i=this.tokenizer.space(t))t=t.substring(i.raw.length),i.type&&e.push(i);else if(i=this.tokenizer.code(t))t=t.substring(i.raw.length),s=e[e.length-1],!s||"paragraph"!==s.type&&"text"!==s.type?e.push(i):(s.raw+="\n"+i.raw,s.text+="\n"+i.text,this.inlineQueue[this.inlineQueue.length-1].src=s.text);else if(i=this.tokenizer.fences(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.heading(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.hr(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.blockquote(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.list(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.html(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.def(t))t=t.substring(i.raw.length),s=e[e.length-1],!s||"paragraph"!==s.type&&"text"!==s.type?this.tokens.links[i.tag]||(this.tokens.links[i.tag]={href:i.href,title:i.title}):(s.raw+="\n"+i.raw,s.text+="\n"+i.raw,this.inlineQueue[this.inlineQueue.length-1].src=s.text);else if(i=this.tokenizer.table(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.lheading(t))t=t.substring(i.raw.length),e.push(i);else{if(n=t,this.options.extensions&&this.options.extensions.startBlock){let e=1/0;const i=t.slice(1);let s;this.options.extensions.startBlock.forEach((function(t){s=t.call({lexer:this},i),"number"==typeof s&&s>=0&&(e=Math.min(e,s))})),e<1/0&&e>=0&&(n=t.substring(0,e+1))}if(this.state.top&&(i=this.tokenizer.paragraph(n)))s=e[e.length-1],r&&"paragraph"===s.type?(s.raw+="\n"+i.raw,s.text+="\n"+i.text,this.inlineQueue.pop(),this.inlineQueue[this.inlineQueue.length-1].src=s.text):e.push(i),r=n.length!==t.length,t=t.substring(i.raw.length);else if(i=this.tokenizer.text(t))t=t.substring(i.raw.length),s=e[e.length-1],s&&"text"===s.type?(s.raw+="\n"+i.raw,s.text+="\n"+i.text,this.inlineQueue.pop(),this.inlineQueue[this.inlineQueue.length-1].src=s.text):e.push(i);else if(t){const e="Infinite loop on byte: "+t.charCodeAt(0);if(this.options.silent){console.error(e);break}throw new Error(e)}}return this.state.top=!0,e}inline(t,e){this.inlineQueue.push({src:t,tokens:e})}inlineTokens(t,e=[]){let i,s,n,r,a,o,l=t;if(this.tokens.links){const t=Object.keys(this.tokens.links);if(t.length>0)for(;null!=(r=this.tokenizer.rules.inline.reflinkSearch.exec(l));)t.includes(r[0].slice(r[0].lastIndexOf("[")+1,-1))&&(l=l.slice(0,r.index)+"["+N("a",r[0].length-2)+"]"+l.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex))}for(;null!=(r=this.tokenizer.rules.inline.blockSkip.exec(l));)l=l.slice(0,r.index)+"["+N("a",r[0].length-2)+"]"+l.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);for(;null!=(r=this.tokenizer.rules.inline.escapedEmSt.exec(l));)l=l.slice(0,r.index)+"++"+l.slice(this.tokenizer.rules.inline.escapedEmSt.lastIndex);for(;t;)if(a||(o=""),a=!1,!(this.options.extensions&&this.options.extensions.inline&&this.options.extensions.inline.some((s=>!!(i=s.call({lexer:this},t,e))&&(t=t.substring(i.raw.length),e.push(i),!0)))))if(i=this.tokenizer.escape(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.tag(t))t=t.substring(i.raw.length),s=e[e.length-1],s&&"text"===i.type&&"text"===s.type?(s.raw+=i.raw,s.text+=i.text):e.push(i);else if(i=this.tokenizer.link(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.reflink(t,this.tokens.links))t=t.substring(i.raw.length),s=e[e.length-1],s&&"text"===i.type&&"text"===s.type?(s.raw+=i.raw,s.text+=i.text):e.push(i);else if(i=this.tokenizer.emStrong(t,l,o))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.codespan(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.br(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.del(t))t=t.substring(i.raw.length),e.push(i);else if(i=this.tokenizer.autolink(t,V))t=t.substring(i.raw.length),e.push(i);else if(this.state.inLink||!(i=this.tokenizer.url(t,V))){if(n=t,this.options.extensions&&this.options.extensions.startInline){let e=1/0;const i=t.slice(1);let s;this.options.extensions.startInline.forEach((function(t){s=t.call({lexer:this},i),"number"==typeof s&&s>=0&&(e=Math.min(e,s))})),e<1/0&&e>=0&&(n=t.substring(0,e+1))}if(i=this.tokenizer.inlineText(n,F))t=t.substring(i.raw.length),"_"!==i.raw.slice(-1)&&(o=i.raw.slice(-1)),a=!0,s=e[e.length-1],s&&"text"===s.type?(s.raw+=i.raw,s.text+=i.text):e.push(i);else if(t){const e="Infinite loop on byte: "+t.charCodeAt(0);if(this.options.silent){console.error(e);break}throw new Error(e)}}else t=t.substring(i.raw.length),e.push(i);return e}}class Q{constructor(t){this.options=t||g}code(t,e,i){const s=(e||"").match(/\S*/)[0];if(this.options.highlight){const e=this.options.highlight(t,s);null!=e&&e!==t&&(i=!0,t=e)}return t=t.replace(/\n$/,"")+"\n",s?'<pre><code class="'+this.options.langPrefix+w(s,!0)+'">'+(i?t:w(t,!0))+"</code></pre>\n":"<pre><code>"+(i?t:w(t,!0))+"</code></pre>\n"}blockquote(t){return"<blockquote>\n"+t+"</blockquote>\n"}html(t){return t}heading(t,e,i,s){return this.options.headerIds?"<h"+e+' id="'+this.options.headerPrefix+s.slug(i)+'">'+t+"</h"+e+">\n":"<h"+e+">"+t+"</h"+e+">\n"}hr(){return this.options.xhtml?"<hr/>\n":"<hr>\n"}list(t,e,i){const s=e?"ol":"ul";return"<"+s+(e&&1!==i?' start="'+i+'"':"")+">\n"+t+"</"+s+">\n"}listitem(t){return"<li>"+t+"</li>\n"}checkbox(t){return"<input "+(t?'checked="" ':"")+'disabled="" type="checkbox"'+(this.options.xhtml?" /":"")+"> "}paragraph(t){return"<p>"+t+"</p>\n"}table(t,e){return e&&(e="<tbody>"+e+"</tbody>"),"<table>\n<thead>\n"+t+"</thead>\n"+e+"</table>\n"}tablerow(t){return"<tr>\n"+t+"</tr>\n"}tablecell(t,e){const i=e.header?"th":"td";return(e.align?"<"+i+' align="'+e.align+'">':"<"+i+">")+t+"</"+i+">\n"}strong(t){return"<strong>"+t+"</strong>"}em(t){return"<em>"+t+"</em>"}codespan(t){return"<code>"+t+"</code>"}br(){return this.options.xhtml?"<br/>":"<br>"}del(t){return"<del>"+t+"</del>"}link(t,e,i){if(null===(t=A(this.options.sanitize,this.options.baseUrl,t)))return i;let s='<a href="'+w(t)+'"';return e&&(s+=' title="'+e+'"'),s+=">"+i+"</a>",s}image(t,e,i){if(null===(t=A(this.options.sanitize,this.options.baseUrl,t)))return i;let s='<img src="'+t+'" alt="'+i+'"';return e&&(s+=' title="'+e+'"'),s+=this.options.xhtml?"/>":">",s}text(t){return t}}class G{strong(t){return t}em(t){return t}codespan(t){return t}del(t){return t}html(t){return t}text(t){return t}link(t,e,i){return""+i}image(t,e,i){return""+i}br(){return""}}class Y{constructor(){this.seen={}}serialize(t){return t.toLowerCase().trim().replace(/<[!\/a-z].*?>/gi,"").replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g,"").replace(/\s/g,"-")}getNextSafeSlug(t,e){let i=t,s=0;if(this.seen.hasOwnProperty(i)){s=this.seen[t];do{s++,i=t+"-"+s}while(this.seen.hasOwnProperty(i))}return e||(this.seen[t]=s,this.seen[i]=0),i}slug(t,e={}){const i=this.serialize(t);return this.getNextSafeSlug(i,e.dryrun)}}class Z{constructor(t){this.options=t||g,this.options.renderer=this.options.renderer||new Q,this.renderer=this.options.renderer,this.renderer.options=this.options,this.textRenderer=new G,this.slugger=new Y}static parse(t,e){return new Z(e).parse(t)}static parseInline(t,e){return new Z(e).parseInline(t)}parse(t,e=!0){let i,s,n,r,a,o,l,c,h,d,u,p,m,g,f,k,$,y,x,v="";const w=t.length;for(i=0;i<w;i++)if(d=t[i],this.options.extensions&&this.options.extensions.renderers&&this.options.extensions.renderers[d.type]&&(x=this.options.extensions.renderers[d.type].call({parser:this},d),!1!==x||!["space","hr","heading","code","table","blockquote","list","html","paragraph","text"].includes(d.type)))v+=x||"";else switch(d.type){case"space":continue;case"hr":v+=this.renderer.hr();continue;case"heading":v+=this.renderer.heading(this.parseInline(d.tokens),d.depth,S(this.parseInline(d.tokens,this.textRenderer)),this.slugger);continue;case"code":v+=this.renderer.code(d.text,d.lang,d.escaped);continue;case"table":for(c="",l="",r=d.header.length,s=0;s<r;s++)l+=this.renderer.tablecell(this.parseInline(d.header[s].tokens),{header:!0,align:d.align[s]});for(c+=this.renderer.tablerow(l),h="",r=d.rows.length,s=0;s<r;s++){for(o=d.rows[s],l="",a=o.length,n=0;n<a;n++)l+=this.renderer.tablecell(this.parseInline(o[n].tokens),{header:!1,align:d.align[n]});h+=this.renderer.tablerow(l)}v+=this.renderer.table(c,h);continue;case"blockquote":h=this.parse(d.tokens),v+=this.renderer.blockquote(h);continue;case"list":for(u=d.ordered,p=d.start,m=d.loose,r=d.items.length,h="",s=0;s<r;s++)f=d.items[s],k=f.checked,$=f.task,g="",f.task&&(y=this.renderer.checkbox(k),m?f.tokens.length>0&&"paragraph"===f.tokens[0].type?(f.tokens[0].text=y+" "+f.tokens[0].text,f.tokens[0].tokens&&f.tokens[0].tokens.length>0&&"text"===f.tokens[0].tokens[0].type&&(f.tokens[0].tokens[0].text=y+" "+f.tokens[0].tokens[0].text)):f.tokens.unshift({type:"text",text:y}):g+=y),g+=this.parse(f.tokens,m),h+=this.renderer.listitem(g,$,k);v+=this.renderer.list(h,u,p);continue;case"html":v+=this.renderer.html(d.text);continue;case"paragraph":v+=this.renderer.paragraph(this.parseInline(d.tokens));continue;case"text":for(h=d.tokens?this.parseInline(d.tokens):d.text;i+1<w&&"text"===t[i+1].type;)d=t[++i],h+="\n"+(d.tokens?this.parseInline(d.tokens):d.text);v+=e?this.renderer.paragraph(h):h;continue;default:{const t='Token with "'+d.type+'" type was not found.';if(this.options.silent)return void console.error(t);throw new Error(t)}}return v}parseInline(t,e){e=e||this.renderer;let i,s,n,r="";const a=t.length;for(i=0;i<a;i++)if(s=t[i],this.options.extensions&&this.options.extensions.renderers&&this.options.extensions.renderers[s.type]&&(n=this.options.extensions.renderers[s.type].call({parser:this},s),!1!==n||!["escape","html","link","image","strong","em","codespan","br","del","text"].includes(s.type)))r+=n||"";else switch(s.type){case"escape":r+=e.text(s.text);break;case"html":r+=e.html(s.text);break;case"link":r+=e.link(s.href,s.title,this.parseInline(s.tokens,e));break;case"image":r+=e.image(s.href,s.title,s.text);break;case"strong":r+=e.strong(this.parseInline(s.tokens,e));break;case"em":r+=e.em(this.parseInline(s.tokens,e));break;case"codespan":r+=e.codespan(s.text);break;case"br":r+=e.br();break;case"del":r+=e.del(this.parseInline(s.tokens,e));break;case"text":r+=e.text(s.text);break;default:{const t='Token with "'+s.type+'" type was not found.';if(this.options.silent)return void console.error(t);throw new Error(t)}}return r}}function K(t,e,i){if(null==t)throw new Error("marked(): input parameter is undefined or null");if("string"!=typeof t)throw new Error("marked(): input parameter is of type "+Object.prototype.toString.call(t)+", string expected");if("function"==typeof e&&(i=e,e=null),z(e=R({},K.defaults,e||{})),i){const n=e.highlight;let r;try{r=j.lex(t,e)}catch(s){return i(s)}const a=function(t){let a;if(!t)try{e.walkTokens&&K.walkTokens(r,e.walkTokens),a=Z.parse(r,e)}catch(s){t=s}return e.highlight=n,t?i(t):i(null,a)};if(!n||n.length<3)return a();if(delete e.highlight,!r.length)return a();let o=0;return K.walkTokens(r,(function(t){"code"===t.type&&(o++,setTimeout((()=>{n(t.text,t.lang,(function(e,i){if(e)return a(e);null!=i&&i!==t.text&&(t.text=i,t.escaped=!0),o--,0===o&&a()}))}),0))})),void(0===o&&a())}try{const i=j.lex(t,e);return e.walkTokens&&K.walkTokens(i,e.walkTokens),Z.parse(i,e)}catch(s){if(s.message+="\nPlease report this to https://github.com/markedjs/marked.",e.silent)return"<p>An error occurred:</p><pre>"+w(s.message+"",!0)+"</pre>";throw s}}K.options=K.setOptions=function(t){var e;return R(K.defaults,t),e=K.defaults,g=e,K},K.getDefaults=m,K.defaults=g,K.use=function(...t){const e=R({},...t),i=K.defaults.extensions||{renderers:{},childTokens:{}};let s;t.forEach((t=>{if(t.extensions&&(s=!0,t.extensions.forEach((t=>{if(!t.name)throw new Error("extension name required");if(t.renderer){const e=i.renderers?i.renderers[t.name]:null;i.renderers[t.name]=e?function(...i){let s=t.renderer.apply(this,i);return!1===s&&(s=e.apply(this,i)),s}:t.renderer}if(t.tokenizer){if(!t.level||"block"!==t.level&&"inline"!==t.level)throw new Error("extension level must be 'block' or 'inline'");i[t.level]?i[t.level].unshift(t.tokenizer):i[t.level]=[t.tokenizer],t.start&&("block"===t.level?i.startBlock?i.startBlock.push(t.start):i.startBlock=[t.start]:"inline"===t.level&&(i.startInline?i.startInline.push(t.start):i.startInline=[t.start]))}t.childTokens&&(i.childTokens[t.name]=t.childTokens)}))),t.renderer){const i=K.defaults.renderer||new Q;for(const e in t.renderer){const s=i[e];i[e]=(...n)=>{let r=t.renderer[e].apply(i,n);return!1===r&&(r=s.apply(i,n)),r}}e.renderer=i}if(t.tokenizer){const i=K.defaults.tokenizer||new W;for(const e in t.tokenizer){const s=i[e];i[e]=(...n)=>{let r=t.tokenizer[e].apply(i,n);return!1===r&&(r=s.apply(i,n)),r}}e.tokenizer=i}if(t.walkTokens){const i=K.defaults.walkTokens;e.walkTokens=function(e){t.walkTokens.call(this,e),i&&i.call(this,e)}}s&&(e.extensions=i),K.setOptions(e)}))},K.walkTokens=function(t,e){for(const i of t)switch(e.call(K,i),i.type){case"table":for(const t of i.header)K.walkTokens(t.tokens,e);for(const t of i.rows)for(const i of t)K.walkTokens(i.tokens,e);break;case"list":K.walkTokens(i.items,e);break;default:K.defaults.extensions&&K.defaults.extensions.childTokens&&K.defaults.extensions.childTokens[i.type]?K.defaults.extensions.childTokens[i.type].forEach((function(t){K.walkTokens(i[t],e)})):i.tokens&&K.walkTokens(i.tokens,e)}},K.parseInline=function(t,e){if(null==t)throw new Error("marked.parseInline(): input parameter is undefined or null");if("string"!=typeof t)throw new Error("marked.parseInline(): input parameter is of type "+Object.prototype.toString.call(t)+", string expected");z(e=R({},K.defaults,e||{}));try{const i=j.lexInline(t,e);return e.walkTokens&&K.walkTokens(i,e.walkTokens),Z.parseInline(i,e)}catch(i){if(i.message+="\nPlease report this to https://github.com/markedjs/marked.",e.silent)return"<p>An error occurred:</p><pre>"+w(i.message+"",!0)+"</pre>";throw i}},K.Parser=Z,K.parser=Z.parse,K.Renderer=Q,K.TextRenderer=G,K.Lexer=j,K.lexer=j.lex,K.Tokenizer=W,K.Slugger=Y,K.parse=K,Z.parse,j.lex;"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self&&self;var X={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},J={"&amp;":"&","&lt;":"<","&gt;":">","&quot;":'"',"&#39;":"'"},tt=/(&amp;|&lt;|&gt;|&quot;|&#39;)/g,et=/[&<>"']/g;function it(t){return X[t]}function st(t){return J[t]}function nt(t){return null==t?"":String(t).replace(et,it)}function rt(t){return null==t?"":String(t).replace(tt,st)}nt.options=rt.options={};var at={encode:nt,escape:nt,decode:rt,unescape:rt,version:"1.0.0-browser"};var ot=function t(e){for(var i,s,n=Array.prototype.slice.call(arguments,1);n.length;)for(s in i=n.shift())i.hasOwnProperty(s)&&("[object Object]"===Object.prototype.toString.call(e[s])?e[s]=t(e[s],i[s]):e[s]=i[s]);return e},lt=function(t){return"string"==typeof t?t.toLowerCase():t};function ct(t,e){return t[e]=!0,t}var ht=function(t){return t.reduce(ct,{})},dt={uris:ht(["background","base","cite","href","longdesc","src","usemap"])},ut={voids:ht(["area","br","col","hr","img","wbr","input","base","basefont","link","meta"])},pt=at,mt=lt,gt=ut,ft=/^<\s*([\w:-]+)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*>/,kt=/^<\s*\/\s*([\w:-]+)[^>]*>/,$t=/([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g,yt=/^</,xt=/^<\s*\//;var vt=at,wt=lt,bt=dt,St=ut;var Tt=ot,Lt=function(t,e){for(var i,s=function(){var t=[];return t.lastItem=function(){return t[t.length-1]},t}(),n=t;t;)r();function r(){i=!0,function(){"\x3c!--"===t.substr(0,4)?(s=t.indexOf("--\x3e"))>=0&&(e.comment&&e.comment(t.substring(4,s)),t=t.substring(s+3),i=!1):xt.test(t)?a(kt,l):yt.test(t)&&a(ft,o);var s;!function(){if(!i)return;var s,n=t.indexOf("<");n>=0?(s=t.substring(0,n),t=t.substring(n)):(s=t,t="");e.chars&&e.chars(s)}()}();var s=t===n;n=t,s&&(t="")}function a(e,s){var n=t.match(e);n&&(t=t.substring(n[0].length),n[0].replace(e,s),i=!1)}function o(t,i,n,r){var a={},o=mt(i),l=gt.voids[o]||!!r;n.replace($t,(function(t,e,i,s,n){a[e]=void 0===i&&void 0===s&&void 0===n?void 0:pt.decode(i||s||n||"")})),l||s.push(o),e.start&&e.start(o,a,l)}function l(t,i){var n,r=0,a=mt(i);if(a)for(r=s.length-1;r>=0&&s[r]!==a;r--);if(r>=0){for(n=s.length-1;n>=r;n--)e.end&&e.end(s[n]);s.length=r}}l()},Ct=function(t,e){var i,s=e||{};return o(),{start:function(t,e,a){var o=wt(t);if(i.ignoring)return void r(o);if(-1===(s.allowedTags||[]).indexOf(o))return void r(o);if(s.filter&&!s.filter({tag:o,attrs:e}))return void r(o);n("<"),n(o),Object.keys(e).forEach((function(t){var i=e[t],r=(s.allowedClasses||{})[o]||[],a=(s.allowedAttributes||{})[o]||[],l=wt(t);("class"===l&&-1===a.indexOf(l)?(i=i.split(" ").filter((function(t){return r&&-1!==r.indexOf(t)})).join(" ").trim()).length:-1!==a.indexOf(l)&&(!0!==bt.uris[l]||function(t){var e=t[0];if("#"===e||"/"===e)return!0;var i=t.indexOf(":");if(-1===i)return!0;var n=t.indexOf("?");if(-1!==n&&i>n)return!0;var r=t.indexOf("#");return-1!==r&&i>r||s.allowedSchemes.some(a);function a(e){return 0===t.indexOf(e+":")}}(i)))&&(n(" "),n(t),"string"==typeof i&&(n('="'),n(vt.encode(i)),n('"')))})),n(a?"/>":">")},end:function(t){var e=wt(t);-1!==(s.allowedTags||[]).indexOf(e)&&!1===i.ignoring?(n("</"),n(e),n(">")):a(e)},chars:function(t){!1===i.ignoring&&n(s.transformText?s.transformText(t):t)}};function n(e){t.push(e)}function r(t){St.voids[t]||(!1===i.ignoring?i={ignoring:t,depth:1}:i.ignoring===t&&i.depth++)}function a(t){i.ignoring===t&&--i.depth<=0&&o()}function o(){i={ignoring:!1,depth:0}}},Et={allowedAttributes:{a:["href","name","target","title","aria-label"],iframe:["allowfullscreen","frameborder","src"],img:["src","alt","title","aria-label"]},allowedClasses:{},allowedSchemes:["http","https","mailto"],allowedTags:["a","abbr","article","b","blockquote","br","caption","code","del","details","div","em","h1","h2","h3","h4","h5","h6","hr","i","img","ins","kbd","li","main","mark","ol","p","pre","section","span","strike","strong","sub","summary","sup","table","tbody","td","th","thead","tr","u","ul"],filter:null};function At(t,e,i){var s=[],n=!0===i?e:Tt({},Et,e),r=Ct(s,n);return Lt(t,r),s.join("")}At.defaults=Et;var _t=At,Ot={exports:{}},qt=Ot.exports=function(){function t(t,e){return t(e={exports:{}},e.exports),e.exports}var e=t((function(t){var e=t.exports=function(){return new RegExp("(?:"+e.line().source+")|(?:"+e.block().source+")","gm")};e.line=function(){return/(?:^|\s)\/\/(.+?)$/gm},e.block=function(){return/\/\*([\S\s]*?)\*\//gm}})),i=["23AC69","91C132","F19726","E8552D","1AAB8E","E1147F","2980C1","1BA1E6","9FA0A0","F19726","E30B20","E30B20","A3338B"];function s(t){return'<span style="color: slategray">'+t+"</span>"}return function(t,n){void 0===n&&(n={});var r=n.colors;void 0===r&&(r=i);var a=0,o={},l=new RegExp("("+/[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af\u0400-\u04FF]+|\w+/.source+"|"+/</.source+")|("+e().source+")","gmi");return t.replace(l,(function(t,e,i){if(i)return s(i);if("<"===e)return"&lt;";var n;o[e]?n=o[e]:(n=r[a],o[e]=n);var l='<span style="color: #'+n+'">'+e+"</span>";return a=++a%r.length,l}))}}();function Bt(t=""){const e=document.createElement("div");return e.innerHTML=t.trim(),e.firstElementChild||e}function Mt(t){return parseFloat(getComputedStyle(t,null).height.replace("px",""))}function Rt(t){const e=RegExp(`[?&]${t}=([^&]*)`).exec(window.location.search);return e&&decodeURIComponent(e[1].replace(/\+/g," "))}function It(t){const e=t.getBoundingClientRect();return{top:e.top+window.scrollY,left:e.left+window.scrollX}}function Ut(t,e){let i=t.toString();for(;i.length<e;)i=`0${i}`;return i}function zt(t){try{const e=t.getTime(),i=(new Date).getTime()-e,s=Math.floor(i/864e5);if(0===s){const t=i%864e5,e=Math.floor(t/36e5);if(0===e){const e=t%36e5,i=Math.floor(e/6e4);if(0===i){const t=e%6e4;return`${Math.round(t/1e3)} 秒前`}return`${i} 分钟前`}return`${e} 小时前`}return s<0?"刚刚":s<8?`${s} 天前`:function(t){const e=Ut(t.getDate(),2),i=Ut(t.getMonth()+1,2);return`${Ut(t.getFullYear(),2)}-${i}-${e}`}(t)}catch(e){return console.error(e)," - "}}function Nt(t,e){var i,s;return`${((null==(i=t.conf.gravatar)?void 0:i.mirror)||"").replace(/\/$/,"")}/${e}?d=${encodeURIComponent((null==(s=t.conf.gravatar)?void 0:s.default)||"")}&s=80`}let Pt;function Wt(t,e){if(!Pt){const t=new K.Renderer,e=t.link;t.link=(i,s,n)=>{const r=null==i?void 0:i.startsWith(`${window.location.protocol}//${window.location.hostname}`);return e.call(t,i,s,n).replace(/^<a /,`<a target="_blank" ${r?"":'rel="noreferrer noopener nofollow"'} `)};const i=K;K.setOptions({renderer:t,highlight:t=>qt(t),pedantic:!1,gfm:!0,breaks:!0,smartLists:!0,smartypants:!0,xhtml:!1}),Pt=i}return e=_t(e,l(o({},_t.defaults),{allowedAttributes:l(o({},_t.defaults.allowedAttributes),{img:["src","atk-emoticon"]})})),Pt.parse(e)}function Dt(t){t instanceof u&&(t=t.$root);let e=t.querySelector(".atk-loading");e||(e=Bt('<div class="atk-loading atk-fade-in" style="display: none;">\n      <div class="atk-loading-spinner">\n        <svg viewBox="25 25 50 50"><circle cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"></circle></svg>\n      </div>\n    </div>'),t.appendChild(e)),e.style.display="";const i=e.querySelector(".atk-loading-spinner");i&&(i.style.display="none",window.setTimeout((()=>{i.style.display=""}),500))}function Ht(t){t instanceof u&&(t=t.$root);const e=t.querySelector(".atk-loading");e&&(e.style.display="none")}function Ft(t,e=!0){const i=It(t).top+Mt(t)/2-document.documentElement.clientHeight/2;e?window.scroll({top:i>0?i:0,left:0}):window.scroll(0,i>0?i:0)}function Vt(t,e,i){const s=Bt(`<div class="atk-notify atk-fade-in" style="background-color: ${{s:"#57d59f",e:"#ff6f6c",w:"#ffc721",i:"#2ebcfc"}[i]}"><span class="atk-notify-content"></span></div>`);s.querySelector(".atk-notify-content").innerHTML=function(t){const e=document.createElement("div");return e.innerText=t,e.innerHTML}(e).replace("\n","<br/>"),t.appendChild(s);const n=()=>{s.classList.add("atk-fade-out"),setTimeout((()=>{s.remove()}),200)};let r;r=window.setTimeout((()=>{n()}),3e3),s.addEventListener("click",(()=>{n(),window.clearTimeout(r)}))}function jt(t,e){!function(t,e,i="in"){t.classList.add(`atk-fade-${i}`);const s=()=>{t.classList.remove(`atk-fade-${i}`),t.removeEventListener("animationend",s),e&&e()};t.addEventListener("animationend",s)}(t,e,"in")}function Qt(t,e,i='<span class="atk-error-title">Artalk Error</span>'){t instanceof u&&(t=t.$root);let s=t.querySelector(".atk-error-layer");if(null===e)return void(null!==s&&s.remove());s||(s=Bt(`<div class="atk-error-layer">${i}<span class="atk-error-text"></span></div>`),t.appendChild(s));const n=s.querySelector(".atk-error-text");n.innerHTML="",null!==e&&(e instanceof HTMLElement?n.appendChild(e):n.innerText=e)}const Gt=class extends p{constructor(t,e,i){super(t),c(this,"name"),c(this,"$wrap"),c(this,"$mask"),c(this,"maskClickHideEnable",!0),c(this,"bodyStyleOrgOverflow",""),c(this,"bodyStyleOrgPaddingRight",""),this.name=e;const{$wrap:s,$mask:n}=Zt(t);this.$wrap=s,this.$mask=n,this.$el=this.$wrap.querySelector(`[data-layer-name="${e}"].atk-layer-item`),null===this.$el&&(i?this.$el=i:(this.$el=Bt(),this.$el.classList.add("atk-layer-item"))),this.$el.setAttribute("data-layer-name",e),this.$el.style.display="none",this.$wrap.append(this.$el)}getName(){return this.name}getWrapEl(){return this.$wrap}getEl(){return this.$el}show(){Gt.hideTimeoutList.forEach((t=>{clearTimeout(t)})),Gt.hideTimeoutList=[],this.$wrap.style.display="block",this.$mask.style.display="block",this.$mask.classList.add("atk-fade-in"),this.$el.style.display="",this.$mask.onclick=()=>{this.maskClickHideEnable&&this.hide()},this.bodyStyleOrgOverflow=document.body.style.overflow,this.bodyStyleOrgPaddingRight=document.body.style.paddingRight,document.body.style.overflow="hidden";const t=parseInt(window.getComputedStyle(document.body,null).getPropertyValue("padding-right"),10);document.body.style.paddingRight=`${function(){const t=document.createElement("p");t.style.width="100%",t.style.height="200px";const e=document.createElement("div");e.style.position="absolute",e.style.top="0px",e.style.left="0px",e.style.visibility="hidden",e.style.width="200px",e.style.height="150px",e.style.overflow="hidden",e.appendChild(t),document.body.appendChild(e);const i=t.offsetWidth;e.style.overflow="scroll";let s=t.offsetWidth;return i===s&&(s=e.clientWidth),document.body.removeChild(e),i-s}()+t||0}px`}hide(){Gt.hideTimeoutList.push(window.setTimeout((()=>{this.$wrap.style.display="none",document.body.style.overflow=this.bodyStyleOrgOverflow,document.body.style.paddingRight=this.bodyStyleOrgPaddingRight}),450)),this.$wrap.classList.add("atk-fade-out"),Gt.hideTimeoutList.push(window.setTimeout((()=>{this.$wrap.style.display="none",this.$wrap.classList.remove("atk-fade-out")}),200)),this.$el.style.display="none"}setMaskClickHide(t){this.maskClickHideEnable=t}disposeNow(){document.body.style.overflow="",this.$el.remove(),this.checkCleanLayer()}dispose(){this.hide(),this.$el.remove(),this.checkCleanLayer()}checkCleanLayer(){0===this.getWrapEl().querySelectorAll(".atk-layer-item").length&&(this.$wrap.style.display="none")}};let Yt=Gt;function Zt(t){let e=document.querySelector(`.atk-layer-wrap#ctx-${t.cid}`);e||(e=Bt(`<div class="atk-layer-wrap" id="ctx-${t.cid}" style="display: none;"><div class="atk-layer-mask"></div></div>`),document.body.appendChild(e));const i=e.querySelector(".atk-layer-mask");return{$wrap:e,$mask:i}}c(Yt,"hideTimeoutList",[]);class Kt{constructor(t){return c(this,"$el"),c(this,"$content"),c(this,"$actions"),this.$el=Bt('<div class="atk-layer-dialog-wrap">\n        <div class="atk-layer-dialog">\n          <div class="atk-layer-dialog-content"></div>\n          <div class="atk-layer-dialog-actions"></div>\n        </div>\n      </div>'),this.$actions=this.$el.querySelector(".atk-layer-dialog-actions"),this.$content=this.$el.querySelector(".atk-layer-dialog-content"),this.$content.appendChild(t),this}setYes(t){const e=Bt('<button data-action="confirm">确定</button>');return e.onclick=this.onBtnClick(t),this.$actions.appendChild(e),this}setNo(t){const e=Bt('<button data-action="cancel">取消</button>');return e.onclick=this.onBtnClick(t),this.$actions.appendChild(e),this}onBtnClick(t){return e=>{const i=t(e.currentTarget,this);void 0!==i&&!0!==i||this.$el.remove()}}}function Xt(t,e,i,s){return h(this,null,(function*(){if(t.user.data.token){const e=new Headers;e.set("Authorization",`Bearer ${t.user.data.token}`),i.headers=e}try{let a;if(a="number"!=typeof s&&0===t.conf.reqTimeout||0===s?yield fetch(e,i):yield(n=s||t.conf.reqTimeout||15e3,r=fetch(e,i),new Promise(((t,e)=>{const i=setTimeout((()=>{e(new Error("请求超时"))}),n);r.then((e=>{clearTimeout(i),t(e)}),(t=>{clearTimeout(i),e(t)}))}))),!a.ok&&401!==a.status)throw new Error(`请求响应 ${a.status}`);let o=yield a.json();const l=(s,n)=>{Xt(t,e,i).then((t=>{s(t)})).catch((t=>{n(t)}))};if(o.data&&o.data.need_captcha?o=yield new Promise(((e,i)=>{t.trigger("checker-captcha",{imgData:o.data.img_data,onSuccess:()=>{l(e,i)},onCancel:()=>{i(o)}})})):(o.data&&o.data.need_login||401===a.status)&&(o=yield new Promise(((e,i)=>{t.trigger("checker-admin",{onSuccess:()=>{l(e,i)},onCancel:()=>{i(o)}})}))),!o.success)throw o;return o}catch(a){if(console.error(a),a instanceof TypeError)throw new Error("网络错误");throw a}var n,r}))}function Jt(t,e,i){return h(this,null,(function*(){const s={method:"POST"};i&&(s.body=ee(i));return(yield Xt(t,e,s)).data||{}}))}function te(t,e,i){return h(this,null,(function*(){return(yield Xt(t,e+(i?`?${new URLSearchParams(i)}`:""),{method:"GET"})).data||{}}))}function ee(t){const e=new FormData;return Object.keys(t).forEach((i=>e.append(i,String(t[i])))),e}class ie{constructor(t){c(this,"ctx"),c(this,"baseURL"),this.ctx=t,this.baseURL=t.conf.server}get(t,e,i,s){var n;const r={page_key:this.ctx.conf.pageKey,site_name:this.ctx.conf.site||"",limit:(null==(n=this.ctx.conf.pagination)?void 0:n.pageSize)||15,offset:t};return e&&(r.type=e),i&&(r.flat_mode=i),this.ctx.user.checkHasBasicUserInfo()&&(r.name=this.ctx.user.data.nick,r.email=this.ctx.user.data.email),s&&s(r),Jt(this.ctx,`${this.baseURL}/get`,r)}add(t){return h(this,null,(function*(){const e={name:t.nick,email:t.email,link:t.link,content:t.content,rid:t.rid,page_key:this.ctx.conf.pageKey,page_title:this.ctx.conf.pageTitle||""};this.ctx.conf.site&&(e.site_name=this.ctx.conf.site);return(yield Jt(this.ctx,`${this.baseURL}/add`,e)).comment}))}commentEdit(t){return h(this,null,(function*(){const e=o({},t);return(yield Jt(this.ctx,`${this.baseURL}/admin/comment-edit`,e)).comment}))}commentDel(t,e){const i={id:String(t),site_name:e||""};return Jt(this.ctx,`${this.baseURL}/admin/comment-del`,i)}login(t,e,i){return h(this,null,(function*(){const s={name:t,email:e,password:i};this.ctx.conf.site&&(s.site_name=this.ctx.conf.site);return(yield Jt(this.ctx,`${this.baseURL}/login`,s)).token}))}userGet(t,e){const i=new AbortController,{signal:s}=i,n={name:t,email:e,site_name:this.ctx.conf.site||""};return{req:Xt(this.ctx,`${this.baseURL}/user-get`,{method:"POST",body:ee(n),signal:s}).then((t=>({user:t.data.user,is_login:t.data.is_login,unread:t.data.unread||[],unread_count:t.data.unread_count||0}))),abort:()=>{i.abort()}}}pageGet(t,e,i){return h(this,null,(function*(){const s={site_name:t||"",offset:e||0,limit:i||15};return yield Jt(this.ctx,`${this.baseURL}/admin/page-get`,s)}))}pageEdit(t){return h(this,null,(function*(){const e={id:t.id,key:t.key,title:t.title,admin_only:t.admin_only,site_name:t.site_name||this.ctx.conf.site};return(yield Jt(this.ctx,`${this.baseURL}/admin/page-edit`,e)).page}))}pageDel(t,e){const i={key:String(t),site_name:e||""};return Jt(this.ctx,`${this.baseURL}/admin/page-del`,i)}pageFetch(t){return h(this,null,(function*(){const e={id:t};return(yield Jt(this.ctx,`${this.baseURL}/admin/page-fetch`,e)).page}))}siteGet(){return h(this,null,(function*(){return(yield Jt(this.ctx,`${this.baseURL}/admin/site-get`,{})).sites}))}siteAdd(t,e){return h(this,null,(function*(){const i={name:t,urls:e};return(yield Jt(this.ctx,`${this.baseURL}/admin/site-add`,i)).site}))}siteEdit(t){return h(this,null,(function*(){const e={id:t.id,name:t.name||"",urls:t.urls||""};return(yield Jt(this.ctx,`${this.baseURL}/admin/site-edit`,e)).site}))}siteDel(t,e=!1){const i={id:t,del_content:e};return Jt(this.ctx,`${this.baseURL}/admin/site-del`,i)}export(){return h(this,null,(function*(){var t;return(null==(t=(yield Xt(this.ctx,`${this.baseURL}/admin/export`,{method:"POST"},0)).data)?void 0:t.data)||""}))}vote(t,e){return h(this,null,(function*(){const i={site_name:this.ctx.conf.site||"",target_id:t,type:e};this.ctx.user.checkHasBasicUserInfo()&&(i.name=this.ctx.user.data.nick,i.email=this.ctx.user.data.email);return yield Jt(this.ctx,`${this.baseURL}/vote`,i)}))}markRead(t,e=!1){const i={site_name:this.ctx.conf.site||"",notify_key:t};return e&&(delete i.notify_key,i.read_all=!0,i.name=this.ctx.user.data.nick,i.email=this.ctx.user.data.email),Jt(this.ctx,`${this.baseURL}/mark-read`,i)}captchaGet(){return h(this,null,(function*(){return(yield te(this.ctx,`${this.baseURL}/captcha/refresh`)).img_data||""}))}captchaCheck(t){return h(this,null,(function*(){return(yield te(this.ctx,`${this.baseURL}/captcha/check`,{value:t})).img_data||""}))}}const se={request:(t,e)=>new ie(t.ctx).captchaCheck(e),body(t){const e=Bt(`<span><img class="atk-captcha-img" src="${t.submitCaptchaImgData||""}" alt="验证码">敲入验证码继续：</span>`);return e.querySelector(".atk-captcha-img").onclick=()=>{const i=e.querySelector(".atk-captcha-img");new ie(t.ctx).captchaGet().then((t=>{i.setAttribute("src",t)})).catch((t=>{console.error("验证码获取失败 ",t)}))},e},onSuccess(t,e,i,s){t.submitCaptchaVal=i},onError(t,e,i,s){s.querySelector(".atk-captcha-img").click()}},ne={inputType:"password",request(t,e){const i={name:t.ctx.user.data.nick,email:t.ctx.user.data.email,password:e};return new ie(t.ctx).login(i.name,i.email,i.password)},body:()=>Bt("<span>敲入密码来验证管理员身份：</span>"),onSuccess(t,e,i,s){t.ctx.user.data.isAdmin=!0,t.ctx.user.data.token=e,t.ctx.user.save(),t.ctx.trigger("user-changed",t.ctx.user.data),t.ctx.trigger("list-reload")},onError(t,e,i,s){}};class re{constructor(t){c(this,"ctx"),c(this,"launched",[]),c(this,"submitCaptchaVal"),c(this,"submitCaptchaImgData"),this.ctx=t,this.initEventBind()}initEventBind(){this.ctx.on("checker-captcha",(t=>{t.imgData&&(this.submitCaptchaImgData=t.imgData),this.fire(se,t)})),this.ctx.on("checker-admin",(t=>{this.fire(ne,t)}))}fire(t,e){if(this.launched.includes(t))return;this.launched.push(t);const i=new Yt(this.ctx,`checker-${(new Date).getTime()}`);i.setMaskClickHide(!1),i.show();const s=Bt();s.appendChild(t.body(this));const n=Bt(`<input id="check" type="${t.inputType||"text"}" autocomplete="off" required placeholder="">`);let r;s.appendChild(n),setTimeout((()=>n.focus()),80),n.onkeyup=t=>{"Enter"!==t.key&&13!==t.keyCode||(t.preventDefault(),i.getEl().querySelector('button[data-action="confirm"]').click())};const a=new Kt(s);a.setYes((o=>{const l=n.value.trim();r||(r=o.innerText);const c=()=>{o.innerText=r||"",o.classList.remove("error")};return o.innerText="加载中...",t.request(this,l).then((n=>{this.done(t,i),t.onSuccess&&t.onSuccess(this,n,l,s),e.onSuccess&&e.onSuccess(l,a.$el)})).catch((e=>{var i;i=String(e.msg||String(e)),o.innerText=i,o.classList.add("error"),t.onError&&t.onError(this,e,l,s);const r=setTimeout((()=>c()),3e3);n.onfocus=()=>{c(),clearTimeout(r)}})),!1})),a.setNo((()=>(this.done(t,i),e.onCancel&&e.onCancel(),!1))),i.getEl().append(a.$el),e.onMount&&e.onMount(a.$el)}done(t,e){e.disposeNow(),this.launched=this.launched.filter((e=>e!==t))}}class ae{constructor(t){c(this,"editor"),c(this,"ctx"),c(this,"$el"),this.editor=t,this.ctx=t.ctx}}c(ae,"Name"),c(ae,"BtnHTML");class oe extends ae{constructor(t){super(t),c(this,"$el"),c(this,"emoticons",[]),c(this,"$listWrap"),c(this,"$types"),this.editor=t,this.$el=Bt('<div class="atk-editor-plug-emoticons"></div>'),this.init()}init(){return h(this,null,(function*(){if(Dt(this.$el),"string"==typeof this.ctx.conf.emoticons?this.emoticons=yield this.remoteLoad(this.ctx.conf.emoticons):this.emoticons=this.ctx.conf.emoticons,this.checkConvertOwO(),!Array.isArray(this.emoticons))return Qt(this.$el,"表情包数据必须为 Array 类型"),void Ht(this.$el);yield Promise.all(this.emoticons.map(((t,e)=>h(this,null,(function*(){if("string"==typeof t){const i=yield this.remoteLoad(t);i&&(this.emoticons[e]=i)}}))))),Ht(this.$el),this.solveNullKey(),this.solveSameKey(),this.initEmoticonsList()}))}remoteLoad(t){return h(this,null,(function*(){if(!t)return[];try{const e=yield fetch(t);return yield e.json()}catch(e){return Ht(this.$el),Qt(this.$el,`表情加载失败 ${String(e)}`),[]}}))}solveNullKey(){this.emoticons.forEach((t=>{t.items.forEach(((e,i)=>{e.key||(e.key=`${t.name} ${i+1}`)}))}))}solveSameKey(){const t={};this.emoticons.forEach((e=>{e.items.forEach((e=>{e.key&&""!==String(e.key).trim()&&(t[e.key]?t[e.key]++:t[e.key]=1,t[e.key]>1&&(e.key=`${e.key} ${t[e.key]}`))}))}))}checkConvertOwO(){this.isOwOFormat(this.emoticons)&&(this.emoticons=this.convertOwO(this.emoticons))}isOwOFormat(t){try{return"object"==typeof t&&!!Object.values(t).length&&Array.isArray(Object.keys(Object.values(t)[0].container))&&Object.keys(Object.values(t)[0].container[0]).includes("icon")}catch(e){return!1}}convertOwO(t){const e=[];return Object.entries(t).forEach((([t,i])=>{const s={name:t,type:i.type,items:[]};i.container.forEach(((e,i)=>{const n=e.icon;if(/<(img|IMG)/.test(n)){const t=/src=["'](.*)["']/.exec(n);t&&t.length>1&&(e.icon=t[1])}s.items.push({key:e.text||`${t} ${i+1}`,val:e.icon})})),e.push(s)})),e}initEmoticonsList(){this.$listWrap=Bt('<div class="atk-emoticons-list-wrap"></div>'),this.$el.append(this.$listWrap),this.emoticons.forEach(((t,e)=>{const i=Bt('<div class="atk-emoticons-list" style="display: none;"></div>');this.$listWrap.append(i),i.setAttribute("data-index",String(e)),i.setAttribute("data-grp-name",t.name),i.setAttribute("data-type",t.type),t.items.forEach((e=>{const s=Bt('<span class="atk-emoticons-item"></span>');if(i.append(s),e.key&&!new RegExp(`^(${t.name})?\\s?[0-9]+$`).test(e.key)&&s.setAttribute("title",e.key),"image"===t.type){const t=document.createElement("img");t.src=e.val,t.alt=e.key,s.append(t)}else s.innerText=e.val;s.onclick=()=>{"image"===t.type?this.editor.insertContent(`:[${e.key}]`):this.editor.insertContent(e.val||"")}}))})),this.$types=Bt('<div class="atk-emoticons-types"></div>'),this.$el.append(this.$types),this.emoticons.forEach(((t,e)=>{const i=Bt("<span />");i.innerText=t.name,i.setAttribute("data-index",String(e)),i.onclick=()=>this.openType(e),this.$types.append(i)})),this.emoticons.length>0&&this.openType(0)}openType(t){var e;Array.from(this.$listWrap.children).forEach((e=>{const i=e;i.getAttribute("data-index")!==String(t)?i.style.display="none":i.style.display=""})),this.$types.querySelectorAll("span.active").forEach((t=>t.classList.remove("active"))),null==(e=this.$types.querySelector(`span[data-index="${t}"]`))||e.classList.add("active"),this.changeListHeight()}getEl(){return this.$el}changeListHeight(){}onShow(){setTimeout((()=>{this.changeListHeight()}),30)}onHide(){this.$el.parentElement.style.height=""}transEmoticonImageText(t){return this.emoticons&&Array.isArray(this.emoticons)?(this.emoticons.forEach((e=>{"image"===e.type&&Object.entries(e.items).forEach((([e,i])=>{t=t.split(`:[${i.key}]`).join(`<img src="${i.val}" atk-emoticon="${i.key}">`)}))})),t):t}}c(oe,"Name","emoticons"),c(oe,"BtnHTML","表情");class le extends ae{constructor(t){super(t),c(this,"$el"),c(this,"binded",!1),this.initEl()}initEl(){this.$el=Bt('<div class="atk-editor-plug-preview"></div>'),this.binded=!1}getEl(){return this.$el}onShow(){if(this.updateContent(),!this.binded){const t=()=>{this.updateContent()};this.editor.$textarea.addEventListener("input",t),this.editor.$textarea.addEventListener("change",t),this.binded=!0}}onHide(){}updateContent(){"none"!==this.$el.style.display&&(this.$el.innerHTML=this.editor.getContentMarked())}}c(le,"Name","preview"),c(le,"BtnHTML",'预览 <i title="Markdown is supported"><svg class="markdown" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M14.85 3H1.15C.52 3 0 3.52 0 4.15v7.69C0 12.48.52 13 1.15 13h13.69c.64 0 1.15-.52 1.15-1.15v-7.7C16 3.52 15.48 3 14.85 3zM9 11H7V8L5.5 9.92 4 8v3H2V5h2l1.5 2L7 5h2v6zm2.99.5L9.5 8H11V5h2v3h1.5l-2.51 3.5z"></path></svg></i>');class ce extends p{constructor(t){super(t),c(this,"LOADABLE_PLUG_LIST",[oe,le]),c(this,"plugList",{}),c(this,"$header"),c(this,"$textareaWrap"),c(this,"$textarea"),c(this,"$closeComment"),c(this,"$plugWrap"),c(this,"$bottom"),c(this,"$bottomPartLeft"),c(this,"$plugSwitcherWrap"),c(this,"$bottomPartRight"),c(this,"$submitBtn"),c(this,"$notifyWrap"),c(this,"replyComment",null),c(this,"$sendReply",null),c(this,"queryUserInfo",{timeout:null,abortFunc:null}),c(this,"openedPlugName",null),this.$el=Bt('<div class="atk-editor">\n  <div class="atk-editor-header">\n    <input name="nick" placeholder="昵称" class="atk-nick" type="text" required="required">\n    <input name="email" placeholder="邮箱" class="atk-email" type="email" required="required">\n    <input name="link" placeholder="网址 (https://)" class="atk-link" type="url">\n  </div>\n  <div class="atk-editor-textarea-wrap">\n    <div class="atk-close-comment" style="display: none;"><span>仅管理员可评论</span></div>\n    <textarea id="atk-editor-textarea" class="atk-editor-textarea" placeholder=""></textarea>\n  </div>\n  <div class="atk-editor-plug-wrap" style="display: none;"></div>\n  <div class="atk-editor-bottom">\n    <div class="atk-editor-bottom-part atk-left atk-editor-plug-switcher-wrap"></div>\n    <div class="atk-editor-bottom-part atk-right">\n      <button type="button" class="atk-send-btn"></button>\n    </div>\n  </div>\n  <div class="atk-editor-notify-wrap"></div>\n</div>\n'),this.$header=this.$el.querySelector(".atk-editor-header"),this.$textareaWrap=this.$el.querySelector(".atk-editor-textarea-wrap"),this.$textarea=this.$el.querySelector(".atk-editor-textarea"),this.$closeComment=this.$el.querySelector(".atk-close-comment"),this.$plugWrap=this.$el.querySelector(".atk-editor-plug-wrap"),this.$bottom=this.$el.querySelector(".atk-editor-bottom"),this.$bottomPartLeft=this.$el.querySelector(".atk-editor-bottom-part.atk-left"),this.$plugSwitcherWrap=this.$el.querySelector(".atk-editor-plug-switcher-wrap"),this.$bottomPartRight=this.$el.querySelector(".atk-editor-bottom-part.atk-right"),this.$submitBtn=this.$el.querySelector(".atk-send-btn"),this.$notifyWrap=this.$el.querySelector(".atk-editor-notify-wrap"),this.initLocalStorage(),this.initHeader(),this.initTextarea(),this.initEditorPlug(),this.initBottomPart(),this.ctx.on("editor-open",(()=>this.open())),this.ctx.on("editor-close",(()=>this.close())),this.ctx.on("editor-reply",(t=>this.setReply(t))),this.ctx.on("editor-show-loading",(()=>Dt(this.$el))),this.ctx.on("editor-hide-loading",(()=>Ht(this.$el))),this.ctx.on("editor-notify",(t=>this.showNotify(t.msg,t.type)))}get user(){return this.ctx.user}initLocalStorage(){const t=window.localStorage.getItem("ArtalkContent")||"";""!==t.trim()&&(this.showNotify("已自动恢复","i"),this.setContent(t)),this.$textarea.addEventListener("input",(()=>{this.saveContent()}))}initHeader(){Object.keys(this.user.data).forEach((t=>{const e=this.getInputEl(t);e&&e instanceof HTMLInputElement&&(e.value=this.user.data[t]||"",e.addEventListener("input",(()=>this.onHeaderInputChanged(t,e))))}))}getInputEl(t){return this.$header.querySelector(`[name="${t}"]`)}onHeaderInputChanged(t,e){this.user.data[t]=e.value.trim(),"nick"!==t&&"email"!==t||(this.user.data.token="",this.user.data.isAdmin=!1,null!==this.queryUserInfo.timeout&&window.clearTimeout(this.queryUserInfo.timeout),null!==this.queryUserInfo.abortFunc&&this.queryUserInfo.abortFunc(),this.queryUserInfo.timeout=window.setTimeout((()=>{this.queryUserInfo.timeout=null;const{req:t,abort:e}=new ie(this.ctx).userGet(this.user.data.nick,this.user.data.email);this.queryUserInfo.abortFunc=e,t.then((t=>{t.is_login||(this.user.data.token="",this.user.data.isAdmin=!1),this.ctx.trigger("unread-update",{notifies:t.unread}),this.user.checkHasBasicUserInfo()&&!t.is_login&&t.user&&t.user.is_admin&&this.showLoginDialog(),t.user&&t.user.link&&(this.user.data.link=t.user.link,this.getInputEl("link").value=t.user.link)})).finally((()=>{this.queryUserInfo.abortFunc=null}))}),400)),this.saveUser()}showLoginDialog(){this.ctx.trigger("checker-admin",{onSuccess:()=>{}})}saveUser(){this.user.save(),this.ctx.trigger("user-changed",this.ctx.user.data)}saveContent(){window.localStorage.setItem("ArtalkContent",this.getContentOriginal().trim())}initTextarea(){this.$textarea.placeholder=this.ctx.conf.placeholder||"",this.$textarea.addEventListener("keydown",(t=>{9===(t.keyCode||t.which)&&(t.preventDefault(),this.insertContent("\t"))})),this.$textarea.addEventListener("input",(t=>{this.adjustTextareaHeight()}))}adjustTextareaHeight(){const t=this.$textarea.offsetHeight-this.$textarea.clientHeight;this.$textarea.style.height="0px",this.$textarea.style.height=`${this.$textarea.scrollHeight+t}px`}initEditorPlug(){this.plugList={},this.$plugWrap.innerHTML="",this.$plugWrap.style.display="none",this.openedPlugName=null,this.$plugSwitcherWrap.innerHTML="",this.LOADABLE_PLUG_LIST.forEach((t=>{const e=Bt(`<span class="atk-editor-action atk-editor-plug-switcher">${t.BtnHTML}</span>`);this.$plugSwitcherWrap.appendChild(e),e.addEventListener("click",(()=>{let i=this.plugList[t.Name];if(i||(i=new t(this),this.plugList[t.Name]=i),this.$plugSwitcherWrap.querySelectorAll(".active").forEach((t=>t.classList.remove("active"))),t.Name===this.openedPlugName)return i.onHide(),this.$plugWrap.style.display="none",void(this.openedPlugName=null);if(null===this.$plugWrap.querySelector(`[data-plug-name="${t.Name}"]`)){const e=i.getEl();e.setAttribute("data-plug-name",t.Name),e.style.display="none",this.$plugWrap.appendChild(e)}Array.from(this.$plugWrap.children).forEach((e=>{const i=e.getAttribute("data-plug-name");i===t.Name?(e.style.display="",this.plugList[i].onShow()):(e.style.display="none",this.plugList[i].onHide())})),this.$plugWrap.style.display="",this.openedPlugName=t.Name,e.classList.add("active")}))}))}closePlug(){this.$plugWrap.innerHTML="",this.$plugWrap.style.display="none",this.openedPlugName=null}insertContent(t){if(document.selection)this.$textarea.focus(),document.selection.createRange().text=t,this.$textarea.focus();else if(this.$textarea.selectionStart||0===this.$textarea.selectionStart){const e=this.$textarea.selectionStart,i=this.$textarea.selectionEnd,s=this.$textarea.scrollTop;this.setContent(this.$textarea.value.substring(0,e)+t+this.$textarea.value.substring(i,this.$textarea.value.length)),this.$textarea.focus(),this.$textarea.selectionStart=e+t.length,this.$textarea.selectionEnd=e+t.length,this.$textarea.scrollTop=s}else this.$textarea.focus(),this.$textarea.value+=t}setContent(t){this.$textarea.value=t,this.saveContent(),this.plugList&&this.plugList.preview&&this.plugList.preview.updateContent(),this.adjustTextareaHeight()}clearEditor(){this.setContent(""),this.cancelReply()}getContent(){let t=this.getContentOriginal();if(this.plugList&&this.plugList.emoticons){t=this.plugList.emoticons.transEmoticonImageText(t)}return t}getContentOriginal(){return this.$textarea.value||""}getContentMarked(){return Wt(this.ctx,this.getContent())}initBottomPart(){this.initReply(),this.initSubmit()}initReply(){this.replyComment=null,this.$sendReply=null}setReply(t){null!==this.replyComment&&this.cancelReply(),null===this.$sendReply&&(this.$sendReply=Bt('<div class="atk-send-reply">回复 <span class="atk-text"></span><span class="atk-cancel" title="取消 AT">×</span></div>'),this.$sendReply.querySelector(".atk-text").innerText=`@${t.nick}`,this.$sendReply.addEventListener("click",(()=>{this.cancelReply()})),this.$textareaWrap.append(this.$sendReply)),this.replyComment=t,Ft(this.$el),this.$textarea.focus()}cancelReply(){null!==this.$sendReply&&(this.$sendReply.remove(),this.$sendReply=null),this.replyComment=null}initSubmit(){this.$submitBtn.innerText=this.ctx.conf.sendBtn||"Send",this.$submitBtn.addEventListener("click",(t=>{t.currentTarget,this.submit()}))}submit(){return h(this,null,(function*(){if(""!==this.getContent().trim()){this.ctx.trigger("editor-submit"),Dt(this.$el);try{const t=yield new ie(this.ctx).add({content:this.getContent(),nick:this.user.data.nick,email:this.user.data.email,link:this.user.data.link,rid:null===this.replyComment?0:this.replyComment.id});this.ctx.trigger("list-insert",t),this.clearEditor(),this.ctx.trigger("editor-submitted")}catch(t){console.error(t),this.showNotify(`评论失败，${t.msg||String(t)}`,"e")}finally{Ht(this.$el)}}else this.$textarea.focus()}))}showNotify(t,e){Vt(this.$notifyWrap,t,e)}close(){this.$closeComment.style.display="",this.user.data.isAdmin?(this.$textarea.style.display="",this.$bottom.style.display=""):(this.$textarea.style.display="none",this.closePlug(),this.$bottom.style.display="none")}open(){this.$closeComment.style.display="none",this.$textarea.style.display="",this.$bottom.style.display=""}}var he=window||{},de=navigator||{};function ue(t){var e=t||de.userAgent,i=this,s={Trident:e.indexOf("Trident")>-1||e.indexOf("NET CLR")>-1,Presto:e.indexOf("Presto")>-1,WebKit:e.indexOf("AppleWebKit")>-1,Gecko:e.indexOf("Gecko/")>-1,Safari:e.indexOf("Safari")>-1,Chrome:e.indexOf("Chrome")>-1||e.indexOf("CriOS")>-1,IE:e.indexOf("MSIE")>-1||e.indexOf("Trident")>-1,Edge:e.indexOf("Edge")>-1,Firefox:e.indexOf("Firefox")>-1||e.indexOf("FxiOS")>-1,"Firefox Focus":e.indexOf("Focus")>-1,Chromium:e.indexOf("Chromium")>-1,Opera:e.indexOf("Opera")>-1||e.indexOf("OPR")>-1,Vivaldi:e.indexOf("Vivaldi")>-1,Yandex:e.indexOf("YaBrowser")>-1,Kindle:e.indexOf("Kindle")>-1||e.indexOf("Silk/")>-1,360:e.indexOf("360EE")>-1||e.indexOf("360SE")>-1,UC:e.indexOf("UC")>-1||e.indexOf(" UBrowser")>-1,QQBrowser:e.indexOf("QQBrowser")>-1,QQ:e.indexOf("QQ/")>-1,Baidu:e.indexOf("Baidu")>-1||e.indexOf("BIDUBrowser")>-1,Maxthon:e.indexOf("Maxthon")>-1,Sogou:e.indexOf("MetaSr")>-1||e.indexOf("Sogou")>-1,LBBROWSER:e.indexOf("LBBROWSER")>-1,"2345Explorer":e.indexOf("2345Explorer")>-1,TheWorld:e.indexOf("TheWorld")>-1,XiaoMi:e.indexOf("MiuiBrowser")>-1,Quark:e.indexOf("Quark")>-1,Qiyu:e.indexOf("Qiyu")>-1,Wechat:e.indexOf("MicroMessenger")>-1,Taobao:e.indexOf("AliApp(TB")>-1,Alipay:e.indexOf("AliApp(AP")>-1,Weibo:e.indexOf("Weibo")>-1,Douban:e.indexOf("com.douban.frodo")>-1,Suning:e.indexOf("SNEBUY-APP")>-1,iQiYi:e.indexOf("IqiyiApp")>-1,Windows:e.indexOf("Windows")>-1,Linux:e.indexOf("Linux")>-1||e.indexOf("X11")>-1,"Mac OS":e.indexOf("Macintosh")>-1,Android:e.indexOf("Android")>-1||e.indexOf("Adr")>-1,Ubuntu:e.indexOf("Ubuntu")>-1,FreeBSD:e.indexOf("FreeBSD")>-1,Debian:e.indexOf("Debian")>-1,"Windows Phone":e.indexOf("IEMobile")>-1||e.indexOf("Windows Phone")>-1,BlackBerry:e.indexOf("BlackBerry")>-1||e.indexOf("RIM")>-1,MeeGo:e.indexOf("MeeGo")>-1,Symbian:e.indexOf("Symbian")>-1,iOS:e.indexOf("like Mac OS X")>-1,"Chrome OS":e.indexOf("CrOS")>-1,WebOS:e.indexOf("hpwOS")>-1,Mobile:e.indexOf("Mobi")>-1||e.indexOf("iPh")>-1||e.indexOf("480")>-1,Tablet:e.indexOf("Tablet")>-1||e.indexOf("Pad")>-1||e.indexOf("Nexus 7")>-1};s.Mobile?s.Mobile=!(e.indexOf("iPad")>-1):he.showModalDialog&&he.chrome&&(s[360]=!0);var n,r={engine:["WebKit","Trident","Gecko","Presto"],browser:["Safari","Chrome","Edge","IE","Firefox","Firefox Focus","Chromium","Opera","Vivaldi","Yandex","Kindle","360","UC","QQBrowser","QQ","Baidu","Maxthon","Sogou","LBBROWSER","2345Explorer","TheWorld","XiaoMi","Quark","Qiyu","Wechat","Taobao","Alipay","Weibo","Douban","Suning","iQiYi"],os:["Windows","Linux","Mac OS","Android","Ubuntu","FreeBSD","Debian","iOS","Windows Phone","BlackBerry","MeeGo","Symbian","Chrome OS","WebOS"],device:["Mobile","Tablet"]};for(var a in i.device="PC",i.language=((n=(de.browserLanguage||de.language).split("-"))[1]&&(n[1]=n[1].toUpperCase()),n.join("_")),r)for(var o=0;o<r[a].length;o++){var l=r[a][o];s[l]&&(i[a]=l)}var c={Windows:function(){var t=e.replace(/^.*Windows NT ([\d.]+);.*$/,"$1");return{6.4:"10",6.3:"8.1",6.2:"8",6.1:"7","6.0":"Vista",5.2:"XP",5.1:"XP","5.0":"2000"}[t]||t},Android:function(){return e.replace(/^.*Android ([\d.]+);.*$/,"$1")},iOS:function(){return e.replace(/^.*OS ([\d_]+) like.*$/,"$1").replace(/_/g,".")},Debian:function(){return e.replace(/^.*Debian\/([\d.]+).*$/,"$1")},"Windows Phone":function(){return e.replace(/^.*Windows Phone( OS)? ([\d.]+);.*$/,"$2")},"Mac OS":function(){return e.replace(/^.*Mac OS X ([\d_]+).*$/,"$1").replace(/_/g,".")},WebOS:function(){return e.replace(/^.*hpwOS\/([\d.]+);.*$/,"$1")}};i.osVersion="",c[i.os]&&(i.osVersion=c[i.os](),i.osVersion===e&&(i.osVersion=""));var h={Safari:function(){return e.replace(/^.*Version\/([\d.]+).*$/,"$1")},Chrome:function(){return e.replace(/^.*Chrome\/([\d.]+).*$/,"$1").replace(/^.*CriOS\/([\d.]+).*$/,"$1")},IE:function(){return e.replace(/^.*MSIE ([\d.]+).*$/,"$1").replace(/^.*rv:([\d.]+).*$/,"$1")},Edge:function(){return e.replace(/^.*Edge\/([\d.]+).*$/,"$1")},Firefox:function(){return e.replace(/^.*Firefox\/([\d.]+).*$/,"$1").replace(/^.*FxiOS\/([\d.]+).*$/,"$1")},"Firefox Focus":function(){return e.replace(/^.*Focus\/([\d.]+).*$/,"$1")},Chromium:function(){return e.replace(/^.*Chromium\/([\d.]+).*$/,"$1")},Opera:function(){return e.replace(/^.*Opera\/([\d.]+).*$/,"$1").replace(/^.*OPR\/([\d.]+).*$/,"$1")},Vivaldi:function(){return e.replace(/^.*Vivaldi\/([\d.]+).*$/,"$1")},Yandex:function(){return e.replace(/^.*YaBrowser\/([\d.]+).*$/,"$1")},Kindle:function(){return e.replace(/^.*Version\/([\d.]+).*$/,"$1")},Maxthon:function(){return e.replace(/^.*Maxthon\/([\d.]+).*$/,"$1")},QQBrowser:function(){return e.replace(/^.*QQBrowser\/([\d.]+).*$/,"$1")},QQ:function(){return e.replace(/^.*QQ\/([\d.]+).*$/,"$1")},Baidu:function(){return e.replace(/^.*BIDUBrowser[\s/]([\d.]+).*$/,"$1")},UC:function(){return e.replace(/^.*UC?Browser\/([\d.]+).*$/,"$1")},Sogou:function(){return e.replace(/^.*SE ([\d.X]+).*$/,"$1").replace(/^.*SogouMobileBrowser\/([\d.]+).*$/,"$1")},"2345Explorer":function(){return e.replace(/^.*2345Explorer\/([\d.]+).*$/,"$1")},TheWorld:function(){return e.replace(/^.*TheWorld ([\d.]+).*$/,"$1")},XiaoMi:function(){return e.replace(/^.*MiuiBrowser\/([\d.]+).*$/,"$1")},Quark:function(){return e.replace(/^.*Quark\/([\d.]+).*$/,"$1")},Qiyu:function(){return e.replace(/^.*Qiyu\/([\d.]+).*$/,"$1")},Wechat:function(){return e.replace(/^.*MicroMessenger\/([\d.]+).*$/,"$1")},Taobao:function(){return e.replace(/^.*AliApp\(TB\/([\d.]+).*$/,"$1")},Alipay:function(){return e.replace(/^.*AliApp\(AP\/([\d.]+).*$/,"$1")},Weibo:function(){return e.replace(/^.*weibo__([\d.]+).*$/,"$1")},Douban:function(){return e.replace(/^.*com.douban.frodo\/([\d.]+).*$/,"$1")},Suning:function(){return e.replace(/^.*SNEBUY-APP([\d.]+).*$/,"$1")},iQiYi:function(){return e.replace(/^.*IqiyiVersion\/([\d.]+).*$/,"$1")}};i.version="",h[i.browser]&&(i.version=h[i.browser](),i.version===e&&(i.version="")),i.version.indexOf(".")&&(i.version=i.version.substring(0,i.version.indexOf("."))),"Edge"===i.browser?i.engine="EdgeHTML":"Chrome"===i.browser&&parseInt(i.version)>27||"Opera"===i.browser&&parseInt(i.version)>12||"Yandex"===i.browser?i.engine="Blink":void 0===i.browser&&(i.browser="Unknow App")}function pe(t){return new ue(t)}class me{constructor(t){c(this,"conf"),c(this,"$el"),c(this,"isLoading",!1),c(this,"msgRecTimer"),c(this,"msgRecTimerFunc"),c(this,"isConfirming",!1),c(this,"confirmRecTimer"),this.$el=Bt('<span class="atk-common-action-btn"></span>'),this.conf="object"!=typeof t?{text:t}:t,this.$el.innerText=this.getText(),this.conf.adminOnly&&this.$el.setAttribute("atk-only-admin-show","")}get isMessaging(){return!!this.msgRecTimer}appendTo(t){return t.append(this.$el),this}getText(){return"string"==typeof this.conf.text?this.conf.text:this.conf.text()}setClick(t){this.$el.onclick=e=>{if(e.stopPropagation(),!this.isLoading){if(this.conf.confirm&&!this.isMessaging){const t=()=>{this.isConfirming=!1,this.$el.classList.remove("atk-btn-confirm"),this.$el.innerText=this.getText()};if(!this.isConfirming)return this.isConfirming=!0,this.$el.classList.add("atk-btn-confirm"),this.$el.innerText=this.conf.confirmText||"确认操作",void(this.confirmRecTimer=window.setTimeout((()=>t()),5e3));this.confirmRecTimer&&window.clearTimeout(this.confirmRecTimer),t()}if(this.msgRecTimer)return this.fireMsgRecTimer(),void this.clearMsgRecTimer();t()}}}updateText(t){t&&(this.conf.text=t),this.setLoading(!1),this.$el.innerText=this.getText()}setLoading(t=!0,e){this.isLoading!==t&&(this.isLoading=t,t?(this.$el.classList.add("atk-btn-loading"),this.$el.innerText=e||"加载中..."):(this.$el.classList.remove("atk-btn-loading"),this.$el.innerText=this.getText()))}setError(t){this.setMsg(t,"atk-btn-error")}setWarn(t){this.setMsg(t,"atk-btn-warn")}setSuccess(t){this.setMsg(t,"atk-btn-success")}setMsg(t,e,i,s){this.setLoading(!1),e&&this.$el.classList.add(e),this.$el.innerText=t,this.setMsgRecTimer((()=>{this.$el.innerText=this.getText(),e&&this.$el.classList.remove(e),s&&s()}),i||2500)}setMsgRecTimer(t,e){this.fireMsgRecTimer(),this.clearMsgRecTimer(),this.msgRecTimerFunc=t,this.msgRecTimer=window.setTimeout((()=>{t(),this.clearMsgRecTimer()}),e)}fireMsgRecTimer(){this.msgRecTimerFunc&&this.msgRecTimerFunc()}clearMsgRecTimer(){this.msgRecTimer&&window.clearTimeout(this.msgRecTimer),this.msgRecTimer=void 0,this.msgRecTimerFunc=void 0}}class ge extends p{constructor(t,e){super(t),c(this,"data"),c(this,"$main"),c(this,"$header"),c(this,"$body"),c(this,"$content"),c(this,"$children"),c(this,"$actions"),c(this,"voteBtnUp"),c(this,"voteBtnDown"),c(this,"parent"),c(this,"nestedNum"),c(this,"maxNestingNum"),c(this,"children",[]),c(this,"replyTo"),c(this,"$replyTo"),c(this,"afterRender"),c(this,"unread",!1),c(this,"openable",!1),c(this,"openURL"),c(this,"openEvt"),c(this,"onDelete"),this.maxNestingNum=t.conf.maxNesting||3,this.data=o({},e),this.data.date=this.data.date.replace(/-/g,"/"),this.parent=null,this.nestedNum=1}render(){return this.$el=Bt('<div class="atk-comment-wrap" data-comment-id="">\n  <div class="atk-comment">\n\n    <div class="atk-avatar"></div>\n\n    <div class="atk-comment-main">\n\n      <div class="atk-header">\n        <span class="atk-nick"></span>\n        <span class="atk-badge"></span>\n        <span class="atk-date"></span>\n      </div>\n\n      <div class="atk-body">\n        <div class="atk-content"></div>\n      </div>\n\n      <div class="atk-footer">\n        <div class="atk-comment-actions"></div>\n      </div>\n\n    </div>\n\n  </div>\n</div>\n'),this.$main=this.$el.querySelector(".atk-comment-main"),this.$header=this.$el.querySelector(".atk-header"),this.$body=this.$el.querySelector(".atk-body"),this.$content=this.$body.querySelector(".atk-content"),this.$actions=this.$el.querySelector(".atk-comment-actions"),this.$children=null,this.$el.setAttribute("data-comment-id",`${this.data.id}`),this.renderCheckUnread(),this.renderCheckClickable(),this.renderAvatar(),this.renderHeader(),this.renderContent(),this.renderReplyTo(),this.renderPending(),this.renderActionBtn(),this.afterRender&&this.afterRender(),this.$el}renderCheckUnread(){this.unread?this.$el.classList.add("atk-unread"):this.$el.classList.remove("atk-unread")}renderCheckClickable(){this.openable?this.$el.classList.add("atk-openable"):this.$el.classList.remove("atk-openable"),this.$el.addEventListener("click",(t=>{this.openable&&this.openURL&&(t.preventDefault(),window.open(this.openURL)),this.openEvt&&this.openEvt()}))}renderAvatar(){const t=this.$el.querySelector(".atk-avatar"),e=Bt("<img />");if(e.src=this.getGravatarUrl(),this.data.link){const i=Bt('<a target="_blank" rel="noreferrer noopener nofollow"></a>');i.href=this.data.link,i.append(e),t.append(i)}else t.append(e)}renderHeader(){const t=this.$el.querySelector(".atk-nick");if(this.data.link){const e=Bt('<a target="_blank" rel="noreferrer noopener nofollow"></a>');e.innerText=this.data.nick,e.href=this.data.link,t.append(e)}else t.innerText=this.data.nick;const e=this.$el.querySelector(".atk-badge");this.data.badge_name?(e.innerText=this.data.badge_name,this.data.badge_color&&(e.style.backgroundColor=this.data.badge_color)):e.remove();const i=this.$el.querySelector(".atk-date");if(i.innerText=this.getDateFormatted(),i.setAttribute("data-atk-comment-date",String(+new Date(this.data.date))),this.conf.uaBadge){const t=Bt('<span class="atk-ua-wrap"></span>'),e=Bt('<span class="atk-ua ua-browser"></span>'),i=Bt('<span class="atk-ua ua-os"></span>');e.innerText=this.getUserUaBrowser(),i.innerText=this.getUserUaOS(),t.append(e),t.append(i),this.$header.append(t)}}renderContent(){if(!this.data.is_collapsed)return void(this.$content.innerHTML=this.getContentMarked());this.$content.classList.add("atk-hide","atk-type-collapsed");const t=Bt('\n      <div class="atk-collapsed">\n        <span class="atk-text">该评论已被系统或管理员折叠</span>\n        <span class="atk-show-btn">查看内容</span>\n      </div>');this.$body.insertAdjacentElement("beforeend",t);const e=t.querySelector(".atk-show-btn");e.addEventListener("click",(t=>{t.stopPropagation(),this.$content.classList.contains("atk-hide")?(this.$content.innerHTML=this.getContentMarked(),this.$content.classList.remove("atk-hide"),jt(this.$content),e.innerHTML="收起内容"):(this.$content.innerHTML="",this.$content.classList.add("atk-hide"),e.innerHTML="查看内容")}))}renderReplyTo(){if(!this.replyTo)return;this.$replyTo=Bt('\n      <div class="atk-reply-to">\n        <div class="atk-meta">回复 <span class="atk-nick"></span>:</div>\n        <div class="atk-content"></div>\n      </div>'),this.$replyTo.querySelector(".atk-nick").innerText=`@${this.replyTo.nick}`;let t=Wt(this.ctx,this.replyTo.content);this.replyTo.is_collapsed&&(t="[已折叠]"),this.$replyTo.querySelector(".atk-content").innerHTML=t,this.$body.prepend(this.$replyTo)}renderPending(){if(!this.data.is_pending)return;const t=Bt('<div class="atk-pending">审核中，仅本人可见。</div>');this.$body.prepend(t)}renderActionBtn(){if(this.ctx.conf.vote&&(this.voteBtnUp=new me((()=>`赞同 (${this.data.vote_up||0})`)).appendTo(this.$actions),this.voteBtnUp.setClick((()=>{this.vote("up")})),this.ctx.conf.voteDown&&(this.voteBtnDown=new me((()=>`反对 (${this.data.vote_down||0})`)).appendTo(this.$actions),this.voteBtnDown.setClick((()=>{this.vote("down")})))),this.data.is_allow_reply){const t=Bt('<span data-atk-action="comment-reply">回复</span>');this.$actions.append(t),t.addEventListener("click",(t=>{t.stopPropagation(),this.ctx.trigger("editor-reply",this.data)}))}const t=new me({text:()=>this.data.is_collapsed?"取消折叠":"折叠",adminOnly:!0});t.appendTo(this.$actions),t.setClick((()=>{this.adminEdit("collapsed",t)}));const e=new me({text:()=>this.data.is_pending?"待审":"已审",adminOnly:!0});e.appendTo(this.$actions),e.setClick((()=>{this.adminEdit("pending",e)}));const i=new me({text:"删除",confirm:!0,confirmText:"确认删除",adminOnly:!0});i.appendTo(this.$actions),i.setClick((()=>{this.adminDelete(i)}))}refreshUI(){const t=this.$el,e=this.render();t.replaceWith(e),this.playFadeInAnim(),this.eachComment(this.children,(t=>{var e;null==(e=t.parent)||e.getChildrenEl().appendChild(t.render()),t.playFadeInAnim()})),this.ctx.trigger("comments-loaded")}eachComment(t,e){0!==t.length&&t.every((i=>!1!==e(i,t)&&(this.eachComment(i.getChildren(),e),!0)))}getIsRoot(){return null===this.parent}getChildren(){return this.children}putChild(t){t.parent=this,t.nestedNum=this.nestedNum+1,this.children.push(t),this.getChildrenEl().appendChild(t.getEl()),t.playFadeInAnim()}getChildrenEl(){return null===this.$children&&(this.nestedNum<this.maxNestingNum?(this.$children=Bt('<div class="atk-comment-children"></div>'),this.$main.appendChild(this.$children)):this.parent&&(this.$children=this.parent.getChildrenEl())),this.$children}getParent(){return this.parent}getEl(){return this.$el}getData(){return this.data}getGravatarUrl(){return Nt(this.ctx,this.data.email_encrypted)}getContentMarked(){return Wt(this.ctx,this.data.content)}getDateFormatted(){return zt(new Date(this.data.date))}getUserUaBrowser(){const t=pe(this.data.ua);return`${t.browser} ${t.version}`}getUserUaOS(){const t=pe(this.data.ua);return`${t.os} ${t.osVersion}`}playFadeInAnim(){jt(this.$el)}vote(t){const e="up"===t?this.voteBtnUp:this.voteBtnDown;new ie(this.ctx).vote(this.data.id,`comment_${t}`).then((t=>{var e,i;this.data.vote_up=t.up,this.data.vote_down=t.down,null==(e=this.voteBtnUp)||e.updateText(),null==(i=this.voteBtnDown)||i.updateText()})).catch((t=>{null==e||e.setError("投票失败"),console.log(t)}))}adminEdit(t,e){if(e.isLoading)return;e.setLoading(!0,"修改中...");const i=o({},this.data);"collapsed"===t?i.is_collapsed=!i.is_collapsed:"pending"===t&&(i.is_pending=!i.is_pending),new ie(this.ctx).commentEdit(i).then((t=>{e.setLoading(!1),this.data=t,this.refreshUI(),jt(this.$body),this.ctx.trigger("list-refresh-ui")})).catch((t=>{console.error(t),e.setError("修改失败")}))}adminDelete(t){t.isLoading||(t.setLoading(!0,"删除中..."),new ie(this.ctx).commentDel(this.data.id,this.data.site_name).then((()=>{t.setLoading(!1),this.onDelete&&this.onDelete(this)})).catch((e=>{console.error(e),t.setError("删除失败")})))}setUnread(t){this.unread=t,this.unread?this.$el.classList.add("atk-unread"):this.$el.classList.remove("atk-unread")}setOpenURL(t){t||(this.openable=!1,this.$el.classList.remove("atk-openable")),this.openable=!0,this.openURL=t,this.$el.classList.add("atk-openable")}checkMoreHide(t,e=300){if(!t)return;let i=null==t?void 0:t.querySelector(".atk-more-hide-open-btn");Mt(t)>e&&(t.classList.add("atk-comment-more-hide"),t.style.height=`${e}px`,t.style.overflow="hidden",i||(i=Bt('<div class="atk-more-hide-open-btn">阅读更多</span>'),i.onclick=e=>{e.stopPropagation(),t.classList.remove("atk-comment-more-hide"),i&&i.remove(),t.style.height="",t.style.overflow=""},t.append(i)))}}class fe{constructor(t,e){c(this,"conf"),c(this,"total"),c(this,"$el"),c(this,"$input"),c(this,"inputTimer"),c(this,"$prevBtn"),c(this,"$nextBtn"),c(this,"page",1),this.total=t,this.conf=e,this.$el=Bt('<div class="atk-pagination-wrap">\n        <div class="atk-pagination">\n          <div class="atk-btn atk-btn-prev">Prev</div>\n          <input type="text" class="atk-input" />\n          <div class="atk-btn atk-btn-next">Next</div>\n        </div>\n      </div>'),this.$input=this.$el.querySelector(".atk-input"),this.$input.value=`${this.page}`,this.$input.oninput=()=>this.input(),this.$input.onkeydown=t=>this.keydown(t),this.$prevBtn=this.$el.querySelector(".atk-btn-prev"),this.$nextBtn=this.$el.querySelector(".atk-btn-next"),this.$prevBtn.onclick=()=>this.prev(),this.$nextBtn.onclick=()=>this.next(),this.checkDisabled()}get pageSize(){return this.conf.pageSize||15}get offset(){return this.pageSize*(this.page-1)}get maxPage(){return Math.ceil(this.total/this.pageSize)}update(t,e){this.page=Math.ceil(t/this.pageSize)+1,this.total=e,this.setInput(this.page),this.checkDisabled()}setInput(t){this.$input.value=`${t}`}input(t=!1){window.clearTimeout(this.inputTimer);const e=this.$input.value.trim(),i=()=>{if(""===e)return void this.setInput(this.page);let t=Number(e);Number.isNaN(t)||t<1?this.setInput(this.page):(t>this.maxPage&&(this.setInput(this.maxPage),t=this.maxPage),this.change(t))};t?i():this.inputTimer=window.setTimeout((()=>i()),800)}prev(){const t=this.page-1;t<1||this.change(t)}next(){const t=this.page+1;t>this.maxPage||this.change(t)}change(t){this.page=t,this.conf.onChange(this.offset),this.setInput(t),this.checkDisabled()}checkDisabled(){this.page+1>this.maxPage?this.$nextBtn.classList.add("atk-disabled"):this.$nextBtn.classList.remove("atk-disabled"),this.page-1<1?this.$prevBtn.classList.add("atk-disabled"):this.$prevBtn.classList.remove("atk-disabled")}keydown(t){const e=t.keyCode||t.which;if(38===e){const t=Number(this.$input.value)+1;if(t>this.maxPage)return;this.setInput(t),this.input()}else if(40===e){const t=Number(this.$input.value)-1;if(t<1)return;this.setInput(t),this.input()}else 13===e&&this.input(!0)}setLoading(t){t?Dt(this.$el):Ht(this.$el)}}class ke{constructor(t){c(this,"conf"),c(this,"$el"),c(this,"$loading"),c(this,"$text"),this.conf=t,this.$el=Bt('<div class="atk-list-read-more" style="display: none;">\n      <div class="atk-list-read-more-inner">\n        <div class="atk-loading-icon" style="display: none;"></div>\n        <span class="atk-text">查看更多</span>\n      </div>\n    </div>'),this.$loading=this.$el.querySelector(".atk-loading-icon"),this.$text=this.$el.querySelector(".atk-text"),this.$el.onclick=()=>this.click()}click(){this.conf.onClick()}show(){this.$el.style.display=""}hide(){this.$el.style.display="none"}setLoading(t){this.$loading.style.display=t?"":"none",this.$text.style.display=t?"none":""}showErr(t){this.setLoading(!1),this.$text.innerText=t,this.$el.classList.add("atk-err"),window.setTimeout((()=>{this.$text.innerText="查看更多",this.$el.classList.remove("atk-err")}),2e3)}}class $e extends p{constructor(t,e){super(t),c(this,"$parent"),c(this,"$commentsWrap"),c(this,"comments",[]),c(this,"data"),c(this,"pageSize",15),c(this,"offset",0),c(this,"type"),c(this,"noCommentText"),c(this,"renderComment"),c(this,"paramsEditor"),c(this,"onAfterLoad"),c(this,"isLoading",!1),c(this,"isFirstLoad",!0),c(this,"flatMode"),c(this,"pageMode","pagination"),c(this,"pagination"),c(this,"readMoreBtn"),c(this,"autoLoadScrollEvent"),c(this,"autoLoadListenerAt"),c(this,"unread",[]),c(this,"unreadHighlight",!1),this.$parent=e,this.$el=Bt('<div class="atk-list-lite">\n      <div class="atk-list-comments-wrap"></div>\n    </div>'),this.$commentsWrap=this.$el.querySelector(".atk-list-comments-wrap"),this.pageSize=this.conf.pagination&&this.conf.pagination.pageSize||this.pageSize,this.noCommentText=this.conf.noComment||"无评论",window.setInterval((()=>{this.$el.querySelectorAll("[data-atk-comment-date]").forEach((t=>{const e=t.getAttribute("data-atk-comment-date");t.innerText=zt(new Date(Number(e)))}))}),3e4),this.ctx.on("unread-update",(t=>this.updateUnread(t.notifies)))}reqComments(t=0){return h(this,null,(function*(){0===t&&"pagination"!==this.pageMode&&this.clearAllComments();const e=()=>{this.isLoading=!1,0===t?Ht(this.$el):"read-more"===this.pageMode?this.readMoreBtn.setLoading(!1):"pagination"===this.pageMode&&this.pagination.setLoading(!1)};let i;(()=>{this.isLoading=!0,0===t?Dt(this.$el):"read-more"===this.pageMode?this.readMoreBtn.setLoading(!0):"pagination"===this.pageMode&&this.pagination.setLoading(!0)})(),this.ctx.trigger("comments-load");try{i=yield new ie(this.ctx).get(t,this.type,this.flatMode,this.paramsEditor)}catch(s){throw this.onError(s.msg||String(s)),s}finally{e()}if(this.ctx.conf.versionCheck){if(this.apiVersionCheck(i.api_version||{}))return}this.offset=t;try{this.onLoad(i,t),this.onAfterLoad&&this.onAfterLoad(i)}catch(s){throw this.onError(String(s)),s}finally{e()}}))}onLoad(t,e){var i;Qt(this.$el,null),"pagination"===this.pageMode&&this.clearAllComments(),this.data=t,this.importComments(t.comments),this.isFirstLoad&&this.onLoadInit(),"pagination"===this.pageMode&&this.pagination.update(e,(null==(i=this.data)?void 0:i.total_parents)||0),"read-more"===this.pageMode&&(this.hasMoreComments?this.readMoreBtn.show():this.readMoreBtn.hide()),this.ctx.trigger("unread-update",{notifies:t.unread||[]}),this.isFirstLoad=!1}onLoadInit(){var t;if(this.autoLoadScrollEvent){(this.autoLoadListenerAt||document).removeEventListener("scroll",this.autoLoadScrollEvent)}if("read-more"===this.pageMode){const e=new ke({pageSize:this.pageSize,total:0,onClick:()=>h(this,null,(function*(){const t=this.offset+this.pageSize;yield this.reqComments(t)}))});if(this.readMoreBtn?this.readMoreBtn.$el.replaceWith(e.$el):this.$el.append(e.$el),this.readMoreBtn=e,null==(t=this.conf.pagination)?void 0:t.autoLoad){this.autoLoadScrollEvent=()=>{if("read-more"!==this.pageMode)return;if(!this.hasMoreComments)return;if(this.isLoading)return;const t=this.$el.querySelector(".atk-list-comments-wrap > .atk-comment-wrap:nth-last-child(3)");t&&function(t,e=document.documentElement){const i=e.clientHeight,s=e.scrollTop,n=s+i,r=t.getBoundingClientRect();return r.top+s+r.height<=n}(t,this.autoLoadListenerAt)&&this.readMoreBtn.click()};(this.autoLoadListenerAt||document).addEventListener("scroll",this.autoLoadScrollEvent)}}else if("pagination"===this.pageMode){const t=new fe(this.parentCommentsCount,{pageSize:this.pageSize,onChange:t=>h(this,null,(function*(){if(yield this.reqComments(t),this.$parent){let t=0;!this.autoLoadListenerAt&&this.$parent&&(t=It(this.$parent).top);(this.autoLoadListenerAt||window).scroll({top:t,left:0})}}))});this.pagination?this.pagination.$el.replaceWith(t.$el):this.$el.append(t.$el),this.pagination=t}}onError(t){var e;if(t=String(t),console.error(t),this.isFirstLoad||"pagination"===this.pageMode){const e=Bt(`<span>${t}，无法获取评论列表数据<br/></span>`),i=Bt('<span style="cursor:pointer;">点击重新获取</span>');i.onclick=()=>{this.reqComments(this.offset)},e.appendChild(i);const s=Bt('<span atk-only-admin-show> | <span style="cursor:pointer;">打开控制台</span></span>');s.onclick=()=>{this.ctx.trigger("sidebar-show")},this.ctx.user.data.isAdmin||s.classList.add("atk-hide"),e.appendChild(s),Qt(this.$el,e)}else null==(e=this.readMoreBtn)||e.showErr("获取失败")}refreshUI(){const t=this.comments.length<=0;let e=this.$commentsWrap.querySelector(".atk-list-no-comment");t&&(e||(e=Bt('<div class="atk-list-no-comment"></div>'),this.$commentsWrap.appendChild(e),e.innerHTML=this.noCommentText)),!t&&e&&e.remove(),this.ctx.trigger("check-admin-show-el")}createComment(t){const e=new ge(this.ctx,t);return e.afterRender=()=>{this.renderComment&&this.renderComment(e)},e.onDelete=t=>{this.deleteComment(t),this.refreshUI()},e}importComments(t){const e=i=>{const s=t.filter((t=>t.rid===i.data.id));0!==s.length&&s.forEach((t=>{t.is_allow_reply=i.data.is_allow_reply;const s=this.createComment(t);s.render(),i.putChild(s),e(s)}))};this.flatMode?t.forEach((e=>{this.putCommentFlatMode(e,t,"append")})):t.filter((t=>0===t.rid)).forEach((t=>{t.is_collapsed&&(t.is_allow_reply=!1);const i=this.createComment(t);i.render(),this.comments.push(i),this.$commentsWrap.appendChild(i.getEl()),i.playFadeInAnim(),e(i)})),this.eachComment(this.comments,(t=>{this.checkMoreHide(t)})),this.refreshUI(),this.ctx.trigger("comments-loaded")}putCommentFlatMode(t,e,i){t.is_collapsed&&(t.is_allow_reply=!1);const s=this.createComment(t);if(0!==t.rid){const i=e.find((e=>e.id===t.rid));i&&(s.replyTo=i)}s.render(),"append"===i?this.comments.push(s):this.comments.unshift(s),t.visible&&("append"===i?this.$commentsWrap.appendChild(s.getEl()):this.$commentsWrap.prepend(s.getEl()),s.playFadeInAnim()),this.checkMoreHide(s)}insertComment(t){var e;if(this.flatMode)this.putCommentFlatMode(t,this.comments.map((t=>t.data)),"prepend");else{const i=this.createComment(t);i.render(),0!==t.rid?null==(e=this.findComment(t.rid))||e.putChild(i):(this.$commentsWrap.prepend(i.getEl()),this.comments.unshift(i)),Ft(i.getEl()),i.playFadeInAnim(),this.checkMoreHide(i)}this.data&&(this.data.total+=1),this.refreshUI(),this.ctx.trigger("comments-loaded")}checkMoreHide(t){var e,i;const s=null==(e=this.ctx.conf.heightLimit)?void 0:e.children,n=null==(i=this.ctx.conf.heightLimit)?void 0:i.content,r="number"==typeof n&&n>0;"number"==typeof s&&s>0&&t.getIsRoot()&&t.checkMoreHide(t.$children,s||300),r&&(t.checkMoreHide(t.$content,n||200),t.$replyTo&&t.checkMoreHide(t.$replyTo,n||200))}get commentsCount(){var t;return Number(null==(t=this.data)?void 0:t.total)||0}get parentCommentsCount(){var t;return Number(null==(t=this.data)?void 0:t.total_parents)||0}get hasMoreComments(){return!!this.data&&this.data.total_parents>this.offset+this.pageSize}eachComment(t,e){0!==t.length&&t.every((i=>!1!==e(i,t)&&(this.eachComment(i.getChildren(),e),!0)))}findComment(t,e){e||(e=this.comments);let i=null;return this.eachComment(e,(e=>e.data.id!==t||(i=e,!1))),i}getCommentCount(){let t=0;return this.eachComment(this.comments,(()=>{t++})),t}deleteComment(t){let e;if("number"==typeof t){if(e=this.findComment(t),!e)throw Error(`未找到评论 ${t}`)}else e=t;e.getEl().remove(),this.eachComment(this.comments,((t,i)=>t!==e||(i.splice(i.indexOf(t),1),!1))),this.refreshUI()}clearAllComments(){this.$commentsWrap.innerHTML="",this.data=void 0,this.comments=[]}updateUnread(t){this.unread=t,this.unreadHighlight&&this.eachComment(this.comments,(t=>{const e=this.unread.find((e=>e.comment_id===t.data.id));e?(t.setUnread(!0),t.setOpenURL(e.read_link),t.openEvt=()=>{this.unread=this.unread.filter((e=>e.comment_id!==t.data.id)),this.ctx.trigger("unread-update",{notifies:this.unread})}):t.setUnread(!1)}))}apiVersionCheck(t){const e=(null==t?void 0:t.fe_min_version)||"0.0.0",i=1===function(t,e){const i=t.split("."),s=e.split(".");for(let n=0;n<3;n++){const t=Number(i[n]),e=Number(s[n]);if(t>e)return 1;if(e>t)return-1;if(!Number.isNaN(t)&&Number.isNaN(e))return 1;if(Number.isNaN(t)&&!Number.isNaN(e))return-1}return 0}(e,"2.1.1");if(i){const t=Bt(`<div>前端 Artalk 版本已过时，请更新以获得完整体验<br/>若您是站点管理员，请前往 “<a href="https://artalk.js.org/" target="_blank">官方文档</a>” 获取帮助<br/><br/><span style="color: var(--at-color-meta);">前端版本 2.1.1，需求版本 >= ${e}</span><br/><br/></div>`),i=Bt('<span style="cursor:pointer;">忽略</span>');i.onclick=()=>{Qt(this.ctx,null),this.ctx.conf.versionCheck=!1,this.reqComments(0)},t.append(i),Qt(this.ctx,t,'<span class="atk-warn-title">Artalk Warn</span>')}return i}}class ye extends $e{constructor(t){var e;const i=Bt('<div class="atk-list">\n  <div class="atk-list-header">\n    <div class="atk-comment-count">\n      <span class="atk-comment-count-num">0</span>\n      条评论\n    </div>\n    <div class="atk-right-action">\n      <span data-action="admin-close-comment" class="atk-hide" atk-only-admin-show>关闭评论</span>\n      <span data-action="open-sidebar" class="atk-hide atk-on">\n        <span class="atk-unread-badge" style="display: none;"></span>\n        通知中心\n      </span>\n    </div>\n  </div>\n  <div class="atk-list-body"></div>\n  <div class="atk-list-footer">\n    <div class="atk-copyright"></div>\n  </div>\n</div>\n');super(t,i),c(this,"$closeCommentBtn"),c(this,"$openSidebarBtn"),c(this,"$unreadBadge"),i.querySelector(".atk-list-body").append(this.$el),this.$el=i;let s=!1;"auto"===this.ctx.conf.flatMode?window.matchMedia("(max-width: 768px)").matches&&(s=!0):!0===this.ctx.conf.flatMode&&(s=!0),this.flatMode=s,this.pageMode=(null==(e=this.conf.pagination)?void 0:e.readMore)?"read-more":"pagination",this.initListActionBtn(),this.$el.querySelector(".atk-copyright").innerHTML='Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v2.1.1">Artalk</a>',this.ctx.on("list-reload",(()=>this.reqComments(0))),this.ctx.on("list-refresh-ui",(()=>this.refreshUI())),this.ctx.on("list-import",(t=>this.importComments(t))),this.ctx.on("list-insert",(t=>this.insertComment(t))),this.ctx.on("list-delete",(t=>this.deleteComment(t.id))),this.ctx.on("list-update",(t=>{t(this.data),this.refreshUI()})),this.ctx.on("unread-update",(t=>{var e;return this.showUnreadBadge((null==(e=t.notifies)?void 0:e.length)||0)}))}initListActionBtn(){this.$openSidebarBtn=this.$el.querySelector('[data-action="open-sidebar"]'),this.$closeCommentBtn=this.$el.querySelector('[data-action="admin-close-comment"]'),this.$unreadBadge=this.$el.querySelector(".atk-unread-badge"),this.$openSidebarBtn.addEventListener("click",(()=>{this.ctx.trigger("sidebar-show")})),this.$closeCommentBtn.addEventListener("click",(()=>{this.data&&(this.data.page.admin_only=!this.data.page.admin_only,this.adminPageEditSave())}))}refreshUI(){super.refreshUI(),this.$el.querySelector(".atk-comment-count-num").innerText=String(this.commentsCount),this.ctx.user.data.nick&&this.ctx.user.data.email?this.$openSidebarBtn.classList.remove("atk-hide"):this.$openSidebarBtn.classList.add("atk-hide"),this.ctx.trigger("check-admin-show-el"),this.$openSidebarBtn.innerText=this.ctx.user.data.isAdmin?"控制中心":"通知中心",this.data&&this.data.page&&!0===this.data.page.admin_only?(this.ctx.trigger("editor-close"),this.$closeCommentBtn.innerHTML="打开评论"):(this.ctx.trigger("editor-open"),this.$closeCommentBtn.innerHTML="关闭评论")}onLoad(t,e){super.onLoad(t,e),this.checkGoToCommentByUrlHash()}checkGoToCommentByUrlHash(){return h(this,null,(function*(){let t=Number(Rt("atk_comment"));if(!t){const e=window.location.hash.match(/#atk-comment-([0-9]+)/);if(!e||!e[1]||Number.isNaN(Number(e[1])))return;t=Number(e[1])}if(!t)return;const e=Rt("atk_notify_key");e&&new ie(this.ctx).markRead(e).then((()=>{this.unread=this.unread.filter((e=>e.comment_id!==t)),this.ctx.trigger("unread-update",{notifies:this.unread})}));const i=this.findComment(t);i&&(Ft(i.getEl(),!1),window.setTimeout((()=>{i.getEl().classList.add("atk-flash-once")}),800))}))}adminPageEditSave(){this.data&&this.data.page&&(this.ctx.trigger("editor-show-loading"),new ie(this.ctx).pageEdit(this.data.page).then((t=>{this.data&&(this.data.page=o({},t)),this.refreshUI()})).catch((t=>{this.ctx.trigger("editor-notify",{msg:`修改页面数据失败：${t.msg||String(t)}`,type:"e"})})).finally((()=>{this.ctx.trigger("editor-hide-loading")})))}showUnreadBadge(t){t>0?(this.$unreadBadge.innerText=`${Number(t||0)}`,this.$unreadBadge.style.display="block"):this.$unreadBadge.style.display="none"}}var xe=function(t){return function(t){for(var e,i="0123456789ABCDEF",s="",n=0;n<t.length;n++)e=t.charCodeAt(n),s+=i.charAt(e>>>4&15)+i.charAt(15&e);return s}(function(t){for(var e="",i=0;i<32*t.length;i+=8)e+=String.fromCharCode(t[i>>5]>>>i%32&255);return e}(function(t,e){t[e>>5]|=128<<e%32,t[14+(e+64>>>9<<4)]=e;for(var i=1732584193,s=-271733879,n=-1732584194,r=271733878,a=0;a<t.length;a+=16){var o=i,l=s,c=n,h=r;s=Te(s=Te(s=Te(s=Te(s=Se(s=Se(s=Se(s=Se(s=be(s=be(s=be(s=be(s=we(s=we(s=we(s=we(s,n=we(n,r=we(r,i=we(i,s,n,r,t[a+0],7,-680876936),s,n,t[a+1],12,-389564586),i,s,t[a+2],17,606105819),r,i,t[a+3],22,-1044525330),n=we(n,r=we(r,i=we(i,s,n,r,t[a+4],7,-176418897),s,n,t[a+5],12,1200080426),i,s,t[a+6],17,-1473231341),r,i,t[a+7],22,-45705983),n=we(n,r=we(r,i=we(i,s,n,r,t[a+8],7,1770035416),s,n,t[a+9],12,-1958414417),i,s,t[a+10],17,-42063),r,i,t[a+11],22,-1990404162),n=we(n,r=we(r,i=we(i,s,n,r,t[a+12],7,1804603682),s,n,t[a+13],12,-40341101),i,s,t[a+14],17,-1502002290),r,i,t[a+15],22,1236535329),n=be(n,r=be(r,i=be(i,s,n,r,t[a+1],5,-165796510),s,n,t[a+6],9,-1069501632),i,s,t[a+11],14,643717713),r,i,t[a+0],20,-373897302),n=be(n,r=be(r,i=be(i,s,n,r,t[a+5],5,-701558691),s,n,t[a+10],9,38016083),i,s,t[a+15],14,-660478335),r,i,t[a+4],20,-405537848),n=be(n,r=be(r,i=be(i,s,n,r,t[a+9],5,568446438),s,n,t[a+14],9,-1019803690),i,s,t[a+3],14,-187363961),r,i,t[a+8],20,1163531501),n=be(n,r=be(r,i=be(i,s,n,r,t[a+13],5,-1444681467),s,n,t[a+2],9,-51403784),i,s,t[a+7],14,1735328473),r,i,t[a+12],20,-1926607734),n=Se(n,r=Se(r,i=Se(i,s,n,r,t[a+5],4,-378558),s,n,t[a+8],11,-2022574463),i,s,t[a+11],16,1839030562),r,i,t[a+14],23,-35309556),n=Se(n,r=Se(r,i=Se(i,s,n,r,t[a+1],4,-1530992060),s,n,t[a+4],11,1272893353),i,s,t[a+7],16,-155497632),r,i,t[a+10],23,-1094730640),n=Se(n,r=Se(r,i=Se(i,s,n,r,t[a+13],4,681279174),s,n,t[a+0],11,-358537222),i,s,t[a+3],16,-722521979),r,i,t[a+6],23,76029189),n=Se(n,r=Se(r,i=Se(i,s,n,r,t[a+9],4,-640364487),s,n,t[a+12],11,-421815835),i,s,t[a+15],16,530742520),r,i,t[a+2],23,-995338651),n=Te(n,r=Te(r,i=Te(i,s,n,r,t[a+0],6,-198630844),s,n,t[a+7],10,1126891415),i,s,t[a+14],15,-1416354905),r,i,t[a+5],21,-57434055),n=Te(n,r=Te(r,i=Te(i,s,n,r,t[a+12],6,1700485571),s,n,t[a+3],10,-1894986606),i,s,t[a+10],15,-1051523),r,i,t[a+1],21,-2054922799),n=Te(n,r=Te(r,i=Te(i,s,n,r,t[a+8],6,1873313359),s,n,t[a+15],10,-30611744),i,s,t[a+6],15,-1560198380),r,i,t[a+13],21,1309151649),n=Te(n,r=Te(r,i=Te(i,s,n,r,t[a+4],6,-145523070),s,n,t[a+11],10,-1120210379),i,s,t[a+2],15,718787259),r,i,t[a+9],21,-343485551),i=Le(i,o),s=Le(s,l),n=Le(n,c),r=Le(r,h)}return Array(i,s,n,r)}(function(t){for(var e=Array(t.length>>2),i=0;i<e.length;i++)e[i]=0;for(i=0;i<8*t.length;i+=8)e[i>>5]|=(255&t.charCodeAt(i/8))<<i%32;return e}(t),8*t.length))).toLowerCase()};function ve(t,e,i,s,n,r){return Le(function(t,e){return t<<e|t>>>32-e}(Le(Le(e,t),Le(s,r)),n),i)}function we(t,e,i,s,n,r,a){return ve(e&i|~e&s,t,e,n,r,a)}function be(t,e,i,s,n,r,a){return ve(e&s|i&~s,t,e,n,r,a)}function Se(t,e,i,s,n,r,a){return ve(e^i^s,t,e,n,r,a)}function Te(t,e,i,s,n,r,a){return ve(i^(e|~s),t,e,n,r,a)}function Le(t,e){var i=(65535&t)+(65535&e);return(t>>16)+(e>>16)+(i>>16)<<16|65535&i}class Ce extends p{constructor(t,e){super(t),c(this,"viewTabs",{}),c(this,"viewActiveTab",""),c(this,"$parent"),this.$parent=e,this.$el=Bt('<div class="atk-sidebar-view"></div>')}mount(t){}switchTab(t,e){}}c(Ce,"viewName",""),c(Ce,"viewTitle",""),c(Ce,"viewAdminOnly",!1);class Ee extends Ce{constructor(){super(...arguments),c(this,"viewTabs",{}),c(this,"viewActiveTab",""),c(this,"list")}mount(t){this.ctx.user.data.isAdmin?(this.viewTabs={admin_all:"全部",admin_pending:"待审",all:"个人"},this.viewActiveTab="admin_all"):(this.viewTabs={mentions:"提及",all:"全部",mine:"我的",pending:"待审"},this.viewActiveTab="mentions"),this.list=new $e(this.ctx,this.$el),this.list.flatMode=!0,this.list.unreadHighlight=!0,this.list.autoLoadListenerAt=this.$parent,this.list.pageMode="pagination",this.list.noCommentText='<div class="atk-sidebar-no-content">无内容</div>',this.list.renderComment=t=>{t.setOpenURL(`${t.data.page_key}#atk-comment-${t.data.id}`)},this.list.paramsEditor=e=>{e.site_name=t},this.$el.innerHTML="",this.$el.append(this.list.$el),this.switchTab(this.viewActiveTab,t)}switchTab(t,e){return this.viewActiveTab=t,this.list.type=t,this.list.isFirstLoad=!0,this.list.paramsEditor=t=>{t.site_name=e},this.list.reqComments(),!0}}c(Ee,"viewName","comments"),c(Ee,"viewTitle","评论");class Ae{constructor(t){c(this,"conf"),c(this,"$el"),c(this,"$input"),c(this,"$yesBtn"),c(this,"$noBtn"),c(this,"value",""),c(this,"allowSubmit",!0),this.conf=t,this.$el=Bt('<div class="atk-item-text-editor-layer">\n      <div class="atk-edit-form">\n        <input class="atk-main-input" type="text" placeholder="输入内容..." autocomplete="off" autofocus>\n      </div>\n      <div class="atk-actions">\n        <div class="atk-item atk-yes-btn">\n          <i class="atk-icon atk-icon-yes"></i>\n        </div>\n        <div class="atk-item atk-no-btn">\n          <i class="atk-icon atk-icon-no"></i>\n        </div>\n      </div>\n    </div>'),this.$input=this.$el.querySelector(".atk-main-input"),this.$yesBtn=this.$el.querySelector(".atk-yes-btn"),this.$noBtn=this.$el.querySelector(".atk-no-btn"),this.$input.value=t.initValue||"",this.value=t.initValue||"",this.conf.placeholder&&(this.$input.placeholder=this.conf.placeholder),this.$input.oninput=()=>this.onInput(),this.$input.onkeyup=t=>{"Enter"!==t.key&&13!==t.keyCode||(t.preventDefault(),this.submit())},window.setTimeout((()=>this.$input.focus()),80),this.$yesBtn.onclick=()=>{this.submit()},this.$noBtn.onclick=()=>{this.cancel()}}appendTo(t){return t.append(this.$el),this}onInput(){if(this.value=this.$input.value,this.conf.validator){const t=this.conf.validator(this.value);this.setAllowSubmit(t),t?this.$input.classList.remove("atk-invalid"):this.$input.classList.add("atk-invalid")}}setAllowSubmit(t){this.allowSubmit!==t&&(this.allowSubmit=t,t?this.$yesBtn.classList.remove(".atk-disabled"):this.$yesBtn.classList.add(".atk-disabled"))}submit(){return h(this,null,(function*(){if(this.allowSubmit)if(this.conf.onYes){let t;t=this.conf.onYes instanceof(()=>h(this,null,(function*(){}))).constructor?yield this.conf.onYes(this.value):this.conf.onYes(this.value),void 0!==t&&!0!==t||this.closeEditor()}else this.closeEditor()}))}cancel(){return h(this,null,(function*(){if(this.conf.onNo){let t;t=this.conf.onNo instanceof(()=>h(this,null,(function*(){}))).constructor?yield this.conf.onNo():this.conf.onNo(),void 0!==t&&!0!==t||this.closeEditor()}else this.closeEditor()}))}closeEditor(){this.$el.remove()}}class _e extends p{constructor(t){super(t),c(this,"$editor"),c(this,"$inputer"),c(this,"pages",[]),this.$el=Bt('<div class="atk-page-list"></div>')}clearAll(){this.pages=[],this.$el.innerHTML=""}importPages(t){this.pages.push(...t),t.forEach((t=>{const e=this.renderPage(t);this.$el.append(e)}))}renderPage(t){const e=Bt('<div class="atk-page-item">\n        <div class="atk-page-main">\n          <div class="atk-title"></div>\n          <div class="atk-sub"></div>\n        </div>\n        <div class="atk-page-actions">\n          <div class="atk-item atk-edit-btn">\n            <i class="atk-icon atk-icon-edit"></i>\n          </div>\n        </div>\n      </div>'),i=e.querySelector(".atk-page-main"),s=i.querySelector(".atk-title"),n=i.querySelector(".atk-sub"),r=e.querySelector(".atk-edit-btn");return s.innerText=t.title,n.innerText=t.url||t.key,r.onclick=()=>this.showEditor(t,e),e}showEditor(t,e){this.closeEditor(),this.$editor=Bt('<div class="atk-page-edit-layer">\n      <div class="atk-page-main-actions">\n        <div class="atk-item atk-title-edit-btn">标题修改</div>\n        <div class="atk-item atk-key-edit-btn">KEY 变更</div>\n        <div class="atk-item atk-admin-only-btn"></div>\n      </div>\n      <div class="atk-page-actions">\n        <div class="atk-item atk-sync-btn">\n          <i class="atk-icon atk-icon-sync"></i>\n        </div>\n        <div class="atk-item atk-del-btn">\n          <i class="atk-icon atk-icon-del"></i>\n        </div>\n        <div class="atk-item atk-close-btn">\n          <i class="atk-icon atk-icon-close"></i>\n        </div>\n      </div>\n    </div>'),e.prepend(this.$editor);const i=this.$editor.querySelector(".atk-title-edit-btn"),s=this.$editor.querySelector(".atk-key-edit-btn"),n=this.$editor.querySelector(".atk-admin-only-btn"),r=this.$editor.querySelector(".atk-sync-btn"),a=this.$editor.querySelector(".atk-del-btn"),c=this.$editor.querySelector(".atk-close-btn"),d=()=>{Dt(this.$editor)},u=()=>{Ht(this.$editor)},p=t=>{window.alert(t)};c.onclick=()=>this.closeEditor();const m=i=>{const s=new Ae({initValue:t[i]||"",onYes:n=>h(this,null,(function*(){let r;Dt(s.$el);try{r=yield new ie(this.ctx).pageEdit(l(o({},t),{[i]:n}))}catch(a){return p(`修改失败：${a.msg||"未知错误"}`),console.error(a),!1}finally{Ht(s.$el)}return e.replaceWith(this.renderPage(r)),!0}))});s.appendTo(this.$editor)};i.onclick=()=>m("title"),s.onclick=()=>m("key");const g=new me({text:()=>(n.classList.remove("atk-green","atk-yellow"),n.classList.add(t.admin_only?"atk-yellow":"atk-green"),t.admin_only?"管理员可评":"所有人可评")}).appendTo(n);n.onclick=()=>h(this,null,(function*(){let e;d();try{e=yield new ie(this.ctx).pageEdit(l(o({},t),{admin_only:!t.admin_only}))}catch(i){return p(`修改失败：${i.msg||"未知错误"}`),void console.log(i)}finally{u()}t.admin_only=e.admin_only,g.updateText()})),r.onclick=()=>h(this,null,(function*(){let i;d();try{i=yield new ie(this.ctx).pageFetch(t.id)}catch(s){return p(`同步失败：${s.msg||"未知错误"}`),void console.log(s)}finally{u()}e.replaceWith(this.renderPage(i))})),a.onclick=()=>{window.confirm(`确认删除页面 "${t.title||t.key}"？将会删除所有相关数据`)&&(()=>{h(this,null,(function*(){d();try{yield new ie(this.ctx).pageDel(t.key,t.site_name)}catch(i){return console.log(i),void p(`删除失败 ${String(i)}`)}finally{u()}e.remove()}))})()}}closeEditor(){this.$editor&&this.$editor.remove()}}class Oe extends Ce{constructor(){super(...arguments),c(this,"viewTabs",{}),c(this,"viewActiveTab",""),c(this,"pageList"),c(this,"pagination")}mount(t){this.pageList||(this.pageList=new _e(this.ctx),this.$el.append(this.pageList.$el)),this.switchTab(this.viewActiveTab,t)}switchTab(t,e){this.reqPages(e,0)}reqPages(t,e){return h(this,null,(function*(){var i;this.pageList.clearAll(),null==(i=this.$el.parentNode)||i.scrollTo(0,0),Dt(this.$el);const s=yield new ie(this.ctx).pageGet(t,e,20);this.pageList.importPages(s.pages||[]),Ht(this.$el),this.pagination||(this.pagination=new fe(s.total,{pageSize:20,onChange:e=>{this.reqPages(t,e)}}),this.$el.append(this.pagination.$el)),this.pagination&&0===e&&this.pagination.update(e,s.total)}))}}c(Oe,"viewName","pages"),c(Oe,"viewTitle","页面"),c(Oe,"viewAdminOnly",!0);class qe extends p{constructor(t){super(t),c(this,"sites",[]),c(this,"$header"),c(this,"$headerTitle"),c(this,"$headerActions"),c(this,"$rowsWrap"),c(this,"$editor"),c(this,"activeSite",""),c(this,"$add"),this.$el=Bt('<div class="atk-site-list">\n      <div class="atk-header">\n        <div class="atk-title"></div>\n        <div class="atk-actions">\n          <div class="atk-item atk-site-add-btn"><i class="atk-icon atk-icon-plus"></i></div>\n        </div>\n      </div>\n      <div class="atk-site-rows-wrap"></div>\n    </div>'),this.$header=this.$el.querySelector(".atk-header"),this.$headerTitle=this.$header.querySelector(".atk-title"),this.$headerActions=this.$header.querySelector(".atk-actions"),this.$rowsWrap=this.$el.querySelector(".atk-site-rows-wrap"),this.$headerTitle.innerText="共 0 个站点";this.$headerActions.querySelector(".atk-site-add-btn").onclick=()=>{this.closeEditor(),this.showAdd()}}loadSites(t){let e;this.sites=t,this.activeSite="",this.$rowsWrap.innerHTML="",this.$headerTitle.innerText="共 0 个站点";for(let i=0;i<t.length;i++){const s=t[i];i%4==0&&(e=Bt('<div class="atk-site-row">'),this.$rowsWrap.append(e));const n=this.renderSite(s,e);e.append(n)}this.$headerTitle.innerText=`共 ${t.length} 个站点`}renderSite(t,e){const i=Bt('<div class="atk-site-item">\n        <div class="atk-site-logo"></div>\n        <div class="atk-site-name"></div>\n      </div>'),s=i.querySelector(".atk-site-logo"),n=i.querySelector(".atk-site-name"),r=()=>{i.classList.add("atk-active")};return s.innerText=t.name.substr(0,1),n.innerText=t.name,i.onclick=()=>{this.closeEditor(),this.closeAdd(),r(),this.showEditor(t,i,e)},this.activeSite===t.name&&r(),i}showEditor(t,e,i){this.activeSite=t.name,this.$editor=Bt('\n    <div class="atk-site-edit">\n    <div class="atk-header">\n      <div class="atk-site-info">\n        <span class="atk-site-name"></span>\n        <span class="atk-site-urls"></span>\n      </div>\n      <div class="atk-close-btn">\n        <i class="atk-icon atk-icon-close"></i>\n      </div>\n    </div>\n    <div class="atk-main">\n      <div class="atk-site-text-actions">\n        <div class="atk-item atk-rename-btn">重命名</div>\n        <div class="atk-item atk-edit-url-btn">修改 URL</div>\n        \x3c!--<div class="atk-item atk-export-btn">导出</div>\n        <div class="atk-item atk-import-btn">导入</div>--\x3e\n      </div>\n      <div class="atk-site-btn-actions">\n        <div class="atk-item atk-del-btn">\n          <i class="atk-icon atk-icon-del"></i>\n        </div>\n      </div>\n    </div>\n    </div>'),i.before(this.$editor);const s=this.$editor.querySelector(".atk-site-name"),n=this.$editor.querySelector(".atk-site-urls");this.$editor.querySelector(".atk-close-btn").onclick=()=>this.closeEditor();const r=e=>{var i;t=e,s.innerText=t.name,s.onclick=()=>{t.first_url&&window.open(t.first_url)},n.innerHTML="",null==(i=t.urls)||i.forEach((t=>{const e=Bt('<span class="atk-url-item"></span>');n.append(e),e.innerText=(t||"").replace(/\/$/,""),e.onclick=()=>{window.open(t)}}))};r(t);const a=this.$editor.querySelector(".atk-main"),c=this.$editor.querySelector(".atk-site-text-actions"),d=c.querySelector(".atk-rename-btn"),u=c.querySelector(".atk-edit-url-btn"),p=this.$editor.querySelector(".atk-del-btn"),m=()=>{Dt(this.$editor)},g=()=>{Ht(this.$editor)},f=t=>{window.alert(t)},k=s=>{let n=t[s]||"";"urls"===s&&(n=t.urls_raw||"");const c=new Ae({initValue:n,onYes:n=>h(this,null,(function*(){let a;Dt(c.$el);try{a=yield new ie(this.ctx).siteEdit(l(o({},t),{[s]:n}))}catch(h){return f(`修改失败：${h.msg||"未知错误"}`),console.error(h),!1}finally{Ht(c.$el)}return e.replaceWith(this.renderSite(a,i)),r(a),!0}))});c.appendTo(a)};d.onclick=()=>k("name"),u.onclick=()=>k("urls"),p.onclick=()=>{window.confirm(`确认删除站点 "${t.name}"？将会删除所有相关数据`)&&(()=>{h(this,null,(function*(){m();try{yield new ie(this.ctx).siteDel(t.id,!0)}catch(i){return console.log(i),void f(`删除失败 ${String(i)}`)}finally{g()}this.closeEditor(),e.remove(),this.sites=this.sites.filter((e=>e.name!==t.name))}))})()}}closeEditor(){this.$editor&&(this.$editor.remove(),this.$rowsWrap.querySelectorAll(".atk-site-item").forEach((t=>t.classList.remove("atk-active"))),this.activeSite="")}showAdd(){this.closeAdd(),this.$add=Bt('\n    <div class="atk-site-add">\n    <div class="atk-header">\n      <div class="atk-title">新增站点</div>\n      <div class="atk-close-btn">\n        <i class="atk-icon atk-icon-close"></i>\n      </div>\n    </div>\n    <div class="atk-form">\n      <input type="text" name="AtkSiteName" placeholder="站点名称" autocomplete="off">\n      <input type="text" name="AtkSiteUrls" placeholder="站点 URL（多个用逗号隔开）" autocomplete="off">\n      <button class="atk-btn" name="AtkSubmit">创建</button>\n    </div>\n    </div>'),this.$header.after(this.$add);this.$add.querySelector(".atk-close-btn").onclick=()=>this.closeAdd();const t=this.$add.querySelector('[name="AtkSiteName"]'),e=this.$add.querySelector('[name="AtkSiteUrls"]'),i=this.$add.querySelector('[name="AtkSubmit"]');i.onclick=()=>h(this,null,(function*(){const i=t.value.trim(),s=e.value.trim();if(""===i)return void t.focus();let n;Dt(this.$add);try{n=yield new ie(this.ctx).siteAdd(i,s)}catch(r){return window.alert(`创建失败：${r.msg||""}`),void console.error(r)}finally{Ht(this.$add)}this.sites.push(n),this.loadSites(this.sites),this.closeAdd()}));const s=t=>{"Enter"===t.key&&i.click()};t.onkeyup=t=>s(t),e.onkeyup=t=>s(t)}closeAdd(){var t;null==(t=this.$add)||t.remove()}}class Be extends Ce{constructor(t){super(t),c(this,"viewTabs",{}),c(this,"viewActiveTab",""),c(this,"siteList"),this.$el=Bt('<div class="atk-sidebar-view"></div>')}mount(t){this.siteList||(this.siteList=new qe(this.ctx),this.$el.append(this.siteList.$el)),this.reqSites()}switchTab(t,e){this.reqSites()}reqSites(){return h(this,null,(function*(){const t=yield new ie(this.ctx).siteGet();this.siteList.loadSites(t)}))}}c(Be,"viewName","sites"),c(Be,"viewTitle","站点"),c(Be,"viewAdminOnly",!0);class Me extends Ce{constructor(){super(...arguments),c(this,"ß"),c(this,"viewTabs",{import:"导入",export:"导出"}),c(this,"viewActiveTab","import")}mount(t){this.switchTab("import",t)}switchTab(t,e){if("import"===t)this.initImport();else if("export"===t)return this.initExport(),!1;return!0}initImport(){this.$el.innerHTML='<div class="atk-log-wrap" style="display: none;">\n      <div class="atk-log-back-btn">返回</div>\n      <div class="atk-log"></div>\n    </div>\n    <div class="atk-form">\n    <div class="atk-label">数据类型</div>\n    <select name="AtkDataType">\n      <option value="artrans">Artrans (数据行囊)</option>\n      <option value="artalk_v1">Artalk v1 (PHP 旧版)</option>\n      <option value="typecho">Typecho</option>\n      <option value="wordpress">WordPress</option>\n      <option value="disqus">Disqus</option>\n      <option value="commento">Commento</option>\n      <option value="valine">Valine</option>\n      <option value="twikoo">Twikoo</option>\n    </select>\n    <div class="atk-label atk-data-file-label">数据文件</div>\n    <input type="file" name="AtkDataFile" accept="text/plain,.json">\n    <div class="atk-label">目标站点名</div>\n    <input type="text" name="AtkSiteName" placeholder="输入内容..." autocomplete="off">\n    <div class="atk-label">目标站点 URL</div>\n    <input type="text" name="AtkSiteURL" placeholder="输入内容..." autocomplete="off">\n    <div class="atk-label">启动参数（可选）</div>\n    <textarea name="AtkPayload"></textarea>\n    <span class="atk-desc">启动参数查阅：“<a href="https://artalk.js.org/guide/transfer.html" target="_blank">文档 · 数据搬家</a>”</span>\n    <button class="atk-btn" name="AtkSubmit">导入</button>\n    </div>';const t=this.$el.querySelector(".atk-form"),e=t.querySelector('[name="AtkDataType"]'),i=t.querySelector('[name="AtkDataFile"]'),s=t.querySelector(".atk-data-file-label"),n=t.querySelector('[name="AtkSiteName"]'),r=t.querySelector('[name="AtkSiteURL"]'),a=t.querySelector('[name="AtkPayload"]'),o=t.querySelector('[name="AtkSubmit"]'),l=t=>window.alert(t);e.onchange=()=>{["typecho"].includes(e.value)?(i.style.display="none",s.style.display="none"):(i.style.display="",s.style.display="")},o.onclick=()=>{var s;const o=e.value.trim(),c=n.value.trim(),h=r.value.trim(),d=a.value.trim();if(""===o)return void l("请选择数据类型");let u={};if(d){try{u=JSON.parse(d)}catch(g){return void l(`Payload JSON 格式有误：${String(g)}`)}if(u instanceof Object)return void l("Payload 需为 JSON 对象")}c&&(u.t_name=c),h&&(u.t_url=h);const p=e=>{const i=this.$el.querySelector(".atk-log-wrap"),s=i.querySelector(".atk-log"),n=this.$el.querySelector(".atk-log-back-btn");i.style.display="",t.style.display="none",n.onclick=()=>{i.style.display="none",t.style.display=""},e&&(u.json_data=e);const r="f_"+ +new Date,a=document.createElement("iframe");a.className="atk-iframe",a.name=r,s.innerHTML="",s.append(a);const l={type:o,payload:JSON.stringify(u),token:this.ctx.user.data.token||""},c=document.createElement("form");c.style.display="none",c.setAttribute("method","post"),c.setAttribute("action",`${this.ctx.conf.server}/admin/import`),c.setAttribute("target",r),Object.entries(l).forEach((([t,e])=>{const i=document.createElement("input");i.setAttribute("type","hidden"),i.setAttribute("name",t),i.value=e,c.appendChild(i)})),i.append(c),c.submit(),c.remove()},m=new FileReader;m.onload=()=>{const t=String(m.result);p(t)},(null==(s=i.files)?void 0:s.length)?m.readAsText(i.files[0]):p()}}initExport(){return h(this,null,(function*(){Dt(this.$el);try{const t=yield new ie(this.ctx).export();this.download(`artrans-${this.getYmdHisFilename()}.json`,t)}catch(t){return console.log(t),void window.alert(`${String(t)}`)}finally{Ht(this.$el)}}))}download(t,e){const i=document.createElement("a");i.setAttribute("href",`data:text/json;charset=utf-8,${encodeURIComponent(e)}`),i.setAttribute("download",t),i.style.display="none",document.body.appendChild(i),i.click(),document.body.removeChild(i)}getYmdHisFilename(){const t=new Date,e=t.getFullYear(),i=t.getMonth()+1,s=t.getDate(),n=t.getHours(),r=t.getMinutes(),a=t.getSeconds();return`${e}${i}${s}-${n}${Ut(r,2)}${Ut(a,2)}`}}c(Me,"viewName","transfer"),c(Me,"viewTitle","迁移"),c(Me,"viewAdminOnly",!0);class Re{constructor(t,e){c(this,"ctx"),c(this,"conf"),c(this,"$el"),c(this,"sites",[]),c(this,"$sites"),c(this,"outsideChecker"),this.ctx=t,this.conf=e,this.$el=Bt('<div class="atk-site-list-floater" style="display: none;">\n      <div class="atk-sites"></div>\n    </div>'),this.$sites=this.$el.querySelector(".atk-sites")}load(t){return h(this,null,(function*(){this.$sites.innerHTML="";const e=(e,i,s,n)=>{const r=Bt('<div class="atk-site-item">\n          <div class="atk-site-logo"></div>\n          <div class="atk-site-name"></div>\n        </div>');r.onclick=n?()=>n():()=>this.switch(s||e),r.setAttribute("data-name",s||e);const a=r.querySelector(".atk-site-logo"),o=r.querySelector(".atk-site-name");a.innerText=i,o.innerText=e,t===(s||e)&&r.classList.add("atk-active"),this.$sites.append(r)};e("所有站点","_","__ATK_SITE_ALL");(yield new ie(this.ctx).siteGet()).forEach((t=>{e(t.name,t.name.substr(0,1))})),e("站点管理","+","",(()=>{this.conf.onClickSitesViewBtn(),this.hide()}))}))}switch(t){!1!==this.conf.onSwitchSite(t)&&(this.$sites.querySelectorAll(".atk-site-item").forEach((e=>{e.getAttribute("data-name")!==t?e.classList.remove("atk-active"):e.classList.add("atk-active")})),this.hide())}show(t){this.$el.style.display="",t&&(this.outsideChecker=e=>{t.contains(e.target)||this.$el.contains(e.target)||this.hide()},document.addEventListener("click",this.outsideChecker))}hide(){this.$el.style.display="none",this.outsideChecker&&document.removeEventListener("click",this.outsideChecker)}}const Ie=[Ee,Oe,Be,Me];class Ue extends p{constructor(t){super(t),c(this,"layer"),c(this,"$header"),c(this,"$headerMenu"),c(this,"$title"),c(this,"$avatar"),c(this,"$siteLogo"),c(this,"$closeBtn"),c(this,"$nav"),c(this,"$curtViewBtn"),c(this,"$curtViewBtnIcon"),c(this,"$curtViewBtnText"),c(this,"$navTabs"),c(this,"$navViews"),c(this,"$viewWrap"),c(this,"siteSwitcher"),c(this,"curtSite"),c(this,"curtView","comments"),c(this,"curtTab"),c(this,"viewInstances",{}),c(this,"viewSwitcherShow",!1),c(this,"firstShow",!0),this.$el=Bt('<div class="atk-sidebar">\n  <div class="atk-sidebar-inner">\n    <div class="atk-sidebar-header">\n      <span class="atk-avatar">\n        <span class="atk-site-logo"></span>\n      </span>\n      <span class="atk-menu">\n        <span class="atk-item atk-active atk-sidebar-title">控制中心</span>\n      </span>\n      <div class="atk-sidebar-close"><i class="atk-icon atk-icon-close"></i></div>\n    </div>\n    <div class="atk-sidebar-nav">\n      <div class="akt-curt-view-btn">\n        <div class="atk-icon"><span></span><span></span><span></span></div>\n        <div class="atk-text"></div>\n      </div>\n      <div class="atk-tabs"></div>\n      <div class="atk-tabs atk-views" style="display: none;"></div>\n    </div>\n    <div class="atk-sidebar-view-wrap"></div>\n  </div>\n</div>\n'),this.$header=this.$el.querySelector(".atk-sidebar-header"),this.$headerMenu=this.$header.querySelector(".atk-menu"),this.$title=this.$header.querySelector(".atk-sidebar-title"),this.$avatar=this.$header.querySelector(".atk-avatar"),this.$closeBtn=this.$header.querySelector(".atk-sidebar-close"),this.$nav=this.$el.querySelector(".atk-sidebar-nav"),this.$curtViewBtn=this.$nav.querySelector(".akt-curt-view-btn"),this.$curtViewBtnIcon=this.$curtViewBtn.querySelector(".atk-icon"),this.$curtViewBtnText=this.$curtViewBtn.querySelector(".atk-text"),this.$navTabs=this.$nav.querySelector(".atk-tabs"),this.$navViews=this.$nav.querySelector(".atk-views"),this.$viewWrap=this.$el.querySelector(".atk-sidebar-view-wrap"),this.initViewSwitcher(),this.$closeBtn.onclick=()=>{this.hide()},this.ctx.on("sidebar-show",(()=>this.show())),this.ctx.on("sidebar-hide",(()=>this.hide())),this.ctx.on("user-changed",(()=>{this.firstShow=!0}))}get isAdmin(){return this.ctx.user.data.isAdmin}get curtViewInstance(){return this.curtView?this.viewInstances[this.curtView]:void 0}initViewSwitcher(){this.$curtViewBtn.onclick=()=>{this.toggleViewSwitcher()},this.$navViews.innerHTML="",Ie.forEach((t=>{const e=Bt('<div class="atk-tab-item"></div>');this.$navViews.append(e),e.setAttribute("data-name",t.viewName),e.innerText=t.viewTitle,t.viewName===this.curtView&&(e.classList.add("atk-active"),this.$curtViewBtnText.innerText=t.viewTitle),e.onclick=()=>{this.switchView(t.viewName),this.toggleViewSwitcher()}}))}toggleViewSwitcher(){this.viewSwitcherShow?(this.$navViews.style.display="none",this.$navTabs.style.display="",this.$curtViewBtnIcon.classList.remove("atk-arrow")):(this.$navViews.style.display="",this.$navTabs.style.display="none",this.$curtViewBtnIcon.classList.add("atk-arrow")),this.viewSwitcherShow=!this.viewSwitcherShow}show(){return h(this,null,(function*(){if(this.$el.style.transform="",this.layer=new Yt(this.ctx,"sidebar",this.$el),this.layer.show(),this.$viewWrap.scrollTo(0,0),setTimeout((()=>{this.$el.style.transform="translate(0, 0)"}),20),this.firstShow){if(this.isAdmin){this.$title.innerText="控制中心",this.$curtViewBtn.style.display="",this.siteSwitcher||(this.siteSwitcher=new Re(this.ctx,{onSwitchSite:t=>{this.switchSite(t)},onClickSitesViewBtn:()=>{this.switchView("sites")}}),this.$viewWrap.before(this.siteSwitcher.$el),this.$avatar.onclick=t=>{var e;this.isAdmin&&(null==(e=this.siteSwitcher)||e.show(t.target))}),this.curtSite=this.conf.site,Dt(this.$el);try{yield this.siteSwitcher.load(this.curtSite)}catch(t){const e=Bt(`<span>加载失败：${t.msg||"网络错误"}<br/></span>`),i=Bt('<span style="cursor:pointer;">点击重新获取</span>');return e.appendChild(i),i.onclick=()=>{Qt(this.$el,null),this.show()},void Qt(this.$el,e)}finally{Ht(this.$el)}this.$avatar.innerHTML="",this.$siteLogo=Bt('<div class="atk-site-logo"></div>'),this.$siteLogo.innerText=(this.curtSite||"").substr(0,1),this.$avatar.append(this.$siteLogo)}else{this.$title.innerText="通知中心",this.$curtViewBtn.style.display="none",this.curtSite=this.conf.site;const t=document.createElement("img");t.src=Nt(this.ctx,xe(this.ctx.user.data.email.toLowerCase())),this.$avatar.innerHTML="",this.$avatar.append(t)}this.switchView("comments"),this.firstShow=!1}}))}hide(){var t;this.$el.style.transform="",null==(t=this.layer)||t.dispose()}switchView(t){let e=this.viewInstances[t];if(!e){e=new(Ie.find((e=>e.viewName===t)))(this.ctx,this.$viewWrap),this.viewInstances[t]=e}e.mount(this.curtSite),this.curtView=t,this.curtTab=e.viewActiveTab,this.$curtViewBtnText.innerText=e.constructor.viewTitle,this.$navViews.querySelectorAll(".atk-tab-item").forEach((e=>{e.getAttribute("data-name")===t?e.classList.add("atk-active"):e.classList.remove("atk-active")})),this.loadViewTabs(e),this.$viewWrap.innerHTML="",this.$viewWrap.append(e.$el),this.$viewWrap.classList.forEach((t=>{t.startsWith("atk-view-name-")&&this.$viewWrap.classList.remove(t)})),this.$viewWrap.classList.add(`atk-view-name-${e.constructor.viewName}`)}loadViewTabs(t){this.$navTabs.innerHTML="",Object.entries(t.viewTabs).forEach((([e,i])=>{const s=Bt('<div class="atk-tab-item"></div>');this.$navTabs.append(s),s.innerText=i,t.viewActiveTab===e&&s.classList.add("atk-active"),s.onclick=()=>{!1!==t.switchTab(e,this.curtSite)&&(this.$navTabs.querySelectorAll(".atk-active").forEach((t=>t.classList.remove("atk-active"))),s.classList.add("atk-active"),this.curtTab=e)}}))}switchSite(t){this.curtSite=t;const e=this.curtViewInstance;null==e||e.switchTab(this.curtTab,t),this.$siteLogo&&(this.$siteLogo.innerText=this.curtSite.substr(0,1))}}const ze=class{constructor(t){c(this,"ctx"),c(this,"conf"),c(this,"$root"),c(this,"checkerLauncher"),c(this,"editor"),c(this,"list"),c(this,"sidebar"),this.conf=o(o({},ze.defaults),t),this.conf.server=this.conf.server.replace(/\/$/,""),this.conf.pageKey||(this.conf.pageKey=`${window.location.protocol}//${window.location.host}${window.location.pathname}`);try{const t=document.querySelector(this.conf.el);if(!t)throw Error(`Sorry, target element "${this.conf.el}" was not found.`);this.$root=t}catch(e){throw console.error(e),new Error("Please check your Artalk `el` config.")}this.ctx=new u(this.$root,this.conf),this.$root.classList.add("artalk"),this.$root.innerHTML="",this.initDarkMode(),this.checkerLauncher=new re(this.ctx),this.editor=new ce(this.ctx),this.$root.appendChild(this.editor.$el),this.list=new ye(this.ctx),this.$root.appendChild(this.list.$el),this.sidebar=new Ue(this.ctx),this.$root.appendChild(this.sidebar.$el),this.list.reqComments(),this.initEventBind()}initEventBind(){window.addEventListener("hashchange",(()=>{this.list.checkGoToCommentByUrlHash()})),this.ctx.on("check-admin-show-el",(()=>{const t=[];this.$root.querySelectorAll("[atk-only-admin-show]").forEach((e=>t.push(e)));const{$wrap:e}=Zt(this.ctx);e&&e.querySelectorAll("[atk-only-admin-show]").forEach((e=>t.push(e))),t.forEach((t=>{this.ctx.user.data.isAdmin?t.classList.remove("atk-hide"):t.classList.add("atk-hide")}))})),this.ctx.on("user-changed",(()=>{this.ctx.trigger("check-admin-show-el"),this.ctx.trigger("list-refresh-ui")}))}reload(){this.list.reqComments()}initDarkMode(){const t="atk-dark-mode";this.conf.darkMode?this.$root.classList.add(t):this.$root.classList.remove(t);const{$wrap:e}=Zt(this.ctx);e&&(this.conf.darkMode?e.classList.add(t):e.classList.remove(t))}setDarkMode(t){this.ctx.conf.darkMode=t,this.initDarkMode()}on(t,e){this.ctx.on(t,e,"external")}off(t,e){this.ctx.off(t,e,"external")}trigger(t,e){this.ctx.trigger(t,e,"external")}};let Ne=ze;c(Ne,"defaults",{el:"",pageKey:"",server:"",site:"",placeholder:"键入内容...",noComment:"「此时无声胜有声」",sendBtn:"发送评论",darkMode:!1,emoticons:"https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json",vote:!0,voteDown:!1,uaBadge:!0,flatMode:"auto",maxNesting:3,gravatar:{default:"mp",mirror:"https://sdn.geekzu.org/avatar/"},pagination:{pageSize:15,readMore:!0,autoLoad:!0},heightLimit:{content:200,children:300},reqTimeout:15e3,versionCheck:!0});export{Ne as default};
+var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
+var main = "";
+class User {
+  constructor(conf) {
+    __publicField(this, "data");
+    const localUser = JSON.parse(window.localStorage.getItem("ArtalkUser") || "{}");
+    this.data = {
+      nick: localUser.nick || "",
+      email: localUser.email || "",
+      link: localUser.link || "",
+      token: localUser.token || "",
+      isAdmin: localUser.isAdmin || false
+    };
+  }
+  save() {
+    window.localStorage.setItem("ArtalkUser", JSON.stringify(this.data));
+  }
+  checkHasBasicUserInfo() {
+    return !!this.data.nick && !!this.data.email;
+  }
+}
+class Context {
+  constructor(rootEl, conf) {
+    __publicField(this, "cid");
+    __publicField(this, "$root");
+    __publicField(this, "conf");
+    __publicField(this, "user");
+    __publicField(this, "eventList", []);
+    this.cid = +new Date();
+    this.$root = rootEl;
+    this.conf = conf;
+    this.user = new User(this.conf);
+    this.$root.setAttribute("atk-run-id", this.cid.toString());
+  }
+  on(name, handler, scope = "internal") {
+    this.eventList.push({ name, handler, scope });
+  }
+  off(name, handler, scope = "internal") {
+    this.eventList = this.eventList.filter((evt) => {
+      if (handler)
+        return !(evt.name === name && evt.handler === handler && evt.scope === scope);
+      return !(evt.name === name && evt.scope === scope);
+    });
+  }
+  trigger(name, payload, scope) {
+    this.eventList.filter((evt) => evt.name === name && (scope ? evt.scope === scope : true)).map((evt) => evt.handler).forEach((handler) => handler(payload));
+  }
+}
+const defaults$3 = {
+  el: "",
+  pageKey: "",
+  server: "",
+  site: "",
+  placeholder: "\u952E\u5165\u5185\u5BB9...",
+  noComment: "\u300C\u6B64\u65F6\u65E0\u58F0\u80DC\u6709\u58F0\u300D",
+  sendBtn: "\u53D1\u9001\u8BC4\u8BBA",
+  darkMode: false,
+  emoticons: "https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json",
+  vote: true,
+  voteDown: false,
+  uaBadge: true,
+  flatMode: "auto",
+  maxNesting: 3,
+  gravatar: {
+    default: "mp",
+    mirror: "https://sdn.geekzu.org/avatar/"
+  },
+  pagination: {
+    pageSize: 15,
+    readMore: true,
+    autoLoad: true
+  },
+  heightLimit: {
+    content: 200,
+    children: 300
+  },
+  reqTimeout: 15e3,
+  versionCheck: true
+};
+class Component {
+  constructor(ctx) {
+    __publicField(this, "$el");
+    __publicField(this, "ctx");
+    __publicField(this, "conf");
+    this.ctx = ctx;
+    this.conf = ctx.conf;
+  }
+}
+function getDefaults() {
+  return {
+    baseUrl: null,
+    breaks: false,
+    extensions: null,
+    gfm: true,
+    headerIds: true,
+    headerPrefix: "",
+    highlight: null,
+    langPrefix: "language-",
+    mangle: true,
+    pedantic: false,
+    renderer: null,
+    sanitize: false,
+    sanitizer: null,
+    silent: false,
+    smartLists: false,
+    smartypants: false,
+    tokenizer: null,
+    walkTokens: null,
+    xhtml: false
+  };
+}
+let defaults$2 = getDefaults();
+function changeDefaults(newDefaults) {
+  defaults$2 = newDefaults;
+}
+const escapeTest = /[&<>"']/;
+const escapeReplace = /[&<>"']/g;
+const escapeTestNoEncode = /[<>"']|&(?!#?\w+;)/;
+const escapeReplaceNoEncode = /[<>"']|&(?!#?\w+;)/g;
+const escapeReplacements = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+};
+const getEscapeReplacement = (ch) => escapeReplacements[ch];
+function escape(html, encode) {
+  if (encode) {
+    if (escapeTest.test(html)) {
+      return html.replace(escapeReplace, getEscapeReplacement);
+    }
+  } else {
+    if (escapeTestNoEncode.test(html)) {
+      return html.replace(escapeReplaceNoEncode, getEscapeReplacement);
+    }
+  }
+  return html;
+}
+const unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
+function unescape(html) {
+  return html.replace(unescapeTest, (_, n) => {
+    n = n.toLowerCase();
+    if (n === "colon")
+      return ":";
+    if (n.charAt(0) === "#") {
+      return n.charAt(1) === "x" ? String.fromCharCode(parseInt(n.substring(2), 16)) : String.fromCharCode(+n.substring(1));
+    }
+    return "";
+  });
+}
+const caret = /(^|[^\[])\^/g;
+function edit(regex, opt) {
+  regex = regex.source || regex;
+  opt = opt || "";
+  const obj = {
+    replace: (name, val) => {
+      val = val.source || val;
+      val = val.replace(caret, "$1");
+      regex = regex.replace(name, val);
+      return obj;
+    },
+    getRegex: () => {
+      return new RegExp(regex, opt);
+    }
+  };
+  return obj;
+}
+const nonWordAndColonTest = /[^\w:]/g;
+const originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
+function cleanUrl(sanitize, base, href) {
+  if (sanitize) {
+    let prot;
+    try {
+      prot = decodeURIComponent(unescape(href)).replace(nonWordAndColonTest, "").toLowerCase();
+    } catch (e) {
+      return null;
+    }
+    if (prot.indexOf("javascript:") === 0 || prot.indexOf("vbscript:") === 0 || prot.indexOf("data:") === 0) {
+      return null;
+    }
+  }
+  if (base && !originIndependentUrl.test(href)) {
+    href = resolveUrl(base, href);
+  }
+  try {
+    href = encodeURI(href).replace(/%25/g, "%");
+  } catch (e) {
+    return null;
+  }
+  return href;
+}
+const baseUrls = {};
+const justDomain = /^[^:]+:\/*[^/]*$/;
+const protocol = /^([^:]+:)[\s\S]*$/;
+const domain = /^([^:]+:\/*[^/]*)[\s\S]*$/;
+function resolveUrl(base, href) {
+  if (!baseUrls[" " + base]) {
+    if (justDomain.test(base)) {
+      baseUrls[" " + base] = base + "/";
+    } else {
+      baseUrls[" " + base] = rtrim(base, "/", true);
+    }
+  }
+  base = baseUrls[" " + base];
+  const relativeBase = base.indexOf(":") === -1;
+  if (href.substring(0, 2) === "//") {
+    if (relativeBase) {
+      return href;
+    }
+    return base.replace(protocol, "$1") + href;
+  } else if (href.charAt(0) === "/") {
+    if (relativeBase) {
+      return href;
+    }
+    return base.replace(domain, "$1") + href;
+  } else {
+    return base + href;
+  }
+}
+const noopTest = { exec: function noopTest2() {
+} };
+function merge(obj) {
+  let i = 1, target, key;
+  for (; i < arguments.length; i++) {
+    target = arguments[i];
+    for (key in target) {
+      if (Object.prototype.hasOwnProperty.call(target, key)) {
+        obj[key] = target[key];
+      }
+    }
+  }
+  return obj;
+}
+function splitCells(tableRow, count) {
+  const row = tableRow.replace(/\|/g, (match, offset, str) => {
+    let escaped = false, curr = offset;
+    while (--curr >= 0 && str[curr] === "\\")
+      escaped = !escaped;
+    if (escaped) {
+      return "|";
+    } else {
+      return " |";
+    }
+  }), cells = row.split(/ \|/);
+  let i = 0;
+  if (!cells[0].trim()) {
+    cells.shift();
+  }
+  if (!cells[cells.length - 1].trim()) {
+    cells.pop();
+  }
+  if (cells.length > count) {
+    cells.splice(count);
+  } else {
+    while (cells.length < count)
+      cells.push("");
+  }
+  for (; i < cells.length; i++) {
+    cells[i] = cells[i].trim().replace(/\\\|/g, "|");
+  }
+  return cells;
+}
+function rtrim(str, c, invert) {
+  const l = str.length;
+  if (l === 0) {
+    return "";
+  }
+  let suffLen = 0;
+  while (suffLen < l) {
+    const currChar = str.charAt(l - suffLen - 1);
+    if (currChar === c && !invert) {
+      suffLen++;
+    } else if (currChar !== c && invert) {
+      suffLen++;
+    } else {
+      break;
+    }
+  }
+  return str.substr(0, l - suffLen);
+}
+function findClosingBracket(str, b) {
+  if (str.indexOf(b[1]) === -1) {
+    return -1;
+  }
+  const l = str.length;
+  let level = 0, i = 0;
+  for (; i < l; i++) {
+    if (str[i] === "\\") {
+      i++;
+    } else if (str[i] === b[0]) {
+      level++;
+    } else if (str[i] === b[1]) {
+      level--;
+      if (level < 0) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+function checkSanitizeDeprecation(opt) {
+  if (opt && opt.sanitize && !opt.silent) {
+    console.warn("marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options");
+  }
+}
+function repeatString(pattern, count) {
+  if (count < 1) {
+    return "";
+  }
+  let result = "";
+  while (count > 1) {
+    if (count & 1) {
+      result += pattern;
+    }
+    count >>= 1;
+    pattern += pattern;
+  }
+  return result + pattern;
+}
+function outputLink(cap, link, raw, lexer) {
+  const href = link.href;
+  const title = link.title ? escape(link.title) : null;
+  const text = cap[1].replace(/\\([\[\]])/g, "$1");
+  if (cap[0].charAt(0) !== "!") {
+    lexer.state.inLink = true;
+    const token = {
+      type: "link",
+      raw,
+      href,
+      title,
+      text,
+      tokens: lexer.inlineTokens(text, [])
+    };
+    lexer.state.inLink = false;
+    return token;
+  } else {
+    return {
+      type: "image",
+      raw,
+      href,
+      title,
+      text: escape(text)
+    };
+  }
+}
+function indentCodeCompensation(raw, text) {
+  const matchIndentToCode = raw.match(/^(\s+)(?:```)/);
+  if (matchIndentToCode === null) {
+    return text;
+  }
+  const indentToCode = matchIndentToCode[1];
+  return text.split("\n").map((node) => {
+    const matchIndentInNode = node.match(/^\s+/);
+    if (matchIndentInNode === null) {
+      return node;
+    }
+    const [indentInNode] = matchIndentInNode;
+    if (indentInNode.length >= indentToCode.length) {
+      return node.slice(indentToCode.length);
+    }
+    return node;
+  }).join("\n");
+}
+class Tokenizer {
+  constructor(options) {
+    this.options = options || defaults$2;
+  }
+  space(src) {
+    const cap = this.rules.block.newline.exec(src);
+    if (cap) {
+      if (cap[0].length > 1) {
+        return {
+          type: "space",
+          raw: cap[0]
+        };
+      }
+      return { raw: "\n" };
+    }
+  }
+  code(src) {
+    const cap = this.rules.block.code.exec(src);
+    if (cap) {
+      const text = cap[0].replace(/^ {1,4}/gm, "");
+      return {
+        type: "code",
+        raw: cap[0],
+        codeBlockStyle: "indented",
+        text: !this.options.pedantic ? rtrim(text, "\n") : text
+      };
+    }
+  }
+  fences(src) {
+    const cap = this.rules.block.fences.exec(src);
+    if (cap) {
+      const raw = cap[0];
+      const text = indentCodeCompensation(raw, cap[3] || "");
+      return {
+        type: "code",
+        raw,
+        lang: cap[2] ? cap[2].trim() : cap[2],
+        text
+      };
+    }
+  }
+  heading(src) {
+    const cap = this.rules.block.heading.exec(src);
+    if (cap) {
+      let text = cap[2].trim();
+      if (/#$/.test(text)) {
+        const trimmed = rtrim(text, "#");
+        if (this.options.pedantic) {
+          text = trimmed.trim();
+        } else if (!trimmed || / $/.test(trimmed)) {
+          text = trimmed.trim();
+        }
+      }
+      const token = {
+        type: "heading",
+        raw: cap[0],
+        depth: cap[1].length,
+        text,
+        tokens: []
+      };
+      this.lexer.inline(token.text, token.tokens);
+      return token;
+    }
+  }
+  hr(src) {
+    const cap = this.rules.block.hr.exec(src);
+    if (cap) {
+      return {
+        type: "hr",
+        raw: cap[0]
+      };
+    }
+  }
+  blockquote(src) {
+    const cap = this.rules.block.blockquote.exec(src);
+    if (cap) {
+      const text = cap[0].replace(/^ *> ?/gm, "");
+      return {
+        type: "blockquote",
+        raw: cap[0],
+        tokens: this.lexer.blockTokens(text, []),
+        text
+      };
+    }
+  }
+  list(src) {
+    let cap = this.rules.block.list.exec(src);
+    if (cap) {
+      let raw, istask, ischecked, indent, i, blankLine, endsWithBlankLine, line, lines, itemContents;
+      let bull = cap[1].trim();
+      const isordered = bull.length > 1;
+      const list2 = {
+        type: "list",
+        raw: "",
+        ordered: isordered,
+        start: isordered ? +bull.slice(0, -1) : "",
+        loose: false,
+        items: []
+      };
+      bull = isordered ? `\\d{1,9}\\${bull.slice(-1)}` : `\\${bull}`;
+      if (this.options.pedantic) {
+        bull = isordered ? bull : "[*+-]";
+      }
+      const itemRegex = new RegExp(`^( {0,3}${bull})((?: [^\\n]*| *)(?:\\n[^\\n]*)*(?:\\n|$))`);
+      while (src) {
+        if (this.rules.block.hr.test(src)) {
+          break;
+        }
+        if (!(cap = itemRegex.exec(src))) {
+          break;
+        }
+        lines = cap[2].split("\n");
+        if (this.options.pedantic) {
+          indent = 2;
+          itemContents = lines[0].trimLeft();
+        } else {
+          indent = cap[2].search(/[^ ]/);
+          indent = cap[1].length + (indent > 4 ? 1 : indent);
+          itemContents = lines[0].slice(indent - cap[1].length);
+        }
+        blankLine = false;
+        raw = cap[0];
+        if (!lines[0] && /^ *$/.test(lines[1])) {
+          raw = cap[1] + lines.slice(0, 2).join("\n") + "\n";
+          list2.loose = true;
+          lines = [];
+        }
+        const nextBulletRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:[*+-]|\\d{1,9}[.)])`);
+        for (i = 1; i < lines.length; i++) {
+          line = lines[i];
+          if (this.options.pedantic) {
+            line = line.replace(/^ {1,4}(?=( {4})*[^ ])/g, "  ");
+          }
+          if (nextBulletRegex.test(line)) {
+            raw = cap[1] + lines.slice(0, i).join("\n") + "\n";
+            break;
+          }
+          if (!blankLine) {
+            if (!line.trim()) {
+              blankLine = true;
+            }
+            if (line.search(/[^ ]/) >= indent) {
+              itemContents += "\n" + line.slice(indent);
+            } else {
+              itemContents += "\n" + line;
+            }
+            continue;
+          }
+          if (line.search(/[^ ]/) >= indent || !line.trim()) {
+            itemContents += "\n" + line.slice(indent);
+            continue;
+          } else {
+            raw = cap[1] + lines.slice(0, i).join("\n") + "\n";
+            break;
+          }
+        }
+        if (!list2.loose) {
+          if (endsWithBlankLine) {
+            list2.loose = true;
+          } else if (/\n *\n *$/.test(raw)) {
+            endsWithBlankLine = true;
+          }
+        }
+        if (this.options.gfm) {
+          istask = /^\[[ xX]\] /.exec(itemContents);
+          if (istask) {
+            ischecked = istask[0] !== "[ ] ";
+            itemContents = itemContents.replace(/^\[[ xX]\] +/, "");
+          }
+        }
+        list2.items.push({
+          type: "list_item",
+          raw,
+          task: !!istask,
+          checked: ischecked,
+          loose: false,
+          text: itemContents
+        });
+        list2.raw += raw;
+        src = src.slice(raw.length);
+      }
+      list2.items[list2.items.length - 1].raw = raw.trimRight();
+      list2.items[list2.items.length - 1].text = itemContents.trimRight();
+      list2.raw = list2.raw.trimRight();
+      const l = list2.items.length;
+      for (i = 0; i < l; i++) {
+        this.lexer.state.top = false;
+        list2.items[i].tokens = this.lexer.blockTokens(list2.items[i].text, []);
+        if (list2.items[i].tokens.some((t) => t.type === "space")) {
+          list2.loose = true;
+          list2.items[i].loose = true;
+        }
+      }
+      return list2;
+    }
+  }
+  html(src) {
+    const cap = this.rules.block.html.exec(src);
+    if (cap) {
+      const token = {
+        type: "html",
+        raw: cap[0],
+        pre: !this.options.sanitizer && (cap[1] === "pre" || cap[1] === "script" || cap[1] === "style"),
+        text: cap[0]
+      };
+      if (this.options.sanitize) {
+        token.type = "paragraph";
+        token.text = this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0]);
+        token.tokens = [];
+        this.lexer.inline(token.text, token.tokens);
+      }
+      return token;
+    }
+  }
+  def(src) {
+    const cap = this.rules.block.def.exec(src);
+    if (cap) {
+      if (cap[3])
+        cap[3] = cap[3].substring(1, cap[3].length - 1);
+      const tag = cap[1].toLowerCase().replace(/\s+/g, " ");
+      return {
+        type: "def",
+        tag,
+        raw: cap[0],
+        href: cap[2],
+        title: cap[3]
+      };
+    }
+  }
+  table(src) {
+    const cap = this.rules.block.table.exec(src);
+    if (cap) {
+      const item = {
+        type: "table",
+        header: splitCells(cap[1]).map((c) => {
+          return { text: c };
+        }),
+        align: cap[2].replace(/^ *|\| *$/g, "").split(/ *\| */),
+        rows: cap[3] ? cap[3].replace(/\n$/, "").split("\n") : []
+      };
+      if (item.header.length === item.align.length) {
+        item.raw = cap[0];
+        let l = item.align.length;
+        let i, j, k, row;
+        for (i = 0; i < l; i++) {
+          if (/^ *-+: *$/.test(item.align[i])) {
+            item.align[i] = "right";
+          } else if (/^ *:-+: *$/.test(item.align[i])) {
+            item.align[i] = "center";
+          } else if (/^ *:-+ *$/.test(item.align[i])) {
+            item.align[i] = "left";
+          } else {
+            item.align[i] = null;
+          }
+        }
+        l = item.rows.length;
+        for (i = 0; i < l; i++) {
+          item.rows[i] = splitCells(item.rows[i], item.header.length).map((c) => {
+            return { text: c };
+          });
+        }
+        l = item.header.length;
+        for (j = 0; j < l; j++) {
+          item.header[j].tokens = [];
+          this.lexer.inlineTokens(item.header[j].text, item.header[j].tokens);
+        }
+        l = item.rows.length;
+        for (j = 0; j < l; j++) {
+          row = item.rows[j];
+          for (k = 0; k < row.length; k++) {
+            row[k].tokens = [];
+            this.lexer.inlineTokens(row[k].text, row[k].tokens);
+          }
+        }
+        return item;
+      }
+    }
+  }
+  lheading(src) {
+    const cap = this.rules.block.lheading.exec(src);
+    if (cap) {
+      const token = {
+        type: "heading",
+        raw: cap[0],
+        depth: cap[2].charAt(0) === "=" ? 1 : 2,
+        text: cap[1],
+        tokens: []
+      };
+      this.lexer.inline(token.text, token.tokens);
+      return token;
+    }
+  }
+  paragraph(src) {
+    const cap = this.rules.block.paragraph.exec(src);
+    if (cap) {
+      const token = {
+        type: "paragraph",
+        raw: cap[0],
+        text: cap[1].charAt(cap[1].length - 1) === "\n" ? cap[1].slice(0, -1) : cap[1],
+        tokens: []
+      };
+      this.lexer.inline(token.text, token.tokens);
+      return token;
+    }
+  }
+  text(src) {
+    const cap = this.rules.block.text.exec(src);
+    if (cap) {
+      const token = {
+        type: "text",
+        raw: cap[0],
+        text: cap[0],
+        tokens: []
+      };
+      this.lexer.inline(token.text, token.tokens);
+      return token;
+    }
+  }
+  escape(src) {
+    const cap = this.rules.inline.escape.exec(src);
+    if (cap) {
+      return {
+        type: "escape",
+        raw: cap[0],
+        text: escape(cap[1])
+      };
+    }
+  }
+  tag(src) {
+    const cap = this.rules.inline.tag.exec(src);
+    if (cap) {
+      if (!this.lexer.state.inLink && /^<a /i.test(cap[0])) {
+        this.lexer.state.inLink = true;
+      } else if (this.lexer.state.inLink && /^<\/a>/i.test(cap[0])) {
+        this.lexer.state.inLink = false;
+      }
+      if (!this.lexer.state.inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+        this.lexer.state.inRawBlock = true;
+      } else if (this.lexer.state.inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+        this.lexer.state.inRawBlock = false;
+      }
+      return {
+        type: this.options.sanitize ? "text" : "html",
+        raw: cap[0],
+        inLink: this.lexer.state.inLink,
+        inRawBlock: this.lexer.state.inRawBlock,
+        text: this.options.sanitize ? this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0]) : cap[0]
+      };
+    }
+  }
+  link(src) {
+    const cap = this.rules.inline.link.exec(src);
+    if (cap) {
+      const trimmedUrl = cap[2].trim();
+      if (!this.options.pedantic && /^</.test(trimmedUrl)) {
+        if (!/>$/.test(trimmedUrl)) {
+          return;
+        }
+        const rtrimSlash = rtrim(trimmedUrl.slice(0, -1), "\\");
+        if ((trimmedUrl.length - rtrimSlash.length) % 2 === 0) {
+          return;
+        }
+      } else {
+        const lastParenIndex = findClosingBracket(cap[2], "()");
+        if (lastParenIndex > -1) {
+          const start = cap[0].indexOf("!") === 0 ? 5 : 4;
+          const linkLen = start + cap[1].length + lastParenIndex;
+          cap[2] = cap[2].substring(0, lastParenIndex);
+          cap[0] = cap[0].substring(0, linkLen).trim();
+          cap[3] = "";
+        }
+      }
+      let href = cap[2];
+      let title = "";
+      if (this.options.pedantic) {
+        const link = /^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(href);
+        if (link) {
+          href = link[1];
+          title = link[3];
+        }
+      } else {
+        title = cap[3] ? cap[3].slice(1, -1) : "";
+      }
+      href = href.trim();
+      if (/^</.test(href)) {
+        if (this.options.pedantic && !/>$/.test(trimmedUrl)) {
+          href = href.slice(1);
+        } else {
+          href = href.slice(1, -1);
+        }
+      }
+      return outputLink(cap, {
+        href: href ? href.replace(this.rules.inline._escapes, "$1") : href,
+        title: title ? title.replace(this.rules.inline._escapes, "$1") : title
+      }, cap[0], this.lexer);
+    }
+  }
+  reflink(src, links) {
+    let cap;
+    if ((cap = this.rules.inline.reflink.exec(src)) || (cap = this.rules.inline.nolink.exec(src))) {
+      let link = (cap[2] || cap[1]).replace(/\s+/g, " ");
+      link = links[link.toLowerCase()];
+      if (!link || !link.href) {
+        const text = cap[0].charAt(0);
+        return {
+          type: "text",
+          raw: text,
+          text
+        };
+      }
+      return outputLink(cap, link, cap[0], this.lexer);
+    }
+  }
+  emStrong(src, maskedSrc, prevChar = "") {
+    let match = this.rules.inline.emStrong.lDelim.exec(src);
+    if (!match)
+      return;
+    if (match[3] && prevChar.match(/[\p{L}\p{N}]/u))
+      return;
+    const nextChar = match[1] || match[2] || "";
+    if (!nextChar || nextChar && (prevChar === "" || this.rules.inline.punctuation.exec(prevChar))) {
+      const lLength = match[0].length - 1;
+      let rDelim, rLength, delimTotal = lLength, midDelimTotal = 0;
+      const endReg = match[0][0] === "*" ? this.rules.inline.emStrong.rDelimAst : this.rules.inline.emStrong.rDelimUnd;
+      endReg.lastIndex = 0;
+      maskedSrc = maskedSrc.slice(-1 * src.length + lLength);
+      while ((match = endReg.exec(maskedSrc)) != null) {
+        rDelim = match[1] || match[2] || match[3] || match[4] || match[5] || match[6];
+        if (!rDelim)
+          continue;
+        rLength = rDelim.length;
+        if (match[3] || match[4]) {
+          delimTotal += rLength;
+          continue;
+        } else if (match[5] || match[6]) {
+          if (lLength % 3 && !((lLength + rLength) % 3)) {
+            midDelimTotal += rLength;
+            continue;
+          }
+        }
+        delimTotal -= rLength;
+        if (delimTotal > 0)
+          continue;
+        rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
+        if (Math.min(lLength, rLength) % 2) {
+          const text2 = src.slice(1, lLength + match.index + rLength);
+          return {
+            type: "em",
+            raw: src.slice(0, lLength + match.index + rLength + 1),
+            text: text2,
+            tokens: this.lexer.inlineTokens(text2, [])
+          };
+        }
+        const text = src.slice(2, lLength + match.index + rLength - 1);
+        return {
+          type: "strong",
+          raw: src.slice(0, lLength + match.index + rLength + 1),
+          text,
+          tokens: this.lexer.inlineTokens(text, [])
+        };
+      }
+    }
+  }
+  codespan(src) {
+    const cap = this.rules.inline.code.exec(src);
+    if (cap) {
+      let text = cap[2].replace(/\n/g, " ");
+      const hasNonSpaceChars = /[^ ]/.test(text);
+      const hasSpaceCharsOnBothEnds = /^ /.test(text) && / $/.test(text);
+      if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
+        text = text.substring(1, text.length - 1);
+      }
+      text = escape(text, true);
+      return {
+        type: "codespan",
+        raw: cap[0],
+        text
+      };
+    }
+  }
+  br(src) {
+    const cap = this.rules.inline.br.exec(src);
+    if (cap) {
+      return {
+        type: "br",
+        raw: cap[0]
+      };
+    }
+  }
+  del(src) {
+    const cap = this.rules.inline.del.exec(src);
+    if (cap) {
+      return {
+        type: "del",
+        raw: cap[0],
+        text: cap[2],
+        tokens: this.lexer.inlineTokens(cap[2], [])
+      };
+    }
+  }
+  autolink(src, mangle2) {
+    const cap = this.rules.inline.autolink.exec(src);
+    if (cap) {
+      let text, href;
+      if (cap[2] === "@") {
+        text = escape(this.options.mangle ? mangle2(cap[1]) : cap[1]);
+        href = "mailto:" + text;
+      } else {
+        text = escape(cap[1]);
+        href = text;
+      }
+      return {
+        type: "link",
+        raw: cap[0],
+        text,
+        href,
+        tokens: [
+          {
+            type: "text",
+            raw: text,
+            text
+          }
+        ]
+      };
+    }
+  }
+  url(src, mangle2) {
+    let cap;
+    if (cap = this.rules.inline.url.exec(src)) {
+      let text, href;
+      if (cap[2] === "@") {
+        text = escape(this.options.mangle ? mangle2(cap[0]) : cap[0]);
+        href = "mailto:" + text;
+      } else {
+        let prevCapZero;
+        do {
+          prevCapZero = cap[0];
+          cap[0] = this.rules.inline._backpedal.exec(cap[0])[0];
+        } while (prevCapZero !== cap[0]);
+        text = escape(cap[0]);
+        if (cap[1] === "www.") {
+          href = "http://" + text;
+        } else {
+          href = text;
+        }
+      }
+      return {
+        type: "link",
+        raw: cap[0],
+        text,
+        href,
+        tokens: [
+          {
+            type: "text",
+            raw: text,
+            text
+          }
+        ]
+      };
+    }
+  }
+  inlineText(src, smartypants2) {
+    const cap = this.rules.inline.text.exec(src);
+    if (cap) {
+      let text;
+      if (this.lexer.state.inRawBlock) {
+        text = this.options.sanitize ? this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0]) : cap[0];
+      } else {
+        text = escape(this.options.smartypants ? smartypants2(cap[0]) : cap[0]);
+      }
+      return {
+        type: "text",
+        raw: cap[0],
+        text
+      };
+    }
+  }
+}
+const block = {
+  newline: /^(?: *(?:\n|$))+/,
+  code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
+  fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?=\n|$)|$)/,
+  hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
+  heading: /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,
+  blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
+  list: /^( {0,3}bull)( [^\n]+?)?(?:\n|$)/,
+  html: "^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$))",
+  def: /^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,
+  table: noopTest,
+  lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
+  _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html| +\n)[^\n]+)*)/,
+  text: /^[^\n]+/
+};
+block._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/;
+block._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
+block.def = edit(block.def).replace("label", block._label).replace("title", block._title).getRegex();
+block.bullet = /(?:[*+-]|\d{1,9}[.)])/;
+block.listItemStart = edit(/^( *)(bull) */).replace("bull", block.bullet).getRegex();
+block.list = edit(block.list).replace(/bull/g, block.bullet).replace("hr", "\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))").replace("def", "\\n+(?=" + block.def.source + ")").getRegex();
+block._tag = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul";
+block._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
+block.html = edit(block.html, "i").replace("comment", block._comment).replace("tag", block._tag).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
+block.paragraph = edit(block._paragraph).replace("hr", block.hr).replace("heading", " {0,3}#{1,6} ").replace("|lheading", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", block._tag).getRegex();
+block.blockquote = edit(block.blockquote).replace("paragraph", block.paragraph).getRegex();
+block.normal = merge({}, block);
+block.gfm = merge({}, block.normal, {
+  table: "^ *([^\\n ].*\\|.*)\\n {0,3}(?:\\| *)?(:?-+:? *(?:\\| *:?-+:? *)*)(?:\\| *)?(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)"
+});
+block.gfm.table = edit(block.gfm.table).replace("hr", block.hr).replace("heading", " {0,3}#{1,6} ").replace("blockquote", " {0,3}>").replace("code", " {4}[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", block._tag).getRegex();
+block.pedantic = merge({}, block.normal, {
+  html: edit(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", block._comment).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
+  def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
+  heading: /^(#{1,6})(.*)(?:\n+|$)/,
+  fences: noopTest,
+  paragraph: edit(block.normal._paragraph).replace("hr", block.hr).replace("heading", " *#{1,6} *[^\n]").replace("lheading", block.lheading).replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").getRegex()
+});
+const inline = {
+  escape: /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,
+  autolink: /^<(scheme:[^\s\x00-\x1f<>]*|email)>/,
+  url: noopTest,
+  tag: "^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>",
+  link: /^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,
+  reflink: /^!?\[(label)\]\[(?!\s*\])((?:\\[\[\]]?|[^\[\]\\])+)\]/,
+  nolink: /^!?\[(?!\s*\])((?:\[[^\[\]]*\]|\\[\[\]]|[^\[\]])*)\](?:\[\])?/,
+  reflinkSearch: "reflink|nolink(?!\\()",
+  emStrong: {
+    lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
+    rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
+    rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/
+  },
+  code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
+  br: /^( {2,}|\\)\n(?!\s*$)/,
+  del: noopTest,
+  text: /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,
+  punctuation: /^([\spunctuation])/
+};
+inline._punctuation = "!\"#$%&'()+\\-.,/:;<=>?@\\[\\]`^{|}~";
+inline.punctuation = edit(inline.punctuation).replace(/punctuation/g, inline._punctuation).getRegex();
+inline.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
+inline.escapedEmSt = /\\\*|\\_/g;
+inline._comment = edit(block._comment).replace("(?:-->|$)", "-->").getRegex();
+inline.emStrong.lDelim = edit(inline.emStrong.lDelim).replace(/punct/g, inline._punctuation).getRegex();
+inline.emStrong.rDelimAst = edit(inline.emStrong.rDelimAst, "g").replace(/punct/g, inline._punctuation).getRegex();
+inline.emStrong.rDelimUnd = edit(inline.emStrong.rDelimUnd, "g").replace(/punct/g, inline._punctuation).getRegex();
+inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
+inline._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
+inline._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
+inline.autolink = edit(inline.autolink).replace("scheme", inline._scheme).replace("email", inline._email).getRegex();
+inline._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
+inline.tag = edit(inline.tag).replace("comment", inline._comment).replace("attribute", inline._attribute).getRegex();
+inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
+inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
+inline.link = edit(inline.link).replace("label", inline._label).replace("href", inline._href).replace("title", inline._title).getRegex();
+inline.reflink = edit(inline.reflink).replace("label", inline._label).getRegex();
+inline.reflinkSearch = edit(inline.reflinkSearch, "g").replace("reflink", inline.reflink).replace("nolink", inline.nolink).getRegex();
+inline.normal = merge({}, inline);
+inline.pedantic = merge({}, inline.normal, {
+  strong: {
+    start: /^__|\*\*/,
+    middle: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
+    endAst: /\*\*(?!\*)/g,
+    endUnd: /__(?!_)/g
+  },
+  em: {
+    start: /^_|\*/,
+    middle: /^()\*(?=\S)([\s\S]*?\S)\*(?!\*)|^_(?=\S)([\s\S]*?\S)_(?!_)/,
+    endAst: /\*(?!\*)/g,
+    endUnd: /_(?!_)/g
+  },
+  link: edit(/^!?\[(label)\]\((.*?)\)/).replace("label", inline._label).getRegex(),
+  reflink: edit(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", inline._label).getRegex()
+});
+inline.gfm = merge({}, inline.normal, {
+  escape: edit(inline.escape).replace("])", "~|])").getRegex(),
+  _extended_email: /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,
+  url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
+  _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
+  del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
+  text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
+});
+inline.gfm.url = edit(inline.gfm.url, "i").replace("email", inline.gfm._extended_email).getRegex();
+inline.breaks = merge({}, inline.gfm, {
+  br: edit(inline.br).replace("{2,}", "*").getRegex(),
+  text: edit(inline.gfm.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex()
+});
+function smartypants(text) {
+  return text.replace(/---/g, "\u2014").replace(/--/g, "\u2013").replace(/(^|[-\u2014/(\[{"\s])'/g, "$1\u2018").replace(/'/g, "\u2019").replace(/(^|[-\u2014/(\[{\u2018\s])"/g, "$1\u201C").replace(/"/g, "\u201D").replace(/\.{3}/g, "\u2026");
+}
+function mangle(text) {
+  let out = "", i, ch;
+  const l = text.length;
+  for (i = 0; i < l; i++) {
+    ch = text.charCodeAt(i);
+    if (Math.random() > 0.5) {
+      ch = "x" + ch.toString(16);
+    }
+    out += "&#" + ch + ";";
+  }
+  return out;
+}
+class Lexer {
+  constructor(options) {
+    this.tokens = [];
+    this.tokens.links = Object.create(null);
+    this.options = options || defaults$2;
+    this.options.tokenizer = this.options.tokenizer || new Tokenizer();
+    this.tokenizer = this.options.tokenizer;
+    this.tokenizer.options = this.options;
+    this.tokenizer.lexer = this;
+    this.inlineQueue = [];
+    this.state = {
+      inLink: false,
+      inRawBlock: false,
+      top: true
+    };
+    const rules = {
+      block: block.normal,
+      inline: inline.normal
+    };
+    if (this.options.pedantic) {
+      rules.block = block.pedantic;
+      rules.inline = inline.pedantic;
+    } else if (this.options.gfm) {
+      rules.block = block.gfm;
+      if (this.options.breaks) {
+        rules.inline = inline.breaks;
+      } else {
+        rules.inline = inline.gfm;
+      }
+    }
+    this.tokenizer.rules = rules;
+  }
+  static get rules() {
+    return {
+      block,
+      inline
+    };
+  }
+  static lex(src, options) {
+    const lexer = new Lexer(options);
+    return lexer.lex(src);
+  }
+  static lexInline(src, options) {
+    const lexer = new Lexer(options);
+    return lexer.inlineTokens(src);
+  }
+  lex(src) {
+    src = src.replace(/\r\n|\r/g, "\n").replace(/\t/g, "    ");
+    this.blockTokens(src, this.tokens);
+    let next;
+    while (next = this.inlineQueue.shift()) {
+      this.inlineTokens(next.src, next.tokens);
+    }
+    return this.tokens;
+  }
+  blockTokens(src, tokens = []) {
+    if (this.options.pedantic) {
+      src = src.replace(/^ +$/gm, "");
+    }
+    let token, lastToken, cutSrc, lastParagraphClipped;
+    while (src) {
+      if (this.options.extensions && this.options.extensions.block && this.options.extensions.block.some((extTokenizer) => {
+        if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
+          src = src.substring(token.raw.length);
+          tokens.push(token);
+          return true;
+        }
+        return false;
+      })) {
+        continue;
+      }
+      if (token = this.tokenizer.space(src)) {
+        src = src.substring(token.raw.length);
+        if (token.type) {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.code(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && (lastToken.type === "paragraph" || lastToken.type === "text")) {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.text;
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.fences(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.heading(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.hr(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.blockquote(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.list(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.html(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.def(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && (lastToken.type === "paragraph" || lastToken.type === "text")) {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.raw;
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else if (!this.tokens.links[token.tag]) {
+          this.tokens.links[token.tag] = {
+            href: token.href,
+            title: token.title
+          };
+        }
+        continue;
+      }
+      if (token = this.tokenizer.table(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.lheading(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      cutSrc = src;
+      if (this.options.extensions && this.options.extensions.startBlock) {
+        let startIndex = Infinity;
+        const tempSrc = src.slice(1);
+        let tempStart;
+        this.options.extensions.startBlock.forEach(function(getStartIndex) {
+          tempStart = getStartIndex.call({ lexer: this }, tempSrc);
+          if (typeof tempStart === "number" && tempStart >= 0) {
+            startIndex = Math.min(startIndex, tempStart);
+          }
+        });
+        if (startIndex < Infinity && startIndex >= 0) {
+          cutSrc = src.substring(0, startIndex + 1);
+        }
+      }
+      if (this.state.top && (token = this.tokenizer.paragraph(cutSrc))) {
+        lastToken = tokens[tokens.length - 1];
+        if (lastParagraphClipped && lastToken.type === "paragraph") {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.text;
+          this.inlineQueue.pop();
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else {
+          tokens.push(token);
+        }
+        lastParagraphClipped = cutSrc.length !== src.length;
+        src = src.substring(token.raw.length);
+        continue;
+      }
+      if (token = this.tokenizer.text(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && lastToken.type === "text") {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.text;
+          this.inlineQueue.pop();
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (src) {
+        const errMsg = "Infinite loop on byte: " + src.charCodeAt(0);
+        if (this.options.silent) {
+          console.error(errMsg);
+          break;
+        } else {
+          throw new Error(errMsg);
+        }
+      }
+    }
+    this.state.top = true;
+    return tokens;
+  }
+  inline(src, tokens) {
+    this.inlineQueue.push({ src, tokens });
+  }
+  inlineTokens(src, tokens = []) {
+    let token, lastToken, cutSrc;
+    let maskedSrc = src;
+    let match;
+    let keepPrevChar, prevChar;
+    if (this.tokens.links) {
+      const links = Object.keys(this.tokens.links);
+      if (links.length > 0) {
+        while ((match = this.tokenizer.rules.inline.reflinkSearch.exec(maskedSrc)) != null) {
+          if (links.includes(match[0].slice(match[0].lastIndexOf("[") + 1, -1))) {
+            maskedSrc = maskedSrc.slice(0, match.index) + "[" + repeatString("a", match[0].length - 2) + "]" + maskedSrc.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex);
+          }
+        }
+      }
+    }
+    while ((match = this.tokenizer.rules.inline.blockSkip.exec(maskedSrc)) != null) {
+      maskedSrc = maskedSrc.slice(0, match.index) + "[" + repeatString("a", match[0].length - 2) + "]" + maskedSrc.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
+    }
+    while ((match = this.tokenizer.rules.inline.escapedEmSt.exec(maskedSrc)) != null) {
+      maskedSrc = maskedSrc.slice(0, match.index) + "++" + maskedSrc.slice(this.tokenizer.rules.inline.escapedEmSt.lastIndex);
+    }
+    while (src) {
+      if (!keepPrevChar) {
+        prevChar = "";
+      }
+      keepPrevChar = false;
+      if (this.options.extensions && this.options.extensions.inline && this.options.extensions.inline.some((extTokenizer) => {
+        if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
+          src = src.substring(token.raw.length);
+          tokens.push(token);
+          return true;
+        }
+        return false;
+      })) {
+        continue;
+      }
+      if (token = this.tokenizer.escape(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.tag(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && token.type === "text" && lastToken.type === "text") {
+          lastToken.raw += token.raw;
+          lastToken.text += token.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.link(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.reflink(src, this.tokens.links)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && token.type === "text" && lastToken.type === "text") {
+          lastToken.raw += token.raw;
+          lastToken.text += token.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.emStrong(src, maskedSrc, prevChar)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.codespan(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.br(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.del(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.autolink(src, mangle)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (!this.state.inLink && (token = this.tokenizer.url(src, mangle))) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      cutSrc = src;
+      if (this.options.extensions && this.options.extensions.startInline) {
+        let startIndex = Infinity;
+        const tempSrc = src.slice(1);
+        let tempStart;
+        this.options.extensions.startInline.forEach(function(getStartIndex) {
+          tempStart = getStartIndex.call({ lexer: this }, tempSrc);
+          if (typeof tempStart === "number" && tempStart >= 0) {
+            startIndex = Math.min(startIndex, tempStart);
+          }
+        });
+        if (startIndex < Infinity && startIndex >= 0) {
+          cutSrc = src.substring(0, startIndex + 1);
+        }
+      }
+      if (token = this.tokenizer.inlineText(cutSrc, smartypants)) {
+        src = src.substring(token.raw.length);
+        if (token.raw.slice(-1) !== "_") {
+          prevChar = token.raw.slice(-1);
+        }
+        keepPrevChar = true;
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && lastToken.type === "text") {
+          lastToken.raw += token.raw;
+          lastToken.text += token.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (src) {
+        const errMsg = "Infinite loop on byte: " + src.charCodeAt(0);
+        if (this.options.silent) {
+          console.error(errMsg);
+          break;
+        } else {
+          throw new Error(errMsg);
+        }
+      }
+    }
+    return tokens;
+  }
+}
+class Renderer {
+  constructor(options) {
+    this.options = options || defaults$2;
+  }
+  code(code, infostring, escaped) {
+    const lang = (infostring || "").match(/\S*/)[0];
+    if (this.options.highlight) {
+      const out = this.options.highlight(code, lang);
+      if (out != null && out !== code) {
+        escaped = true;
+        code = out;
+      }
+    }
+    code = code.replace(/\n$/, "") + "\n";
+    if (!lang) {
+      return "<pre><code>" + (escaped ? code : escape(code, true)) + "</code></pre>\n";
+    }
+    return '<pre><code class="' + this.options.langPrefix + escape(lang, true) + '">' + (escaped ? code : escape(code, true)) + "</code></pre>\n";
+  }
+  blockquote(quote) {
+    return "<blockquote>\n" + quote + "</blockquote>\n";
+  }
+  html(html) {
+    return html;
+  }
+  heading(text, level, raw, slugger) {
+    if (this.options.headerIds) {
+      return "<h" + level + ' id="' + this.options.headerPrefix + slugger.slug(raw) + '">' + text + "</h" + level + ">\n";
+    }
+    return "<h" + level + ">" + text + "</h" + level + ">\n";
+  }
+  hr() {
+    return this.options.xhtml ? "<hr/>\n" : "<hr>\n";
+  }
+  list(body, ordered, start) {
+    const type = ordered ? "ol" : "ul", startatt = ordered && start !== 1 ? ' start="' + start + '"' : "";
+    return "<" + type + startatt + ">\n" + body + "</" + type + ">\n";
+  }
+  listitem(text) {
+    return "<li>" + text + "</li>\n";
+  }
+  checkbox(checked) {
+    return "<input " + (checked ? 'checked="" ' : "") + 'disabled="" type="checkbox"' + (this.options.xhtml ? " /" : "") + "> ";
+  }
+  paragraph(text) {
+    return "<p>" + text + "</p>\n";
+  }
+  table(header, body) {
+    if (body)
+      body = "<tbody>" + body + "</tbody>";
+    return "<table>\n<thead>\n" + header + "</thead>\n" + body + "</table>\n";
+  }
+  tablerow(content) {
+    return "<tr>\n" + content + "</tr>\n";
+  }
+  tablecell(content, flags) {
+    const type = flags.header ? "th" : "td";
+    const tag = flags.align ? "<" + type + ' align="' + flags.align + '">' : "<" + type + ">";
+    return tag + content + "</" + type + ">\n";
+  }
+  strong(text) {
+    return "<strong>" + text + "</strong>";
+  }
+  em(text) {
+    return "<em>" + text + "</em>";
+  }
+  codespan(text) {
+    return "<code>" + text + "</code>";
+  }
+  br() {
+    return this.options.xhtml ? "<br/>" : "<br>";
+  }
+  del(text) {
+    return "<del>" + text + "</del>";
+  }
+  link(href, title, text) {
+    href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
+    if (href === null) {
+      return text;
+    }
+    let out = '<a href="' + escape(href) + '"';
+    if (title) {
+      out += ' title="' + title + '"';
+    }
+    out += ">" + text + "</a>";
+    return out;
+  }
+  image(href, title, text) {
+    href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
+    if (href === null) {
+      return text;
+    }
+    let out = '<img src="' + href + '" alt="' + text + '"';
+    if (title) {
+      out += ' title="' + title + '"';
+    }
+    out += this.options.xhtml ? "/>" : ">";
+    return out;
+  }
+  text(text) {
+    return text;
+  }
+}
+class TextRenderer {
+  strong(text) {
+    return text;
+  }
+  em(text) {
+    return text;
+  }
+  codespan(text) {
+    return text;
+  }
+  del(text) {
+    return text;
+  }
+  html(text) {
+    return text;
+  }
+  text(text) {
+    return text;
+  }
+  link(href, title, text) {
+    return "" + text;
+  }
+  image(href, title, text) {
+    return "" + text;
+  }
+  br() {
+    return "";
+  }
+}
+class Slugger {
+  constructor() {
+    this.seen = {};
+  }
+  serialize(value) {
+    return value.toLowerCase().trim().replace(/<[!\/a-z].*?>/ig, "").replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g, "").replace(/\s/g, "-");
+  }
+  getNextSafeSlug(originalSlug, isDryRun) {
+    let slug = originalSlug;
+    let occurenceAccumulator = 0;
+    if (this.seen.hasOwnProperty(slug)) {
+      occurenceAccumulator = this.seen[originalSlug];
+      do {
+        occurenceAccumulator++;
+        slug = originalSlug + "-" + occurenceAccumulator;
+      } while (this.seen.hasOwnProperty(slug));
+    }
+    if (!isDryRun) {
+      this.seen[originalSlug] = occurenceAccumulator;
+      this.seen[slug] = 0;
+    }
+    return slug;
+  }
+  slug(value, options = {}) {
+    const slug = this.serialize(value);
+    return this.getNextSafeSlug(slug, options.dryrun);
+  }
+}
+class Parser {
+  constructor(options) {
+    this.options = options || defaults$2;
+    this.options.renderer = this.options.renderer || new Renderer();
+    this.renderer = this.options.renderer;
+    this.renderer.options = this.options;
+    this.textRenderer = new TextRenderer();
+    this.slugger = new Slugger();
+  }
+  static parse(tokens, options) {
+    const parser2 = new Parser(options);
+    return parser2.parse(tokens);
+  }
+  static parseInline(tokens, options) {
+    const parser2 = new Parser(options);
+    return parser2.parseInline(tokens);
+  }
+  parse(tokens, top = true) {
+    let out = "", i, j, k, l2, l3, row, cell, header, body, token, ordered, start, loose, itemBody, item, checked, task, checkbox, ret;
+    const l = tokens.length;
+    for (i = 0; i < l; i++) {
+      token = tokens[i];
+      if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
+        ret = this.options.extensions.renderers[token.type].call({ parser: this }, token);
+        if (ret !== false || !["space", "hr", "heading", "code", "table", "blockquote", "list", "html", "paragraph", "text"].includes(token.type)) {
+          out += ret || "";
+          continue;
+        }
+      }
+      switch (token.type) {
+        case "space": {
+          continue;
+        }
+        case "hr": {
+          out += this.renderer.hr();
+          continue;
+        }
+        case "heading": {
+          out += this.renderer.heading(this.parseInline(token.tokens), token.depth, unescape(this.parseInline(token.tokens, this.textRenderer)), this.slugger);
+          continue;
+        }
+        case "code": {
+          out += this.renderer.code(token.text, token.lang, token.escaped);
+          continue;
+        }
+        case "table": {
+          header = "";
+          cell = "";
+          l2 = token.header.length;
+          for (j = 0; j < l2; j++) {
+            cell += this.renderer.tablecell(this.parseInline(token.header[j].tokens), { header: true, align: token.align[j] });
+          }
+          header += this.renderer.tablerow(cell);
+          body = "";
+          l2 = token.rows.length;
+          for (j = 0; j < l2; j++) {
+            row = token.rows[j];
+            cell = "";
+            l3 = row.length;
+            for (k = 0; k < l3; k++) {
+              cell += this.renderer.tablecell(this.parseInline(row[k].tokens), { header: false, align: token.align[k] });
+            }
+            body += this.renderer.tablerow(cell);
+          }
+          out += this.renderer.table(header, body);
+          continue;
+        }
+        case "blockquote": {
+          body = this.parse(token.tokens);
+          out += this.renderer.blockquote(body);
+          continue;
+        }
+        case "list": {
+          ordered = token.ordered;
+          start = token.start;
+          loose = token.loose;
+          l2 = token.items.length;
+          body = "";
+          for (j = 0; j < l2; j++) {
+            item = token.items[j];
+            checked = item.checked;
+            task = item.task;
+            itemBody = "";
+            if (item.task) {
+              checkbox = this.renderer.checkbox(checked);
+              if (loose) {
+                if (item.tokens.length > 0 && item.tokens[0].type === "paragraph") {
+                  item.tokens[0].text = checkbox + " " + item.tokens[0].text;
+                  if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === "text") {
+                    item.tokens[0].tokens[0].text = checkbox + " " + item.tokens[0].tokens[0].text;
+                  }
+                } else {
+                  item.tokens.unshift({
+                    type: "text",
+                    text: checkbox
+                  });
+                }
+              } else {
+                itemBody += checkbox;
+              }
+            }
+            itemBody += this.parse(item.tokens, loose);
+            body += this.renderer.listitem(itemBody, task, checked);
+          }
+          out += this.renderer.list(body, ordered, start);
+          continue;
+        }
+        case "html": {
+          out += this.renderer.html(token.text);
+          continue;
+        }
+        case "paragraph": {
+          out += this.renderer.paragraph(this.parseInline(token.tokens));
+          continue;
+        }
+        case "text": {
+          body = token.tokens ? this.parseInline(token.tokens) : token.text;
+          while (i + 1 < l && tokens[i + 1].type === "text") {
+            token = tokens[++i];
+            body += "\n" + (token.tokens ? this.parseInline(token.tokens) : token.text);
+          }
+          out += top ? this.renderer.paragraph(body) : body;
+          continue;
+        }
+        default: {
+          const errMsg = 'Token with "' + token.type + '" type was not found.';
+          if (this.options.silent) {
+            console.error(errMsg);
+            return;
+          } else {
+            throw new Error(errMsg);
+          }
+        }
+      }
+    }
+    return out;
+  }
+  parseInline(tokens, renderer) {
+    renderer = renderer || this.renderer;
+    let out = "", i, token, ret;
+    const l = tokens.length;
+    for (i = 0; i < l; i++) {
+      token = tokens[i];
+      if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
+        ret = this.options.extensions.renderers[token.type].call({ parser: this }, token);
+        if (ret !== false || !["escape", "html", "link", "image", "strong", "em", "codespan", "br", "del", "text"].includes(token.type)) {
+          out += ret || "";
+          continue;
+        }
+      }
+      switch (token.type) {
+        case "escape": {
+          out += renderer.text(token.text);
+          break;
+        }
+        case "html": {
+          out += renderer.html(token.text);
+          break;
+        }
+        case "link": {
+          out += renderer.link(token.href, token.title, this.parseInline(token.tokens, renderer));
+          break;
+        }
+        case "image": {
+          out += renderer.image(token.href, token.title, token.text);
+          break;
+        }
+        case "strong": {
+          out += renderer.strong(this.parseInline(token.tokens, renderer));
+          break;
+        }
+        case "em": {
+          out += renderer.em(this.parseInline(token.tokens, renderer));
+          break;
+        }
+        case "codespan": {
+          out += renderer.codespan(token.text);
+          break;
+        }
+        case "br": {
+          out += renderer.br();
+          break;
+        }
+        case "del": {
+          out += renderer.del(this.parseInline(token.tokens, renderer));
+          break;
+        }
+        case "text": {
+          out += renderer.text(token.text);
+          break;
+        }
+        default: {
+          const errMsg = 'Token with "' + token.type + '" type was not found.';
+          if (this.options.silent) {
+            console.error(errMsg);
+            return;
+          } else {
+            throw new Error(errMsg);
+          }
+        }
+      }
+    }
+    return out;
+  }
+}
+function marked$1(src, opt, callback) {
+  if (typeof src === "undefined" || src === null) {
+    throw new Error("marked(): input parameter is undefined or null");
+  }
+  if (typeof src !== "string") {
+    throw new Error("marked(): input parameter is of type " + Object.prototype.toString.call(src) + ", string expected");
+  }
+  if (typeof opt === "function") {
+    callback = opt;
+    opt = null;
+  }
+  opt = merge({}, marked$1.defaults, opt || {});
+  checkSanitizeDeprecation(opt);
+  if (callback) {
+    const highlight = opt.highlight;
+    let tokens;
+    try {
+      tokens = Lexer.lex(src, opt);
+    } catch (e) {
+      return callback(e);
+    }
+    const done = function(err) {
+      let out;
+      if (!err) {
+        try {
+          if (opt.walkTokens) {
+            marked$1.walkTokens(tokens, opt.walkTokens);
+          }
+          out = Parser.parse(tokens, opt);
+        } catch (e) {
+          err = e;
+        }
+      }
+      opt.highlight = highlight;
+      return err ? callback(err) : callback(null, out);
+    };
+    if (!highlight || highlight.length < 3) {
+      return done();
+    }
+    delete opt.highlight;
+    if (!tokens.length)
+      return done();
+    let pending = 0;
+    marked$1.walkTokens(tokens, function(token) {
+      if (token.type === "code") {
+        pending++;
+        setTimeout(() => {
+          highlight(token.text, token.lang, function(err, code) {
+            if (err) {
+              return done(err);
+            }
+            if (code != null && code !== token.text) {
+              token.text = code;
+              token.escaped = true;
+            }
+            pending--;
+            if (pending === 0) {
+              done();
+            }
+          });
+        }, 0);
+      }
+    });
+    if (pending === 0) {
+      done();
+    }
+    return;
+  }
+  try {
+    const tokens = Lexer.lex(src, opt);
+    if (opt.walkTokens) {
+      marked$1.walkTokens(tokens, opt.walkTokens);
+    }
+    return Parser.parse(tokens, opt);
+  } catch (e) {
+    e.message += "\nPlease report this to https://github.com/markedjs/marked.";
+    if (opt.silent) {
+      return "<p>An error occurred:</p><pre>" + escape(e.message + "", true) + "</pre>";
+    }
+    throw e;
+  }
+}
+marked$1.options = marked$1.setOptions = function(opt) {
+  merge(marked$1.defaults, opt);
+  changeDefaults(marked$1.defaults);
+  return marked$1;
+};
+marked$1.getDefaults = getDefaults;
+marked$1.defaults = defaults$2;
+marked$1.use = function(...args) {
+  const opts = merge({}, ...args);
+  const extensions = marked$1.defaults.extensions || { renderers: {}, childTokens: {} };
+  let hasExtensions;
+  args.forEach((pack) => {
+    if (pack.extensions) {
+      hasExtensions = true;
+      pack.extensions.forEach((ext) => {
+        if (!ext.name) {
+          throw new Error("extension name required");
+        }
+        if (ext.renderer) {
+          const prevRenderer = extensions.renderers ? extensions.renderers[ext.name] : null;
+          if (prevRenderer) {
+            extensions.renderers[ext.name] = function(...args2) {
+              let ret = ext.renderer.apply(this, args2);
+              if (ret === false) {
+                ret = prevRenderer.apply(this, args2);
+              }
+              return ret;
+            };
+          } else {
+            extensions.renderers[ext.name] = ext.renderer;
+          }
+        }
+        if (ext.tokenizer) {
+          if (!ext.level || ext.level !== "block" && ext.level !== "inline") {
+            throw new Error("extension level must be 'block' or 'inline'");
+          }
+          if (extensions[ext.level]) {
+            extensions[ext.level].unshift(ext.tokenizer);
+          } else {
+            extensions[ext.level] = [ext.tokenizer];
+          }
+          if (ext.start) {
+            if (ext.level === "block") {
+              if (extensions.startBlock) {
+                extensions.startBlock.push(ext.start);
+              } else {
+                extensions.startBlock = [ext.start];
+              }
+            } else if (ext.level === "inline") {
+              if (extensions.startInline) {
+                extensions.startInline.push(ext.start);
+              } else {
+                extensions.startInline = [ext.start];
+              }
+            }
+          }
+        }
+        if (ext.childTokens) {
+          extensions.childTokens[ext.name] = ext.childTokens;
+        }
+      });
+    }
+    if (pack.renderer) {
+      const renderer = marked$1.defaults.renderer || new Renderer();
+      for (const prop in pack.renderer) {
+        const prevRenderer = renderer[prop];
+        renderer[prop] = (...args2) => {
+          let ret = pack.renderer[prop].apply(renderer, args2);
+          if (ret === false) {
+            ret = prevRenderer.apply(renderer, args2);
+          }
+          return ret;
+        };
+      }
+      opts.renderer = renderer;
+    }
+    if (pack.tokenizer) {
+      const tokenizer = marked$1.defaults.tokenizer || new Tokenizer();
+      for (const prop in pack.tokenizer) {
+        const prevTokenizer = tokenizer[prop];
+        tokenizer[prop] = (...args2) => {
+          let ret = pack.tokenizer[prop].apply(tokenizer, args2);
+          if (ret === false) {
+            ret = prevTokenizer.apply(tokenizer, args2);
+          }
+          return ret;
+        };
+      }
+      opts.tokenizer = tokenizer;
+    }
+    if (pack.walkTokens) {
+      const walkTokens = marked$1.defaults.walkTokens;
+      opts.walkTokens = function(token) {
+        pack.walkTokens.call(this, token);
+        if (walkTokens) {
+          walkTokens.call(this, token);
+        }
+      };
+    }
+    if (hasExtensions) {
+      opts.extensions = extensions;
+    }
+    marked$1.setOptions(opts);
+  });
+};
+marked$1.walkTokens = function(tokens, callback) {
+  for (const token of tokens) {
+    callback.call(marked$1, token);
+    switch (token.type) {
+      case "table": {
+        for (const cell of token.header) {
+          marked$1.walkTokens(cell.tokens, callback);
+        }
+        for (const row of token.rows) {
+          for (const cell of row) {
+            marked$1.walkTokens(cell.tokens, callback);
+          }
+        }
+        break;
+      }
+      case "list": {
+        marked$1.walkTokens(token.items, callback);
+        break;
+      }
+      default: {
+        if (marked$1.defaults.extensions && marked$1.defaults.extensions.childTokens && marked$1.defaults.extensions.childTokens[token.type]) {
+          marked$1.defaults.extensions.childTokens[token.type].forEach(function(childTokens) {
+            marked$1.walkTokens(token[childTokens], callback);
+          });
+        } else if (token.tokens) {
+          marked$1.walkTokens(token.tokens, callback);
+        }
+      }
+    }
+  }
+};
+marked$1.parseInline = function(src, opt) {
+  if (typeof src === "undefined" || src === null) {
+    throw new Error("marked.parseInline(): input parameter is undefined or null");
+  }
+  if (typeof src !== "string") {
+    throw new Error("marked.parseInline(): input parameter is of type " + Object.prototype.toString.call(src) + ", string expected");
+  }
+  opt = merge({}, marked$1.defaults, opt || {});
+  checkSanitizeDeprecation(opt);
+  try {
+    const tokens = Lexer.lexInline(src, opt);
+    if (opt.walkTokens) {
+      marked$1.walkTokens(tokens, opt.walkTokens);
+    }
+    return Parser.parseInline(tokens, opt);
+  } catch (e) {
+    e.message += "\nPlease report this to https://github.com/markedjs/marked.";
+    if (opt.silent) {
+      return "<p>An error occurred:</p><pre>" + escape(e.message + "", true) + "</pre>";
+    }
+    throw e;
+  }
+};
+marked$1.Parser = Parser;
+marked$1.parser = Parser.parse;
+marked$1.Renderer = Renderer;
+marked$1.TextRenderer = TextRenderer;
+marked$1.Lexer = Lexer;
+marked$1.lexer = Lexer.lex;
+marked$1.Tokenizer = Tokenizer;
+marked$1.Slugger = Slugger;
+marked$1.parse = marked$1;
+Parser.parse;
+Lexer.lex;
+var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+var escapes = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+};
+var unescapes = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'"
+};
+var rescaped = /(&amp;|&lt;|&gt;|&quot;|&#39;)/g;
+var runescaped = /[&<>"']/g;
+function escapeHtmlChar(match) {
+  return escapes[match];
+}
+function unescapeHtmlChar(match) {
+  return unescapes[match];
+}
+function escapeHtml(text) {
+  return text == null ? "" : String(text).replace(runescaped, escapeHtmlChar);
+}
+function unescapeHtml(html) {
+  return html == null ? "" : String(html).replace(rescaped, unescapeHtmlChar);
+}
+escapeHtml.options = unescapeHtml.options = {};
+var she = {
+  encode: escapeHtml,
+  escape: escapeHtml,
+  decode: unescapeHtml,
+  unescape: unescapeHtml,
+  version: "1.0.0-browser"
+};
+function assignment(result) {
+  var stack = Array.prototype.slice.call(arguments, 1);
+  var item;
+  var key;
+  while (stack.length) {
+    item = stack.shift();
+    for (key in item) {
+      if (item.hasOwnProperty(key)) {
+        if (Object.prototype.toString.call(result[key]) === "[object Object]") {
+          result[key] = assignment(result[key], item[key]);
+        } else {
+          result[key] = item[key];
+        }
+      }
+    }
+  }
+  return result;
+}
+var assignment_1 = assignment;
+var lowercase$2 = function lowercase(string) {
+  return typeof string === "string" ? string.toLowerCase() : string;
+};
+function toMap$2(list2) {
+  return list2.reduce(asKey, {});
+}
+function asKey(accumulator, item) {
+  accumulator[item] = true;
+  return accumulator;
+}
+var toMap_1 = toMap$2;
+var toMap$1 = toMap_1;
+var uris = ["background", "base", "cite", "href", "longdesc", "src", "usemap"];
+var attributes$1 = {
+  uris: toMap$1(uris)
+};
+var toMap = toMap_1;
+var voids = ["area", "br", "col", "hr", "img", "wbr", "input", "base", "basefont", "link", "meta"];
+var elements$2 = {
+  voids: toMap(voids)
+};
+var he$1 = she;
+var lowercase$1 = lowercase$2;
+var elements$1 = elements$2;
+var rstart = /^<\s*([\w:-]+)((?:\s+[\w:-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)\s*>/;
+var rend = /^<\s*\/\s*([\w:-]+)[^>]*>/;
+var rattrs = /([\w:-]+)(?:\s*=\s*(?:(?:"((?:[^"])*)")|(?:'((?:[^'])*)')|([^>\s]+)))?/g;
+var rtag = /^</;
+var rtagend = /^<\s*\//;
+function createStack() {
+  var stack = [];
+  stack.lastItem = function lastItem() {
+    return stack[stack.length - 1];
+  };
+  return stack;
+}
+function parser$1(html, handler) {
+  var stack = createStack();
+  var last = html;
+  var chars;
+  while (html) {
+    parsePart();
+  }
+  parseEndTag();
+  function parsePart() {
+    chars = true;
+    parseTag();
+    var same = html === last;
+    last = html;
+    if (same) {
+      html = "";
+    }
+  }
+  function parseTag() {
+    if (html.substr(0, 4) === "<!--") {
+      parseComment();
+    } else if (rtagend.test(html)) {
+      parseEdge(rend, parseEndTag);
+    } else if (rtag.test(html)) {
+      parseEdge(rstart, parseStartTag);
+    }
+    parseTagDecode();
+  }
+  function parseEdge(regex, parser2) {
+    var match = html.match(regex);
+    if (match) {
+      html = html.substring(match[0].length);
+      match[0].replace(regex, parser2);
+      chars = false;
+    }
+  }
+  function parseComment() {
+    var index = html.indexOf("-->");
+    if (index >= 0) {
+      if (handler.comment) {
+        handler.comment(html.substring(4, index));
+      }
+      html = html.substring(index + 3);
+      chars = false;
+    }
+  }
+  function parseTagDecode() {
+    if (!chars) {
+      return;
+    }
+    var text;
+    var index = html.indexOf("<");
+    if (index >= 0) {
+      text = html.substring(0, index);
+      html = html.substring(index);
+    } else {
+      text = html;
+      html = "";
+    }
+    if (handler.chars) {
+      handler.chars(text);
+    }
+  }
+  function parseStartTag(tag, tagName, rest, unary) {
+    var attrs = {};
+    var low = lowercase$1(tagName);
+    var u = elements$1.voids[low] || !!unary;
+    rest.replace(rattrs, attrReplacer);
+    if (!u) {
+      stack.push(low);
+    }
+    if (handler.start) {
+      handler.start(low, attrs, u);
+    }
+    function attrReplacer(match, name, doubleQuotedValue, singleQuotedValue, unquotedValue) {
+      if (doubleQuotedValue === void 0 && singleQuotedValue === void 0 && unquotedValue === void 0) {
+        attrs[name] = void 0;
+      } else {
+        attrs[name] = he$1.decode(doubleQuotedValue || singleQuotedValue || unquotedValue || "");
+      }
+    }
+  }
+  function parseEndTag(tag, tagName) {
+    var i;
+    var pos = 0;
+    var low = lowercase$1(tagName);
+    if (low) {
+      for (pos = stack.length - 1; pos >= 0; pos--) {
+        if (stack[pos] === low) {
+          break;
+        }
+      }
+    }
+    if (pos >= 0) {
+      for (i = stack.length - 1; i >= pos; i--) {
+        if (handler.end) {
+          handler.end(stack[i]);
+        }
+      }
+      stack.length = pos;
+    }
+  }
+}
+var parser_1 = parser$1;
+var he = she;
+var lowercase2 = lowercase$2;
+var attributes = attributes$1;
+var elements = elements$2;
+function sanitizer$1(buffer, options) {
+  var context;
+  var o = options || {};
+  reset();
+  return {
+    start,
+    end,
+    chars
+  };
+  function out(value) {
+    buffer.push(value);
+  }
+  function start(tag, attrs, unary) {
+    var low = lowercase2(tag);
+    if (context.ignoring) {
+      ignore(low);
+      return;
+    }
+    if ((o.allowedTags || []).indexOf(low) === -1) {
+      ignore(low);
+      return;
+    }
+    if (o.filter && !o.filter({ tag: low, attrs })) {
+      ignore(low);
+      return;
+    }
+    out("<");
+    out(low);
+    Object.keys(attrs).forEach(parse);
+    out(unary ? "/>" : ">");
+    function parse(key) {
+      var value = attrs[key];
+      var classesOk = (o.allowedClasses || {})[low] || [];
+      var attrsOk = (o.allowedAttributes || {})[low] || [];
+      var valid;
+      var lkey = lowercase2(key);
+      if (lkey === "class" && attrsOk.indexOf(lkey) === -1) {
+        value = value.split(" ").filter(isValidClass).join(" ").trim();
+        valid = value.length;
+      } else {
+        valid = attrsOk.indexOf(lkey) !== -1 && (attributes.uris[lkey] !== true || testUrl(value));
+      }
+      if (valid) {
+        out(" ");
+        out(key);
+        if (typeof value === "string") {
+          out('="');
+          out(he.encode(value));
+          out('"');
+        }
+      }
+      function isValidClass(className) {
+        return classesOk && classesOk.indexOf(className) !== -1;
+      }
+    }
+  }
+  function end(tag) {
+    var low = lowercase2(tag);
+    var allowed = (o.allowedTags || []).indexOf(low) !== -1;
+    if (allowed) {
+      if (context.ignoring === false) {
+        out("</");
+        out(low);
+        out(">");
+      } else {
+        unignore(low);
+      }
+    } else {
+      unignore(low);
+    }
+  }
+  function testUrl(text) {
+    var start2 = text[0];
+    if (start2 === "#" || start2 === "/") {
+      return true;
+    }
+    var colon = text.indexOf(":");
+    if (colon === -1) {
+      return true;
+    }
+    var questionmark = text.indexOf("?");
+    if (questionmark !== -1 && colon > questionmark) {
+      return true;
+    }
+    var hash = text.indexOf("#");
+    if (hash !== -1 && colon > hash) {
+      return true;
+    }
+    return o.allowedSchemes.some(matches);
+    function matches(scheme) {
+      return text.indexOf(scheme + ":") === 0;
+    }
+  }
+  function chars(text) {
+    if (context.ignoring === false) {
+      out(o.transformText ? o.transformText(text) : text);
+    }
+  }
+  function ignore(tag) {
+    if (elements.voids[tag]) {
+      return;
+    }
+    if (context.ignoring === false) {
+      context = { ignoring: tag, depth: 1 };
+    } else if (context.ignoring === tag) {
+      context.depth++;
+    }
+  }
+  function unignore(tag) {
+    if (context.ignoring === tag) {
+      if (--context.depth <= 0) {
+        reset();
+      }
+    }
+  }
+  function reset() {
+    context = { ignoring: false, depth: 0 };
+  }
+}
+var sanitizer_1 = sanitizer$1;
+var defaults$1 = {
+  allowedAttributes: {
+    a: ["href", "name", "target", "title", "aria-label"],
+    iframe: ["allowfullscreen", "frameborder", "src"],
+    img: ["src", "alt", "title", "aria-label"]
+  },
+  allowedClasses: {},
+  allowedSchemes: ["http", "https", "mailto"],
+  allowedTags: [
+    "a",
+    "abbr",
+    "article",
+    "b",
+    "blockquote",
+    "br",
+    "caption",
+    "code",
+    "del",
+    "details",
+    "div",
+    "em",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "i",
+    "img",
+    "ins",
+    "kbd",
+    "li",
+    "main",
+    "mark",
+    "ol",
+    "p",
+    "pre",
+    "section",
+    "span",
+    "strike",
+    "strong",
+    "sub",
+    "summary",
+    "sup",
+    "table",
+    "tbody",
+    "td",
+    "th",
+    "thead",
+    "tr",
+    "u",
+    "ul"
+  ],
+  filter: null
+};
+var defaults_1 = defaults$1;
+var assign = assignment_1;
+var parser = parser_1;
+var sanitizer = sanitizer_1;
+var defaults = defaults_1;
+function insane(html, options, strict) {
+  var buffer = [];
+  var configuration = strict === true ? options : assign({}, defaults, options);
+  var handler = sanitizer(buffer, configuration);
+  parser(html, handler);
+  return buffer.join("");
+}
+insane.defaults = defaults;
+var insane_1 = insane;
+var hanabi$1 = { exports: {} };
+(function(module, exports) {
+  (function(global2, factory) {
+    module.exports = factory();
+  })(commonjsGlobal, function() {
+    function createCommonjsModule(fn, module2) {
+      return module2 = { exports: {} }, fn(module2, module2.exports), module2.exports;
+    }
+    var index$1 = createCommonjsModule(function(module2) {
+      var comment2 = module2.exports = function() {
+        return new RegExp("(?:" + comment2.line().source + ")|(?:" + comment2.block().source + ")", "gm");
+      };
+      comment2.line = function() {
+        return /(?:^|\s)\/\/(.+?)$/gm;
+      };
+      comment2.block = function() {
+        return /\/\*([\S\s]*?)\*\//gm;
+      };
+    });
+    var defaultColors = ["23AC69", "91C132", "F19726", "E8552D", "1AAB8E", "E1147F", "2980C1", "1BA1E6", "9FA0A0", "F19726", "E30B20", "E30B20", "A3338B"];
+    var index = function(input, ref) {
+      if (ref === void 0)
+        ref = {};
+      var colors = ref.colors;
+      if (colors === void 0)
+        colors = defaultColors;
+      var index2 = 0;
+      var cache = {};
+      var wordRe = /[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af\u0400-\u04FF]+|\w+/;
+      var leftAngleRe = /</;
+      var re = new RegExp("(" + wordRe.source + "|" + leftAngleRe.source + ")|(" + index$1().source + ")", "gmi");
+      return input.replace(re, function(m, word, cm) {
+        if (cm) {
+          return toComment(cm);
+        }
+        if (word === "<") {
+          return "&lt;";
+        }
+        var color;
+        if (cache[word]) {
+          color = cache[word];
+        } else {
+          color = colors[index2];
+          cache[word] = color;
+        }
+        var out = '<span style="color: #' + color + '">' + word + "</span>";
+        index2 = ++index2 % colors.length;
+        return out;
+      });
+    };
+    function toComment(cm) {
+      return '<span style="color: slategray">' + cm + "</span>";
+    }
+    return index;
+  });
+})(hanabi$1);
+var hanabi = hanabi$1.exports;
+function createElement(htmlStr = "") {
+  const div = document.createElement("div");
+  div.innerHTML = htmlStr.trim();
+  return div.firstElementChild || div;
+}
+function getHeight(el) {
+  return parseFloat(getComputedStyle(el, null).height.replace("px", ""));
+}
+function htmlEncode(str) {
+  const temp = document.createElement("div");
+  temp.innerText = str;
+  const output = temp.innerHTML;
+  return output;
+}
+function getQueryParam(name) {
+  const match = RegExp(`[?&]${name}=([^&]*)`).exec(window.location.search);
+  return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+}
+function getOffset(el) {
+  const rect = el.getBoundingClientRect();
+  return {
+    top: rect.top + window.scrollY,
+    left: rect.left + window.scrollX
+  };
+}
+function padWithZeros(vNumber, width) {
+  let numAsString = vNumber.toString();
+  while (numAsString.length < width) {
+    numAsString = `0${numAsString}`;
+  }
+  return numAsString;
+}
+function dateFormat(date) {
+  const vDay = padWithZeros(date.getDate(), 2);
+  const vMonth = padWithZeros(date.getMonth() + 1, 2);
+  const vYear = padWithZeros(date.getFullYear(), 2);
+  return `${vYear}-${vMonth}-${vDay}`;
+}
+function timeAgo(date) {
+  try {
+    const oldTime = date.getTime();
+    const currTime = new Date().getTime();
+    const diffValue = currTime - oldTime;
+    const days = Math.floor(diffValue / (24 * 3600 * 1e3));
+    if (days === 0) {
+      const leave1 = diffValue % (24 * 3600 * 1e3);
+      const hours = Math.floor(leave1 / (3600 * 1e3));
+      if (hours === 0) {
+        const leave2 = leave1 % (3600 * 1e3);
+        const minutes = Math.floor(leave2 / (60 * 1e3));
+        if (minutes === 0) {
+          const leave3 = leave2 % (60 * 1e3);
+          const seconds = Math.round(leave3 / 1e3);
+          return `${seconds} \u79D2\u524D`;
+        }
+        return `${minutes} \u5206\u949F\u524D`;
+      }
+      return `${hours} \u5C0F\u65F6\u524D`;
+    }
+    if (days < 0)
+      return "\u521A\u521A";
+    if (days < 8) {
+      return `${days} \u5929\u524D`;
+    }
+    return dateFormat(date);
+  } catch (error) {
+    console.error(error);
+    return " - ";
+  }
+}
+function getGravatarURL(ctx, emailMD5) {
+  var _a, _b;
+  return `${(((_a = ctx.conf.gravatar) == null ? void 0 : _a.mirror) || "").replace(/\/$/, "")}/${emailMD5}?d=${encodeURIComponent(((_b = ctx.conf.gravatar) == null ? void 0 : _b.default) || "")}&s=80`;
+}
+function versionCompare(a, b) {
+  const pa = a.split(".");
+  const pb = b.split(".");
+  for (let i = 0; i < 3; i++) {
+    const na = Number(pa[i]);
+    const nb = Number(pb[i]);
+    if (na > nb)
+      return 1;
+    if (nb > na)
+      return -1;
+    if (!Number.isNaN(na) && Number.isNaN(nb))
+      return 1;
+    if (Number.isNaN(na) && !Number.isNaN(nb))
+      return -1;
+  }
+  return 0;
+}
+let markedInstance;
+function marked(ctx, src) {
+  if (!markedInstance) {
+    const renderer = new marked$1.Renderer();
+    const linkRenderer = renderer.link;
+    renderer.link = (href, title, text) => {
+      const localLink = href == null ? void 0 : href.startsWith(`${window.location.protocol}//${window.location.hostname}`);
+      const html = linkRenderer.call(renderer, href, title, text);
+      return html.replace(/^<a /, `<a target="_blank" ${!localLink ? `rel="noreferrer noopener nofollow"` : ""} `);
+    };
+    const nMarked = marked$1;
+    marked$1.setOptions({
+      renderer,
+      highlight: (code) => hanabi(code),
+      pedantic: false,
+      gfm: true,
+      breaks: true,
+      smartLists: true,
+      smartypants: true,
+      xhtml: false
+    });
+    markedInstance = nMarked;
+  }
+  src = insane_1(src, __spreadProps(__spreadValues({}, insane_1.defaults), {
+    allowedAttributes: __spreadProps(__spreadValues({}, insane_1.defaults.allowedAttributes), {
+      img: ["src", "atk-emoticon"]
+    })
+  }));
+  return markedInstance.parse(src);
+}
+function showLoading(parentElem) {
+  if (parentElem instanceof Context)
+    parentElem = parentElem.$root;
+  let $loading = parentElem.querySelector(".atk-loading");
+  if (!$loading) {
+    $loading = createElement(`<div class="atk-loading atk-fade-in" style="display: none;">
+      <div class="atk-loading-spinner">
+        <svg viewBox="25 25 50 50"><circle cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"></circle></svg>
+      </div>
+    </div>`);
+    parentElem.appendChild($loading);
+  }
+  $loading.style.display = "";
+  const $spinner = $loading.querySelector(".atk-loading-spinner");
+  if ($spinner) {
+    $spinner.style.display = "none";
+    window.setTimeout(() => {
+      $spinner.style.display = "";
+    }, 500);
+  }
+}
+function hideLoading(parentElem) {
+  if (parentElem instanceof Context)
+    parentElem = parentElem.$root;
+  const $loading = parentElem.querySelector(".atk-loading");
+  if ($loading)
+    $loading.style.display = "none";
+}
+function isVisible(el, viewport = document.documentElement) {
+  const viewportHeight = viewport.clientHeight;
+  const docViewTop = viewport.scrollTop;
+  const docViewBottom = docViewTop + viewportHeight;
+  const rect = el.getBoundingClientRect();
+  const elemTop = rect.top + docViewTop;
+  const elemBottom = elemTop + rect.height;
+  return elemBottom <= docViewBottom;
+}
+function scrollIntoView(elem, enableAnim = true) {
+  const top = getOffset(elem).top + getHeight(elem) / 2 - document.documentElement.clientHeight / 2;
+  if (enableAnim) {
+    window.scroll({
+      top: top > 0 ? top : 0,
+      left: 0
+    });
+  } else {
+    window.scroll(0, top > 0 ? top : 0);
+  }
+}
+function showNotify(wrapElem, msg, type) {
+  const colors = { s: "#57d59f", e: "#ff6f6c", w: "#ffc721", i: "#2ebcfc" };
+  const timeout = 3e3;
+  const notifyElem = createElement(`<div class="atk-notify atk-fade-in" style="background-color: ${colors[type]}"><span class="atk-notify-content"></span></div>`);
+  const notifyContentEl = notifyElem.querySelector(".atk-notify-content");
+  notifyContentEl.innerHTML = htmlEncode(msg).replace("\n", "<br/>");
+  wrapElem.appendChild(notifyElem);
+  const notifyRemove = () => {
+    notifyElem.classList.add("atk-fade-out");
+    setTimeout(() => {
+      notifyElem.remove();
+    }, 200);
+  };
+  let timeoutFn;
+  {
+    timeoutFn = window.setTimeout(() => {
+      notifyRemove();
+    }, timeout);
+  }
+  notifyElem.addEventListener("click", () => {
+    notifyRemove();
+    window.clearTimeout(timeoutFn);
+  });
+}
+function playFadeAnim(elem, after, type = "in") {
+  elem.classList.add(`atk-fade-${type}`);
+  const onAnimEnded = () => {
+    elem.classList.remove(`atk-fade-${type}`);
+    elem.removeEventListener("animationend", onAnimEnded);
+    if (after)
+      after();
+  };
+  elem.addEventListener("animationend", onAnimEnded);
+}
+function playFadeInAnim(elem, after) {
+  playFadeAnim(elem, after, "in");
+}
+function setError(parentElem, html, title = '<span class="atk-error-title">Artalk Error</span>') {
+  if (parentElem instanceof Context)
+    parentElem = parentElem.$root;
+  let elem = parentElem.querySelector(".atk-error-layer");
+  if (html === null) {
+    if (elem !== null)
+      elem.remove();
+    return;
+  }
+  if (!elem) {
+    elem = createElement(`<div class="atk-error-layer">${title}<span class="atk-error-text"></span></div>`);
+    parentElem.appendChild(elem);
+  }
+  const errorTextEl = elem.querySelector(".atk-error-text");
+  errorTextEl.innerHTML = "";
+  if (html === null)
+    return;
+  if (html instanceof HTMLElement) {
+    errorTextEl.appendChild(html);
+  } else {
+    errorTextEl.innerText = html;
+  }
+}
+function getScrollBarWidth() {
+  const inner = document.createElement("p");
+  inner.style.width = "100%";
+  inner.style.height = "200px";
+  const outer = document.createElement("div");
+  outer.style.position = "absolute";
+  outer.style.top = "0px";
+  outer.style.left = "0px";
+  outer.style.visibility = "hidden";
+  outer.style.width = "200px";
+  outer.style.height = "150px";
+  outer.style.overflow = "hidden";
+  outer.appendChild(inner);
+  document.body.appendChild(outer);
+  const w1 = inner.offsetWidth;
+  outer.style.overflow = "scroll";
+  let w2 = inner.offsetWidth;
+  if (w1 === w2)
+    w2 = outer.clientWidth;
+  document.body.removeChild(outer);
+  return w1 - w2;
+}
+const _Layer = class extends Component {
+  constructor(ctx, name, el) {
+    super(ctx);
+    __publicField(this, "name");
+    __publicField(this, "$wrap");
+    __publicField(this, "$mask");
+    __publicField(this, "maskClickHideEnable", true);
+    __publicField(this, "bodyStyleOrgOverflow", "");
+    __publicField(this, "bodyStyleOrgPaddingRight", "");
+    this.name = name;
+    const { $wrap, $mask } = GetLayerWrap(ctx);
+    this.$wrap = $wrap;
+    this.$mask = $mask;
+    this.$el = this.$wrap.querySelector(`[data-layer-name="${name}"].atk-layer-item`);
+    if (this.$el === null) {
+      if (!el) {
+        this.$el = createElement();
+        this.$el.classList.add("atk-layer-item");
+      } else {
+        this.$el = el;
+      }
+    }
+    this.$el.setAttribute("data-layer-name", name);
+    this.$el.style.display = "none";
+    this.$wrap.append(this.$el);
+  }
+  getName() {
+    return this.name;
+  }
+  getWrapEl() {
+    return this.$wrap;
+  }
+  getEl() {
+    return this.$el;
+  }
+  show() {
+    _Layer.hideTimeoutList.forEach((item) => {
+      clearTimeout(item);
+    });
+    _Layer.hideTimeoutList = [];
+    this.$wrap.style.display = "block";
+    this.$mask.style.display = "block";
+    this.$mask.classList.add("atk-fade-in");
+    this.$el.style.display = "";
+    this.$mask.onclick = () => {
+      if (this.maskClickHideEnable)
+        this.hide();
+    };
+    this.bodyStyleOrgOverflow = document.body.style.overflow;
+    this.bodyStyleOrgPaddingRight = document.body.style.paddingRight;
+    document.body.style.overflow = "hidden";
+    const bpr = parseInt(window.getComputedStyle(document.body, null).getPropertyValue("padding-right"), 10);
+    document.body.style.paddingRight = `${getScrollBarWidth() + bpr || 0}px`;
+  }
+  hide() {
+    _Layer.hideTimeoutList.push(window.setTimeout(() => {
+      this.$wrap.style.display = "none";
+      document.body.style.overflow = this.bodyStyleOrgOverflow;
+      document.body.style.paddingRight = this.bodyStyleOrgPaddingRight;
+    }, 450));
+    this.$wrap.classList.add("atk-fade-out");
+    _Layer.hideTimeoutList.push(window.setTimeout(() => {
+      this.$wrap.style.display = "none";
+      this.$wrap.classList.remove("atk-fade-out");
+    }, 200));
+    this.$el.style.display = "none";
+  }
+  setMaskClickHide(enable) {
+    this.maskClickHideEnable = enable;
+  }
+  disposeNow() {
+    document.body.style.overflow = "";
+    this.$el.remove();
+    this.checkCleanLayer();
+  }
+  dispose() {
+    this.hide();
+    this.$el.remove();
+    this.checkCleanLayer();
+  }
+  checkCleanLayer() {
+    if (this.getWrapEl().querySelectorAll(".atk-layer-item").length === 0) {
+      this.$wrap.style.display = "none";
+    }
+  }
+};
+let Layer = _Layer;
+__publicField(Layer, "hideTimeoutList", []);
+function GetLayerWrap(ctx) {
+  let $wrap = document.querySelector(`.atk-layer-wrap#ctx-${ctx.cid}`);
+  if (!$wrap) {
+    $wrap = createElement(`<div class="atk-layer-wrap" id="ctx-${ctx.cid}" style="display: none;"><div class="atk-layer-mask"></div></div>`);
+    document.body.appendChild($wrap);
+  }
+  const $mask = $wrap.querySelector(".atk-layer-mask");
+  return { $wrap, $mask };
+}
+class Dialog {
+  constructor(contentEl) {
+    __publicField(this, "$el");
+    __publicField(this, "$content");
+    __publicField(this, "$actions");
+    this.$el = createElement(`<div class="atk-layer-dialog-wrap">
+        <div class="atk-layer-dialog">
+          <div class="atk-layer-dialog-content"></div>
+          <div class="atk-layer-dialog-actions"></div>
+        </div>
+      </div>`);
+    this.$actions = this.$el.querySelector(".atk-layer-dialog-actions");
+    this.$content = this.$el.querySelector(".atk-layer-dialog-content");
+    this.$content.appendChild(contentEl);
+    return this;
+  }
+  setYes(handler) {
+    const btn = createElement('<button data-action="confirm">\u786E\u5B9A</button>');
+    btn.onclick = this.onBtnClick(handler);
+    this.$actions.appendChild(btn);
+    return this;
+  }
+  setNo(handler) {
+    const btn = createElement('<button data-action="cancel">\u53D6\u6D88</button>');
+    btn.onclick = this.onBtnClick(handler);
+    this.$actions.appendChild(btn);
+    return this;
+  }
+  onBtnClick(handler) {
+    return (evt) => {
+      const re = handler(evt.currentTarget, this);
+      if (re === void 0 || re === true) {
+        this.$el.remove();
+      }
+    };
+  }
+}
+function Fetch(ctx, input, init, timeout) {
+  return __async(this, null, function* () {
+    if (ctx.user.data.token) {
+      const requestHeaders = new Headers();
+      requestHeaders.set("Authorization", `Bearer ${ctx.user.data.token}`);
+      init.headers = requestHeaders;
+    }
+    try {
+      let resp;
+      if (typeof timeout !== "number" && ctx.conf.reqTimeout === 0 || timeout === 0) {
+        resp = yield fetch(input, init);
+      } else {
+        resp = yield timeoutPromise(timeout || ctx.conf.reqTimeout || 15e3, fetch(input, init));
+      }
+      if (!resp.ok && resp.status !== 401)
+        throw new Error(`\u8BF7\u6C42\u54CD\u5E94 ${resp.status}`);
+      let json = yield resp.json();
+      const recall = (resolve, reject) => {
+        Fetch(ctx, input, init).then((d) => {
+          resolve(d);
+        }).catch((err) => {
+          reject(err);
+        });
+      };
+      if (json.data && json.data.need_captcha) {
+        json = yield new Promise((resolve, reject) => {
+          ctx.trigger("checker-captcha", {
+            imgData: json.data.img_data,
+            onSuccess: () => {
+              recall(resolve, reject);
+            },
+            onCancel: () => {
+              reject(json);
+            }
+          });
+        });
+      } else if (json.data && json.data.need_login || resp.status === 401) {
+        json = yield new Promise((resolve, reject) => {
+          ctx.trigger("checker-admin", {
+            onSuccess: () => {
+              recall(resolve, reject);
+            },
+            onCancel: () => {
+              reject(json);
+            }
+          });
+        });
+      }
+      if (!json.success)
+        throw json;
+      return json;
+    } catch (err) {
+      console.error(err);
+      if (err instanceof TypeError)
+        throw new Error(`\u7F51\u7EDC\u9519\u8BEF`);
+      throw err;
+    }
+  });
+}
+function POST(ctx, url, data) {
+  return __async(this, null, function* () {
+    const init = {
+      method: "POST"
+    };
+    if (data)
+      init.body = ToFormData(data);
+    const json = yield Fetch(ctx, url, init);
+    return json.data || {};
+  });
+}
+function GET(ctx, url, data) {
+  return __async(this, null, function* () {
+    const json = yield Fetch(ctx, url + (data ? `?${new URLSearchParams(data)}` : ""), {
+      method: "GET"
+    });
+    return json.data || {};
+  });
+}
+function ToFormData(object) {
+  const formData = new FormData();
+  Object.keys(object).forEach((key) => formData.append(key, String(object[key])));
+  return formData;
+}
+function timeoutPromise(ms, promise) {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error("\u8BF7\u6C42\u8D85\u65F6"));
+    }, ms);
+    promise.then((res) => {
+      clearTimeout(timeoutId);
+      resolve(res);
+    }, (err) => {
+      clearTimeout(timeoutId);
+      reject(err);
+    });
+  });
+}
+class Api {
+  constructor(ctx) {
+    __publicField(this, "ctx");
+    __publicField(this, "baseURL");
+    this.ctx = ctx;
+    this.baseURL = ctx.conf.server;
+  }
+  get(offset, type, flatMode, paramsEditor) {
+    var _a;
+    const params = {
+      page_key: this.ctx.conf.pageKey,
+      site_name: this.ctx.conf.site || "",
+      limit: ((_a = this.ctx.conf.pagination) == null ? void 0 : _a.pageSize) || 15,
+      offset
+    };
+    if (type)
+      params.type = type;
+    if (flatMode)
+      params.flat_mode = flatMode;
+    if (this.ctx.user.checkHasBasicUserInfo()) {
+      params.name = this.ctx.user.data.nick;
+      params.email = this.ctx.user.data.email;
+    }
+    if (paramsEditor)
+      paramsEditor(params);
+    return POST(this.ctx, `${this.baseURL}/get`, params);
+  }
+  add(comment2) {
+    return __async(this, null, function* () {
+      const params = {
+        name: comment2.nick,
+        email: comment2.email,
+        link: comment2.link,
+        content: comment2.content,
+        rid: comment2.rid,
+        page_key: this.ctx.conf.pageKey,
+        page_title: this.ctx.conf.pageTitle || ""
+      };
+      if (this.ctx.conf.site)
+        params.site_name = this.ctx.conf.site;
+      const data = yield POST(this.ctx, `${this.baseURL}/add`, params);
+      return data.comment;
+    });
+  }
+  commentEdit(data) {
+    return __async(this, null, function* () {
+      const params = __spreadValues({}, data);
+      const d = yield POST(this.ctx, `${this.baseURL}/admin/comment-edit`, params);
+      return d.comment;
+    });
+  }
+  commentDel(commentID, siteName) {
+    const params = {
+      id: String(commentID),
+      site_name: siteName || ""
+    };
+    return POST(this.ctx, `${this.baseURL}/admin/comment-del`, params);
+  }
+  login(name, email, password) {
+    return __async(this, null, function* () {
+      const params = {
+        name,
+        email,
+        password
+      };
+      if (this.ctx.conf.site)
+        params.site_name = this.ctx.conf.site;
+      const data = yield POST(this.ctx, `${this.baseURL}/login`, params);
+      return data.token;
+    });
+  }
+  userGet(name, email) {
+    const ctrl = new AbortController();
+    const { signal } = ctrl;
+    const params = {
+      name,
+      email,
+      site_name: this.ctx.conf.site || ""
+    };
+    const req = Fetch(this.ctx, `${this.baseURL}/user-get`, {
+      method: "POST",
+      body: ToFormData(params),
+      signal
+    }).then((json) => ({
+      user: json.data.user,
+      is_login: json.data.is_login,
+      unread: json.data.unread || [],
+      unread_count: json.data.unread_count || 0
+    }));
+    return {
+      req,
+      abort: () => {
+        ctrl.abort();
+      }
+    };
+  }
+  pageGet(siteName, offset, limit) {
+    return __async(this, null, function* () {
+      const params = {
+        site_name: siteName || "",
+        offset: offset || 0,
+        limit: limit || 15
+      };
+      const d = yield POST(this.ctx, `${this.baseURL}/admin/page-get`, params);
+      return d;
+    });
+  }
+  pageEdit(data) {
+    return __async(this, null, function* () {
+      const params = {
+        id: data.id,
+        key: data.key,
+        title: data.title,
+        admin_only: data.admin_only,
+        site_name: data.site_name || this.ctx.conf.site
+      };
+      const d = yield POST(this.ctx, `${this.baseURL}/admin/page-edit`, params);
+      return d.page;
+    });
+  }
+  pageDel(pageKey, siteName) {
+    const params = {
+      key: String(pageKey),
+      site_name: siteName || ""
+    };
+    return POST(this.ctx, `${this.baseURL}/admin/page-del`, params);
+  }
+  pageFetch(id) {
+    return __async(this, null, function* () {
+      const params = {
+        id
+      };
+      const d = yield POST(this.ctx, `${this.baseURL}/admin/page-fetch`, params);
+      return d.page;
+    });
+  }
+  siteGet() {
+    return __async(this, null, function* () {
+      const params = {};
+      const d = yield POST(this.ctx, `${this.baseURL}/admin/site-get`, params);
+      return d.sites;
+    });
+  }
+  siteAdd(name, urls) {
+    return __async(this, null, function* () {
+      const params = {
+        name,
+        urls
+      };
+      const d = yield POST(this.ctx, `${this.baseURL}/admin/site-add`, params);
+      return d.site;
+    });
+  }
+  siteEdit(data) {
+    return __async(this, null, function* () {
+      const params = {
+        id: data.id,
+        name: data.name || "",
+        urls: data.urls || ""
+      };
+      const d = yield POST(this.ctx, `${this.baseURL}/admin/site-edit`, params);
+      return d.site;
+    });
+  }
+  siteDel(id, delContent = false) {
+    const params = { id, del_content: delContent };
+    return POST(this.ctx, `${this.baseURL}/admin/site-del`, params);
+  }
+  export() {
+    return __async(this, null, function* () {
+      var _a;
+      const d = yield Fetch(this.ctx, `${this.baseURL}/admin/export`, { method: "POST" }, 0);
+      return ((_a = d.data) == null ? void 0 : _a.data) || "";
+    });
+  }
+  vote(targetID, type) {
+    return __async(this, null, function* () {
+      const params = {
+        site_name: this.ctx.conf.site || "",
+        target_id: targetID,
+        type
+      };
+      if (this.ctx.user.checkHasBasicUserInfo()) {
+        params.name = this.ctx.user.data.nick;
+        params.email = this.ctx.user.data.email;
+      }
+      const data = yield POST(this.ctx, `${this.baseURL}/vote`, params);
+      return data;
+    });
+  }
+  markRead(notifyKey, readAll = false) {
+    const params = {
+      site_name: this.ctx.conf.site || "",
+      notify_key: notifyKey
+    };
+    if (readAll) {
+      delete params.notify_key;
+      params.read_all = true;
+      params.name = this.ctx.user.data.nick;
+      params.email = this.ctx.user.data.email;
+    }
+    return POST(this.ctx, `${this.baseURL}/mark-read`, params);
+  }
+  captchaGet() {
+    return __async(this, null, function* () {
+      const data = yield GET(this.ctx, `${this.baseURL}/captcha/refresh`);
+      return data.img_data || "";
+    });
+  }
+  captchaCheck(value) {
+    return __async(this, null, function* () {
+      const data = yield GET(this.ctx, `${this.baseURL}/captcha/check`, { value });
+      return data.img_data || "";
+    });
+  }
+}
+const CaptchaChecker = {
+  request(that, inputVal) {
+    return new Api(that.ctx).captchaCheck(inputVal);
+  },
+  body(that) {
+    const elem = createElement(`<span><img class="atk-captcha-img" src="${that.submitCaptchaImgData || ""}" alt="\u9A8C\u8BC1\u7801">\u6572\u5165\u9A8C\u8BC1\u7801\u7EE7\u7EED\uFF1A</span>`);
+    elem.querySelector(".atk-captcha-img").onclick = () => {
+      const imgEl = elem.querySelector(".atk-captcha-img");
+      new Api(that.ctx).captchaGet().then((imgData) => {
+        imgEl.setAttribute("src", imgData);
+      }).catch((err) => {
+        console.error("\u9A8C\u8BC1\u7801\u83B7\u53D6\u5931\u8D25 ", err);
+      });
+    };
+    return elem;
+  },
+  onSuccess(that, data, inputVal, formEl) {
+    that.submitCaptchaVal = inputVal;
+  },
+  onError(that, err, inputVal, formEl) {
+    formEl.querySelector(".atk-captcha-img").click();
+  }
+};
+const AdminChecker = {
+  inputType: "password",
+  request(that, inputVal) {
+    const data = {
+      name: that.ctx.user.data.nick,
+      email: that.ctx.user.data.email,
+      password: inputVal
+    };
+    return new Api(that.ctx).login(data.name, data.email, data.password);
+  },
+  body() {
+    return createElement("<span>\u6572\u5165\u5BC6\u7801\u6765\u9A8C\u8BC1\u7BA1\u7406\u5458\u8EAB\u4EFD\uFF1A</span>");
+  },
+  onSuccess(that, userToken, inputVal, formEl) {
+    that.ctx.user.data.isAdmin = true;
+    that.ctx.user.data.token = userToken;
+    that.ctx.user.save();
+    that.ctx.trigger("user-changed", that.ctx.user.data);
+    that.ctx.trigger("list-reload");
+  },
+  onError(that, err, inputVal, formEl) {
+  }
+};
+class CheckerLauncher {
+  constructor(ctx) {
+    __publicField(this, "ctx");
+    __publicField(this, "launched", []);
+    __publicField(this, "submitCaptchaVal");
+    __publicField(this, "submitCaptchaImgData");
+    this.ctx = ctx;
+    this.initEventBind();
+  }
+  initEventBind() {
+    this.ctx.on("checker-captcha", (conf) => {
+      if (conf.imgData) {
+        this.submitCaptchaImgData = conf.imgData;
+      }
+      this.fire(CaptchaChecker, conf);
+    });
+    this.ctx.on("checker-admin", (conf) => {
+      this.fire(AdminChecker, conf);
+    });
+  }
+  fire(checker, payload) {
+    if (this.launched.includes(checker))
+      return;
+    this.launched.push(checker);
+    const layer = new Layer(this.ctx, `checker-${new Date().getTime()}`);
+    layer.setMaskClickHide(false);
+    layer.show();
+    const formEl = createElement();
+    formEl.appendChild(checker.body(this));
+    const input = createElement(`<input id="check" type="${checker.inputType || "text"}" autocomplete="off" required placeholder="">`);
+    formEl.appendChild(input);
+    setTimeout(() => input.focus(), 80);
+    input.onkeyup = (evt) => {
+      if (evt.key === "Enter" || evt.keyCode === 13) {
+        evt.preventDefault();
+        layer.getEl().querySelector('button[data-action="confirm"]').click();
+      }
+    };
+    let btnTextOrg;
+    const dialog = new Dialog(formEl);
+    dialog.setYes((btnEl) => {
+      const inputVal = input.value.trim();
+      if (!btnTextOrg)
+        btnTextOrg = btnEl.innerText;
+      const btnTextSet = (btnText) => {
+        btnEl.innerText = btnText;
+        btnEl.classList.add("error");
+      };
+      const btnTextRestore = () => {
+        btnEl.innerText = btnTextOrg || "";
+        btnEl.classList.remove("error");
+      };
+      btnEl.innerText = "\u52A0\u8F7D\u4E2D...";
+      checker.request(this, inputVal).then((data) => {
+        this.done(checker, layer);
+        if (checker.onSuccess)
+          checker.onSuccess(this, data, inputVal, formEl);
+        if (payload.onSuccess)
+          payload.onSuccess(inputVal, dialog.$el);
+      }).catch((err) => {
+        btnTextSet(String(err.msg || String(err)));
+        if (checker.onError)
+          checker.onError(this, err, inputVal, formEl);
+        const tf = setTimeout(() => btnTextRestore(), 3e3);
+        input.onfocus = () => {
+          btnTextRestore();
+          clearTimeout(tf);
+        };
+      });
+      return false;
+    });
+    dialog.setNo(() => {
+      this.done(checker, layer);
+      if (payload.onCancel)
+        payload.onCancel();
+      return false;
+    });
+    layer.getEl().append(dialog.$el);
+    if (payload.onMount)
+      payload.onMount(dialog.$el);
+  }
+  done(checker, layer) {
+    layer.disposeNow();
+    this.launched = this.launched.filter((c) => c !== checker);
+  }
+}
+var editor = "";
+var EditorHTML = '<div class="atk-editor">\n  <div class="atk-editor-header">\n    <input name="nick" placeholder="\u6635\u79F0" class="atk-nick" type="text" required="required">\n    <input name="email" placeholder="\u90AE\u7BB1" class="atk-email" type="email" required="required">\n    <input name="link" placeholder="\u7F51\u5740 (https://)" class="atk-link" type="url">\n  </div>\n  <div class="atk-editor-textarea-wrap">\n    <div class="atk-close-comment" style="display: none;"><span>\u4EC5\u7BA1\u7406\u5458\u53EF\u8BC4\u8BBA</span></div>\n    <textarea id="atk-editor-textarea" class="atk-editor-textarea" placeholder=""></textarea>\n  </div>\n  <div class="atk-editor-plug-wrap" style="display: none;"></div>\n  <div class="atk-editor-bottom">\n    <div class="atk-editor-bottom-part atk-left atk-editor-plug-switcher-wrap"></div>\n    <div class="atk-editor-bottom-part atk-right">\n      <button type="button" class="atk-send-btn"></button>\n    </div>\n  </div>\n  <div class="atk-editor-notify-wrap"></div>\n</div>\n';
+var emoticonsPlug = "";
+class EditorPlug {
+  constructor(editor2) {
+    __publicField(this, "editor");
+    __publicField(this, "ctx");
+    this.editor = editor2;
+    this.ctx = editor2.ctx;
+  }
+}
+__publicField(EditorPlug, "Name");
+__publicField(EditorPlug, "BtnHTML");
+class EmoticonsPlug extends EditorPlug {
+  constructor(editor2) {
+    super(editor2);
+    __publicField(this, "$el");
+    __publicField(this, "emoticons", []);
+    __publicField(this, "$listWrap");
+    __publicField(this, "$types");
+    this.editor = editor2;
+    this.$el = createElement(`<div class="atk-editor-plug-emoticons"></div>`);
+    this.init();
+  }
+  init() {
+    return __async(this, null, function* () {
+      showLoading(this.$el);
+      if (typeof this.ctx.conf.emoticons === "string") {
+        this.emoticons = yield this.remoteLoad(this.ctx.conf.emoticons);
+      } else {
+        this.emoticons = this.ctx.conf.emoticons;
+      }
+      this.checkConvertOwO();
+      if (!Array.isArray(this.emoticons)) {
+        setError(this.$el, "\u8868\u60C5\u5305\u6570\u636E\u5FC5\u987B\u4E3A Array \u7C7B\u578B");
+        hideLoading(this.$el);
+        return;
+      }
+      yield Promise.all(this.emoticons.map((grp, index) => __async(this, null, function* () {
+        if (typeof grp === "string") {
+          const grpData = yield this.remoteLoad(grp);
+          if (grpData) {
+            this.emoticons[index] = grpData;
+          }
+        }
+      })));
+      hideLoading(this.$el);
+      this.solveNullKey();
+      this.solveSameKey();
+      this.initEmoticonsList();
+    });
+  }
+  remoteLoad(url) {
+    return __async(this, null, function* () {
+      if (!url)
+        return [];
+      try {
+        const resp = yield fetch(url);
+        const json = yield resp.json();
+        return json;
+      } catch (err) {
+        hideLoading(this.$el);
+        setError(this.$el, `\u8868\u60C5\u52A0\u8F7D\u5931\u8D25 ${String(err)}`);
+        return [];
+      }
+    });
+  }
+  solveNullKey() {
+    this.emoticons.forEach((grp) => {
+      grp.items.forEach((item, index) => {
+        if (!item.key)
+          item.key = `${grp.name} ${index + 1}`;
+      });
+    });
+  }
+  solveSameKey() {
+    const tmp = {};
+    this.emoticons.forEach((grp) => {
+      grp.items.forEach((item) => {
+        if (!item.key || String(item.key).trim() === "")
+          return;
+        if (!tmp[item.key])
+          tmp[item.key] = 1;
+        else
+          tmp[item.key]++;
+        if (tmp[item.key] > 1)
+          item.key = `${item.key} ${tmp[item.key]}`;
+      });
+    });
+  }
+  checkConvertOwO() {
+    if (this.isOwOFormat(this.emoticons)) {
+      this.emoticons = this.convertOwO(this.emoticons);
+    }
+  }
+  isOwOFormat(data) {
+    try {
+      return typeof data === "object" && !!Object.values(data).length && Array.isArray(Object.keys(Object.values(data)[0].container)) && Object.keys(Object.values(data)[0].container[0]).includes("icon");
+    } catch (e) {
+      return false;
+    }
+  }
+  convertOwO(owoData) {
+    const dest = [];
+    Object.entries(owoData).forEach(([grpName, grp]) => {
+      const nGrp = { name: grpName, type: grp.type, items: [] };
+      grp.container.forEach((item, index) => {
+        const iconStr = item.icon;
+        if (/<(img|IMG)/.test(iconStr)) {
+          const find = /src=["'](.*)["']/.exec(iconStr);
+          if (find && find.length > 1)
+            item.icon = find[1];
+        }
+        nGrp.items.push({ key: item.text || `${grpName} ${index + 1}`, val: item.icon });
+      });
+      dest.push(nGrp);
+    });
+    return dest;
+  }
+  initEmoticonsList() {
+    this.$listWrap = createElement(`<div class="atk-emoticons-list-wrap"></div>`);
+    this.$el.append(this.$listWrap);
+    this.emoticons.forEach((grp, index) => {
+      const emoticonsEl = createElement(`<div class="atk-emoticons-list" style="display: none;"></div>`);
+      this.$listWrap.append(emoticonsEl);
+      emoticonsEl.setAttribute("data-index", String(index));
+      emoticonsEl.setAttribute("data-grp-name", grp.name);
+      emoticonsEl.setAttribute("data-type", grp.type);
+      grp.items.forEach((item) => {
+        const $item = createElement(`<span class="atk-emoticons-item"></span>`);
+        emoticonsEl.append($item);
+        if (!!item.key && !new RegExp(`^(${grp.name})?\\s?[0-9]+$`).test(item.key))
+          $item.setAttribute("title", item.key);
+        if (grp.type === "image") {
+          const imgEl = document.createElement("img");
+          imgEl.src = item.val;
+          imgEl.alt = item.key;
+          $item.append(imgEl);
+        } else {
+          $item.innerText = item.val;
+        }
+        $item.onclick = () => {
+          if (grp.type === "image") {
+            this.editor.insertContent(`:[${item.key}]`);
+          } else {
+            this.editor.insertContent(item.val || "");
+          }
+        };
+      });
+    });
+    this.$types = createElement(`<div class="atk-emoticons-types"></div>`);
+    this.$el.append(this.$types);
+    this.emoticons.forEach((grp, index) => {
+      const $item = createElement("<span />");
+      $item.innerText = grp.name;
+      $item.setAttribute("data-index", String(index));
+      $item.onclick = () => this.openType(index);
+      this.$types.append($item);
+    });
+    if (this.emoticons.length > 0)
+      this.openType(0);
+  }
+  openType(index) {
+    var _a;
+    Array.from(this.$listWrap.children).forEach((item) => {
+      const el = item;
+      if (el.getAttribute("data-index") !== String(index)) {
+        el.style.display = "none";
+      } else {
+        el.style.display = "";
+      }
+    });
+    this.$types.querySelectorAll("span.active").forEach((item) => item.classList.remove("active"));
+    (_a = this.$types.querySelector(`span[data-index="${index}"]`)) == null ? void 0 : _a.classList.add("active");
+    this.changeListHeight();
+  }
+  getEl() {
+    return this.$el;
+  }
+  changeListHeight() {
+  }
+  onShow() {
+    setTimeout(() => {
+      this.changeListHeight();
+    }, 30);
+  }
+  onHide() {
+    this.$el.parentElement.style.height = "";
+  }
+  transEmoticonImageText(text) {
+    if (!this.emoticons || !Array.isArray(this.emoticons))
+      return text;
+    this.emoticons.forEach((grp) => {
+      if (grp.type !== "image")
+        return;
+      Object.entries(grp.items).forEach(([index, item]) => {
+        text = text.split(`:[${item.key}]`).join(`<img src="${item.val}" atk-emoticon="${item.key}">`);
+      });
+    });
+    return text;
+  }
+}
+__publicField(EmoticonsPlug, "Name", "emoticons");
+__publicField(EmoticonsPlug, "BtnHTML", "\u8868\u60C5");
+var previewPlug = "";
+class PreviewPlug extends EditorPlug {
+  constructor(editor2) {
+    super(editor2);
+    __publicField(this, "$el");
+    __publicField(this, "binded", false);
+    this.initEl();
+  }
+  initEl() {
+    this.$el = createElement('<div class="atk-editor-plug-preview"></div>');
+    this.binded = false;
+  }
+  getEl() {
+    return this.$el;
+  }
+  onShow() {
+    this.updateContent();
+    if (!this.binded) {
+      const event = () => {
+        this.updateContent();
+      };
+      this.editor.$textarea.addEventListener("input", event);
+      this.editor.$textarea.addEventListener("change", event);
+      this.binded = true;
+    }
+  }
+  onHide() {
+  }
+  updateContent() {
+    if (this.$el.style.display !== "none") {
+      this.$el.innerHTML = this.editor.getContentMarked();
+    }
+  }
+}
+__publicField(PreviewPlug, "Name", "preview");
+__publicField(PreviewPlug, "BtnHTML", '\u9884\u89C8 <i title="Markdown is supported"><svg class="markdown" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M14.85 3H1.15C.52 3 0 3.52 0 4.15v7.69C0 12.48.52 13 1.15 13h13.69c.64 0 1.15-.52 1.15-1.15v-7.7C16 3.52 15.48 3 14.85 3zM9 11H7V8L5.5 9.92 4 8v3H2V5h2l1.5 2L7 5h2v6zm2.99.5L9.5 8H11V5h2v3h1.5l-2.51 3.5z"></path></svg></i>');
+class Editor extends Component {
+  constructor(ctx) {
+    super(ctx);
+    __publicField(this, "LOADABLE_PLUG_LIST", [EmoticonsPlug, PreviewPlug]);
+    __publicField(this, "plugList", {});
+    __publicField(this, "$header");
+    __publicField(this, "$textareaWrap");
+    __publicField(this, "$textarea");
+    __publicField(this, "$closeComment");
+    __publicField(this, "$plugWrap");
+    __publicField(this, "$bottom");
+    __publicField(this, "$bottomPartLeft");
+    __publicField(this, "$plugSwitcherWrap");
+    __publicField(this, "$bottomPartRight");
+    __publicField(this, "$submitBtn");
+    __publicField(this, "$notifyWrap");
+    __publicField(this, "replyComment", null);
+    __publicField(this, "$sendReply", null);
+    __publicField(this, "queryUserInfo", {
+      timeout: null,
+      abortFunc: null
+    });
+    __publicField(this, "openedPlugName", null);
+    this.$el = createElement(EditorHTML);
+    this.$header = this.$el.querySelector(".atk-editor-header");
+    this.$textareaWrap = this.$el.querySelector(".atk-editor-textarea-wrap");
+    this.$textarea = this.$el.querySelector(".atk-editor-textarea");
+    this.$closeComment = this.$el.querySelector(".atk-close-comment");
+    this.$plugWrap = this.$el.querySelector(".atk-editor-plug-wrap");
+    this.$bottom = this.$el.querySelector(".atk-editor-bottom");
+    this.$bottomPartLeft = this.$el.querySelector(".atk-editor-bottom-part.atk-left");
+    this.$plugSwitcherWrap = this.$el.querySelector(".atk-editor-plug-switcher-wrap");
+    this.$bottomPartRight = this.$el.querySelector(".atk-editor-bottom-part.atk-right");
+    this.$submitBtn = this.$el.querySelector(".atk-send-btn");
+    this.$notifyWrap = this.$el.querySelector(".atk-editor-notify-wrap");
+    this.initLocalStorage();
+    this.initHeader();
+    this.initTextarea();
+    this.initEditorPlug();
+    this.initBottomPart();
+    this.ctx.on("editor-open", () => this.open());
+    this.ctx.on("editor-close", () => this.close());
+    this.ctx.on("editor-reply", (commentData) => this.setReply(commentData));
+    this.ctx.on("editor-show-loading", () => showLoading(this.$el));
+    this.ctx.on("editor-hide-loading", () => hideLoading(this.$el));
+    this.ctx.on("editor-notify", (f) => this.showNotify(f.msg, f.type));
+  }
+  get user() {
+    return this.ctx.user;
+  }
+  initLocalStorage() {
+    const localContent = window.localStorage.getItem("ArtalkContent") || "";
+    if (localContent.trim() !== "") {
+      this.showNotify("\u5DF2\u81EA\u52A8\u6062\u590D", "i");
+      this.setContent(localContent);
+    }
+    this.$textarea.addEventListener("input", () => {
+      this.saveContent();
+    });
+  }
+  initHeader() {
+    Object.keys(this.user.data).forEach((field) => {
+      const inputEl = this.getInputEl(field);
+      if (inputEl && inputEl instanceof HTMLInputElement) {
+        inputEl.value = this.user.data[field] || "";
+        inputEl.addEventListener("input", () => this.onHeaderInputChanged(field, inputEl));
+      }
+    });
+  }
+  getInputEl(field) {
+    const inputEl = this.$header.querySelector(`[name="${field}"]`);
+    return inputEl;
+  }
+  onHeaderInputChanged(field, inputEl) {
+    this.user.data[field] = inputEl.value.trim();
+    if (field === "nick" || field === "email") {
+      this.user.data.token = "";
+      this.user.data.isAdmin = false;
+      if (this.queryUserInfo.timeout !== null)
+        window.clearTimeout(this.queryUserInfo.timeout);
+      if (this.queryUserInfo.abortFunc !== null)
+        this.queryUserInfo.abortFunc();
+      this.queryUserInfo.timeout = window.setTimeout(() => {
+        this.queryUserInfo.timeout = null;
+        const { req, abort } = new Api(this.ctx).userGet(this.user.data.nick, this.user.data.email);
+        this.queryUserInfo.abortFunc = abort;
+        req.then((data) => {
+          if (!data.is_login) {
+            this.user.data.token = "";
+            this.user.data.isAdmin = false;
+          }
+          this.ctx.trigger("unread-update", { notifies: data.unread });
+          if (this.user.checkHasBasicUserInfo() && !data.is_login && data.user && data.user.is_admin) {
+            this.showLoginDialog();
+          }
+          if (data.user && data.user.link) {
+            this.user.data.link = data.user.link;
+            this.getInputEl("link").value = data.user.link;
+          }
+        }).finally(() => {
+          this.queryUserInfo.abortFunc = null;
+        });
+      }, 400);
+    }
+    this.saveUser();
+  }
+  showLoginDialog() {
+    this.ctx.trigger("checker-admin", {
+      onSuccess: () => {
+      }
+    });
+  }
+  saveUser() {
+    this.user.save();
+    this.ctx.trigger("user-changed", this.ctx.user.data);
+  }
+  saveContent() {
+    window.localStorage.setItem("ArtalkContent", this.getContentOriginal().trim());
+  }
+  initTextarea() {
+    this.$textarea.placeholder = this.ctx.conf.placeholder || "";
+    this.$textarea.addEventListener("keydown", (e) => {
+      const keyCode = e.keyCode || e.which;
+      if (keyCode === 9) {
+        e.preventDefault();
+        this.insertContent("	");
+      }
+    });
+    this.$textarea.addEventListener("input", (evt) => {
+      this.adjustTextareaHeight();
+    });
+  }
+  adjustTextareaHeight() {
+    const diff = this.$textarea.offsetHeight - this.$textarea.clientHeight;
+    this.$textarea.style.height = "0px";
+    this.$textarea.style.height = `${this.$textarea.scrollHeight + diff}px`;
+  }
+  initEditorPlug() {
+    this.plugList = {};
+    this.$plugWrap.innerHTML = "";
+    this.$plugWrap.style.display = "none";
+    this.openedPlugName = null;
+    this.$plugSwitcherWrap.innerHTML = "";
+    this.LOADABLE_PLUG_LIST.forEach((PlugObj) => {
+      const btnElem = createElement(`<span class="atk-editor-action atk-editor-plug-switcher">${PlugObj.BtnHTML}</span>`);
+      this.$plugSwitcherWrap.appendChild(btnElem);
+      btnElem.addEventListener("click", () => {
+        let plug = this.plugList[PlugObj.Name];
+        if (!plug) {
+          plug = new PlugObj(this);
+          this.plugList[PlugObj.Name] = plug;
+        }
+        this.$plugSwitcherWrap.querySelectorAll(".active").forEach((item) => item.classList.remove("active"));
+        if (PlugObj.Name === this.openedPlugName) {
+          plug.onHide();
+          this.$plugWrap.style.display = "none";
+          this.openedPlugName = null;
+          return;
+        }
+        if (this.$plugWrap.querySelector(`[data-plug-name="${PlugObj.Name}"]`) === null) {
+          const plugEl = plug.getEl();
+          plugEl.setAttribute("data-plug-name", PlugObj.Name);
+          plugEl.style.display = "none";
+          this.$plugWrap.appendChild(plugEl);
+        }
+        Array.from(this.$plugWrap.children).forEach((plugItemEl) => {
+          const plugItemName = plugItemEl.getAttribute("data-plug-name");
+          if (plugItemName === PlugObj.Name) {
+            plugItemEl.style.display = "";
+            this.plugList[plugItemName].onShow();
+          } else {
+            plugItemEl.style.display = "none";
+            this.plugList[plugItemName].onHide();
+          }
+        });
+        this.$plugWrap.style.display = "";
+        this.openedPlugName = PlugObj.Name;
+        btnElem.classList.add("active");
+      });
+    });
+  }
+  closePlug() {
+    this.$plugWrap.innerHTML = "";
+    this.$plugWrap.style.display = "none";
+    this.openedPlugName = null;
+  }
+  insertContent(val) {
+    if (document.selection) {
+      this.$textarea.focus();
+      document.selection.createRange().text = val;
+      this.$textarea.focus();
+    } else if (this.$textarea.selectionStart || this.$textarea.selectionStart === 0) {
+      const sStart = this.$textarea.selectionStart;
+      const sEnd = this.$textarea.selectionEnd;
+      const sT = this.$textarea.scrollTop;
+      this.setContent(this.$textarea.value.substring(0, sStart) + val + this.$textarea.value.substring(sEnd, this.$textarea.value.length));
+      this.$textarea.focus();
+      this.$textarea.selectionStart = sStart + val.length;
+      this.$textarea.selectionEnd = sStart + val.length;
+      this.$textarea.scrollTop = sT;
+    } else {
+      this.$textarea.focus();
+      this.$textarea.value += val;
+    }
+  }
+  setContent(val) {
+    this.$textarea.value = val;
+    this.saveContent();
+    if (!!this.plugList && !!this.plugList.preview) {
+      this.plugList.preview.updateContent();
+    }
+    this.adjustTextareaHeight();
+  }
+  clearEditor() {
+    this.setContent("");
+    this.cancelReply();
+  }
+  getContent() {
+    let content = this.getContentOriginal();
+    if (this.plugList && this.plugList.emoticons) {
+      const emoticonsPlug2 = this.plugList.emoticons;
+      content = emoticonsPlug2.transEmoticonImageText(content);
+    }
+    return content;
+  }
+  getContentOriginal() {
+    return this.$textarea.value || "";
+  }
+  getContentMarked() {
+    return marked(this.ctx, this.getContent());
+  }
+  initBottomPart() {
+    this.initReply();
+    this.initSubmit();
+  }
+  initReply() {
+    this.replyComment = null;
+    this.$sendReply = null;
+  }
+  setReply(commentData) {
+    if (this.replyComment !== null) {
+      this.cancelReply();
+    }
+    if (this.$sendReply === null) {
+      this.$sendReply = createElement('<div class="atk-send-reply">\u56DE\u590D <span class="atk-text"></span><span class="atk-cancel" title="\u53D6\u6D88 AT">\xD7</span></div>');
+      this.$sendReply.querySelector(".atk-text").innerText = `@${commentData.nick}`;
+      this.$sendReply.addEventListener("click", () => {
+        this.cancelReply();
+      });
+      this.$textareaWrap.append(this.$sendReply);
+    }
+    this.replyComment = commentData;
+    scrollIntoView(this.$el);
+    this.$textarea.focus();
+  }
+  cancelReply() {
+    if (this.$sendReply !== null) {
+      this.$sendReply.remove();
+      this.$sendReply = null;
+    }
+    this.replyComment = null;
+  }
+  initSubmit() {
+    this.$submitBtn.innerText = this.ctx.conf.sendBtn || "Send";
+    this.$submitBtn.addEventListener("click", (evt) => {
+      evt.currentTarget;
+      this.submit();
+    });
+  }
+  submit() {
+    return __async(this, null, function* () {
+      if (this.getContent().trim() === "") {
+        this.$textarea.focus();
+        return;
+      }
+      this.ctx.trigger("editor-submit");
+      showLoading(this.$el);
+      try {
+        const nComment = yield new Api(this.ctx).add({
+          content: this.getContent(),
+          nick: this.user.data.nick,
+          email: this.user.data.email,
+          link: this.user.data.link,
+          rid: this.replyComment === null ? 0 : this.replyComment.id
+        });
+        this.ctx.trigger("list-insert", nComment);
+        this.clearEditor();
+        this.ctx.trigger("editor-submitted");
+      } catch (err) {
+        console.error(err);
+        this.showNotify(`\u8BC4\u8BBA\u5931\u8D25\uFF0C${err.msg || String(err)}`, "e");
+      } finally {
+        hideLoading(this.$el);
+      }
+    });
+  }
+  showNotify(msg, type) {
+    showNotify(this.$notifyWrap, msg, type);
+  }
+  close() {
+    this.$closeComment.style.display = "";
+    if (!this.user.data.isAdmin) {
+      this.$textarea.style.display = "none";
+      this.closePlug();
+      this.$bottom.style.display = "none";
+    } else {
+      this.$textarea.style.display = "";
+      this.$bottom.style.display = "";
+    }
+  }
+  open() {
+    this.$closeComment.style.display = "none";
+    this.$textarea.style.display = "";
+    this.$bottom.style.display = "";
+  }
+}
+var list = "";
+var ListHTML = '<div class="atk-list">\n  <div class="atk-list-header">\n    <div class="atk-comment-count">\n      <span class="atk-comment-count-num">0</span>\n      \u6761\u8BC4\u8BBA\n    </div>\n    <div class="atk-right-action">\n      <span data-action="admin-close-comment" class="atk-hide" atk-only-admin-show>\u5173\u95ED\u8BC4\u8BBA</span>\n      <span data-action="open-sidebar" class="atk-hide atk-on">\n        <span class="atk-unread-badge" style="display: none;"></span>\n        \u901A\u77E5\u4E2D\u5FC3\n      </span>\n    </div>\n  </div>\n  <div class="atk-list-body"></div>\n  <div class="atk-list-footer">\n    <div class="atk-copyright"></div>\n  </div>\n</div>\n';
+var comment = "";
+var win = window || {};
+var nav = navigator || {};
+function Detect(userAgent) {
+  var u = userAgent || nav.userAgent;
+  var _this = this;
+  var match = {
+    Trident: u.indexOf("Trident") > -1 || u.indexOf("NET CLR") > -1,
+    Presto: u.indexOf("Presto") > -1,
+    WebKit: u.indexOf("AppleWebKit") > -1,
+    Gecko: u.indexOf("Gecko/") > -1,
+    Safari: u.indexOf("Safari") > -1,
+    Chrome: u.indexOf("Chrome") > -1 || u.indexOf("CriOS") > -1,
+    IE: u.indexOf("MSIE") > -1 || u.indexOf("Trident") > -1,
+    Edge: u.indexOf("Edge") > -1,
+    Firefox: u.indexOf("Firefox") > -1 || u.indexOf("FxiOS") > -1,
+    "Firefox Focus": u.indexOf("Focus") > -1,
+    Chromium: u.indexOf("Chromium") > -1,
+    Opera: u.indexOf("Opera") > -1 || u.indexOf("OPR") > -1,
+    Vivaldi: u.indexOf("Vivaldi") > -1,
+    Yandex: u.indexOf("YaBrowser") > -1,
+    Kindle: u.indexOf("Kindle") > -1 || u.indexOf("Silk/") > -1,
+    360: u.indexOf("360EE") > -1 || u.indexOf("360SE") > -1,
+    UC: u.indexOf("UC") > -1 || u.indexOf(" UBrowser") > -1,
+    QQBrowser: u.indexOf("QQBrowser") > -1,
+    QQ: u.indexOf("QQ/") > -1,
+    Baidu: u.indexOf("Baidu") > -1 || u.indexOf("BIDUBrowser") > -1,
+    Maxthon: u.indexOf("Maxthon") > -1,
+    Sogou: u.indexOf("MetaSr") > -1 || u.indexOf("Sogou") > -1,
+    LBBROWSER: u.indexOf("LBBROWSER") > -1,
+    "2345Explorer": u.indexOf("2345Explorer") > -1,
+    TheWorld: u.indexOf("TheWorld") > -1,
+    XiaoMi: u.indexOf("MiuiBrowser") > -1,
+    Quark: u.indexOf("Quark") > -1,
+    Qiyu: u.indexOf("Qiyu") > -1,
+    Wechat: u.indexOf("MicroMessenger") > -1,
+    Taobao: u.indexOf("AliApp(TB") > -1,
+    Alipay: u.indexOf("AliApp(AP") > -1,
+    Weibo: u.indexOf("Weibo") > -1,
+    Douban: u.indexOf("com.douban.frodo") > -1,
+    Suning: u.indexOf("SNEBUY-APP") > -1,
+    iQiYi: u.indexOf("IqiyiApp") > -1,
+    Windows: u.indexOf("Windows") > -1,
+    Linux: u.indexOf("Linux") > -1 || u.indexOf("X11") > -1,
+    "Mac OS": u.indexOf("Macintosh") > -1,
+    Android: u.indexOf("Android") > -1 || u.indexOf("Adr") > -1,
+    Ubuntu: u.indexOf("Ubuntu") > -1,
+    FreeBSD: u.indexOf("FreeBSD") > -1,
+    Debian: u.indexOf("Debian") > -1,
+    "Windows Phone": u.indexOf("IEMobile") > -1 || u.indexOf("Windows Phone") > -1,
+    BlackBerry: u.indexOf("BlackBerry") > -1 || u.indexOf("RIM") > -1,
+    MeeGo: u.indexOf("MeeGo") > -1,
+    Symbian: u.indexOf("Symbian") > -1,
+    iOS: u.indexOf("like Mac OS X") > -1,
+    "Chrome OS": u.indexOf("CrOS") > -1,
+    WebOS: u.indexOf("hpwOS") > -1,
+    Mobile: u.indexOf("Mobi") > -1 || u.indexOf("iPh") > -1 || u.indexOf("480") > -1,
+    Tablet: u.indexOf("Tablet") > -1 || u.indexOf("Pad") > -1 || u.indexOf("Nexus 7") > -1
+  };
+  if (match.Mobile) {
+    match.Mobile = !(u.indexOf("iPad") > -1);
+  } else if (win.showModalDialog && win.chrome) {
+    match["360"] = true;
+  }
+  var hash = {
+    engine: ["WebKit", "Trident", "Gecko", "Presto"],
+    browser: ["Safari", "Chrome", "Edge", "IE", "Firefox", "Firefox Focus", "Chromium", "Opera", "Vivaldi", "Yandex", "Kindle", "360", "UC", "QQBrowser", "QQ", "Baidu", "Maxthon", "Sogou", "LBBROWSER", "2345Explorer", "TheWorld", "XiaoMi", "Quark", "Qiyu", "Wechat", "Taobao", "Alipay", "Weibo", "Douban", "Suning", "iQiYi"],
+    os: ["Windows", "Linux", "Mac OS", "Android", "Ubuntu", "FreeBSD", "Debian", "iOS", "Windows Phone", "BlackBerry", "MeeGo", "Symbian", "Chrome OS", "WebOS"],
+    device: ["Mobile", "Tablet"]
+  };
+  _this.device = "PC";
+  _this.language = function() {
+    var g = nav.browserLanguage || nav.language;
+    var arr = g.split("-");
+    if (arr[1]) {
+      arr[1] = arr[1].toUpperCase();
+    }
+    return arr.join("_");
+  }();
+  for (var s in hash) {
+    for (var i = 0; i < hash[s].length; i++) {
+      var value = hash[s][i];
+      if (match[value]) {
+        _this[s] = value;
+      }
+    }
+  }
+  var osVersion = {
+    Windows: function() {
+      var v = u.replace(/^.*Windows NT ([\d.]+);.*$/, "$1");
+      var hash2 = {
+        6.4: "10",
+        6.3: "8.1",
+        6.2: "8",
+        6.1: "7",
+        "6.0": "Vista",
+        5.2: "XP",
+        5.1: "XP",
+        "5.0": "2000"
+      };
+      return hash2[v] || v;
+    },
+    Android: function() {
+      return u.replace(/^.*Android ([\d.]+);.*$/, "$1");
+    },
+    iOS: function() {
+      return u.replace(/^.*OS ([\d_]+) like.*$/, "$1").replace(/_/g, ".");
+    },
+    Debian: function() {
+      return u.replace(/^.*Debian\/([\d.]+).*$/, "$1");
+    },
+    "Windows Phone": function() {
+      return u.replace(/^.*Windows Phone( OS)? ([\d.]+);.*$/, "$2");
+    },
+    "Mac OS": function() {
+      return u.replace(/^.*Mac OS X ([\d_]+).*$/, "$1").replace(/_/g, ".");
+    },
+    WebOS: function() {
+      return u.replace(/^.*hpwOS\/([\d.]+);.*$/, "$1");
+    }
+  };
+  _this.osVersion = "";
+  if (osVersion[_this.os]) {
+    _this.osVersion = osVersion[_this.os]();
+    if (_this.osVersion === u) {
+      _this.osVersion = "";
+    }
+  }
+  var version = {
+    Safari: function() {
+      return u.replace(/^.*Version\/([\d.]+).*$/, "$1");
+    },
+    Chrome: function() {
+      return u.replace(/^.*Chrome\/([\d.]+).*$/, "$1").replace(/^.*CriOS\/([\d.]+).*$/, "$1");
+    },
+    IE: function() {
+      return u.replace(/^.*MSIE ([\d.]+).*$/, "$1").replace(/^.*rv:([\d.]+).*$/, "$1");
+    },
+    Edge: function() {
+      return u.replace(/^.*Edge\/([\d.]+).*$/, "$1");
+    },
+    Firefox: function() {
+      return u.replace(/^.*Firefox\/([\d.]+).*$/, "$1").replace(/^.*FxiOS\/([\d.]+).*$/, "$1");
+    },
+    "Firefox Focus": function() {
+      return u.replace(/^.*Focus\/([\d.]+).*$/, "$1");
+    },
+    Chromium: function() {
+      return u.replace(/^.*Chromium\/([\d.]+).*$/, "$1");
+    },
+    Opera: function() {
+      return u.replace(/^.*Opera\/([\d.]+).*$/, "$1").replace(/^.*OPR\/([\d.]+).*$/, "$1");
+    },
+    Vivaldi: function() {
+      return u.replace(/^.*Vivaldi\/([\d.]+).*$/, "$1");
+    },
+    Yandex: function() {
+      return u.replace(/^.*YaBrowser\/([\d.]+).*$/, "$1");
+    },
+    Kindle: function() {
+      return u.replace(/^.*Version\/([\d.]+).*$/, "$1");
+    },
+    Maxthon: function() {
+      return u.replace(/^.*Maxthon\/([\d.]+).*$/, "$1");
+    },
+    QQBrowser: function() {
+      return u.replace(/^.*QQBrowser\/([\d.]+).*$/, "$1");
+    },
+    QQ: function() {
+      return u.replace(/^.*QQ\/([\d.]+).*$/, "$1");
+    },
+    Baidu: function() {
+      return u.replace(/^.*BIDUBrowser[\s/]([\d.]+).*$/, "$1");
+    },
+    UC: function() {
+      return u.replace(/^.*UC?Browser\/([\d.]+).*$/, "$1");
+    },
+    Sogou: function() {
+      return u.replace(/^.*SE ([\d.X]+).*$/, "$1").replace(/^.*SogouMobileBrowser\/([\d.]+).*$/, "$1");
+    },
+    "2345Explorer": function() {
+      return u.replace(/^.*2345Explorer\/([\d.]+).*$/, "$1");
+    },
+    TheWorld: function() {
+      return u.replace(/^.*TheWorld ([\d.]+).*$/, "$1");
+    },
+    XiaoMi: function() {
+      return u.replace(/^.*MiuiBrowser\/([\d.]+).*$/, "$1");
+    },
+    Quark: function() {
+      return u.replace(/^.*Quark\/([\d.]+).*$/, "$1");
+    },
+    Qiyu: function() {
+      return u.replace(/^.*Qiyu\/([\d.]+).*$/, "$1");
+    },
+    Wechat: function() {
+      return u.replace(/^.*MicroMessenger\/([\d.]+).*$/, "$1");
+    },
+    Taobao: function() {
+      return u.replace(/^.*AliApp\(TB\/([\d.]+).*$/, "$1");
+    },
+    Alipay: function() {
+      return u.replace(/^.*AliApp\(AP\/([\d.]+).*$/, "$1");
+    },
+    Weibo: function() {
+      return u.replace(/^.*weibo__([\d.]+).*$/, "$1");
+    },
+    Douban: function() {
+      return u.replace(/^.*com.douban.frodo\/([\d.]+).*$/, "$1");
+    },
+    Suning: function() {
+      return u.replace(/^.*SNEBUY-APP([\d.]+).*$/, "$1");
+    },
+    iQiYi: function() {
+      return u.replace(/^.*IqiyiVersion\/([\d.]+).*$/, "$1");
+    }
+  };
+  _this.version = "";
+  if (version[_this.browser]) {
+    _this.version = version[_this.browser]();
+    if (_this.version === u) {
+      _this.version = "";
+    }
+  }
+  if (_this.version.indexOf(".")) {
+    _this.version = _this.version.substring(0, _this.version.indexOf("."));
+  }
+  if (_this.browser === "Edge") {
+    _this.engine = "EdgeHTML";
+  } else if (_this.browser === "Chrome" && parseInt(_this.version) > 27) {
+    _this.engine = "Blink";
+  } else if (_this.browser === "Opera" && parseInt(_this.version) > 12) {
+    _this.engine = "Blink";
+  } else if (_this.browser === "Yandex") {
+    _this.engine = "Blink";
+  } else if (_this.browser === void 0) {
+    _this.browser = "Unknow App";
+  }
+}
+function detectFactory(u) {
+  return new Detect(u);
+}
+var CommentHTML = '<div class="atk-comment-wrap" data-comment-id="">\n  <div class="atk-comment">\n\n    <div class="atk-avatar"></div>\n\n    <div class="atk-comment-main">\n\n      <div class="atk-header">\n        <span class="atk-nick"></span>\n        <span class="atk-badge"></span>\n        <span class="atk-date"></span>\n      </div>\n\n      <div class="atk-body">\n        <div class="atk-content"></div>\n      </div>\n\n      <div class="atk-footer">\n        <div class="atk-comment-actions"></div>\n      </div>\n\n    </div>\n\n  </div>\n</div>\n';
+class ActionBtn {
+  constructor(conf) {
+    __publicField(this, "conf");
+    __publicField(this, "$el");
+    __publicField(this, "isLoading", false);
+    __publicField(this, "msgRecTimer");
+    __publicField(this, "msgRecTimerFunc");
+    __publicField(this, "isConfirming", false);
+    __publicField(this, "confirmRecTimer");
+    this.$el = createElement(`<span class="atk-common-action-btn"></span>`);
+    this.conf = typeof conf !== "object" ? { text: conf } : conf;
+    this.$el.innerText = this.getText();
+    if (this.conf.adminOnly)
+      this.$el.setAttribute("atk-only-admin-show", "");
+  }
+  get isMessaging() {
+    return !!this.msgRecTimer;
+  }
+  appendTo(dom) {
+    dom.append(this.$el);
+    return this;
+  }
+  getText() {
+    return typeof this.conf.text === "string" ? this.conf.text : this.conf.text();
+  }
+  setClick(func) {
+    this.$el.onclick = (e) => {
+      e.stopPropagation();
+      if (this.isLoading) {
+        return;
+      }
+      if (this.conf.confirm && !this.isMessaging) {
+        const confirmRestore = () => {
+          this.isConfirming = false;
+          this.$el.classList.remove("atk-btn-confirm");
+          this.$el.innerText = this.getText();
+        };
+        if (!this.isConfirming) {
+          this.isConfirming = true;
+          this.$el.classList.add("atk-btn-confirm");
+          this.$el.innerText = this.conf.confirmText || "\u786E\u8BA4\u64CD\u4F5C";
+          this.confirmRecTimer = window.setTimeout(() => confirmRestore(), 5e3);
+          return;
+        }
+        if (this.confirmRecTimer)
+          window.clearTimeout(this.confirmRecTimer);
+        confirmRestore();
+      }
+      if (this.msgRecTimer) {
+        this.fireMsgRecTimer();
+        this.clearMsgRecTimer();
+        return;
+      }
+      func();
+    };
+  }
+  updateText(text) {
+    if (text)
+      this.conf.text = text;
+    this.setLoading(false);
+    this.$el.innerText = this.getText();
+  }
+  setLoading(value = true, loadingText) {
+    if (this.isLoading === value)
+      return;
+    this.isLoading = value;
+    if (value) {
+      this.$el.classList.add("atk-btn-loading");
+      this.$el.innerText = loadingText || "\u52A0\u8F7D\u4E2D...";
+    } else {
+      this.$el.classList.remove("atk-btn-loading");
+      this.$el.innerText = this.getText();
+    }
+  }
+  setError(text) {
+    this.setMsg(text, "atk-btn-error");
+  }
+  setWarn(text) {
+    this.setMsg(text, "atk-btn-warn");
+  }
+  setSuccess(text) {
+    this.setMsg(text, "atk-btn-success");
+  }
+  setMsg(text, className, duringTime, after) {
+    this.setLoading(false);
+    if (className)
+      this.$el.classList.add(className);
+    this.$el.innerText = text;
+    this.setMsgRecTimer(() => {
+      this.$el.innerText = this.getText();
+      if (className)
+        this.$el.classList.remove(className);
+      if (after)
+        after();
+    }, duringTime || 2500);
+  }
+  setMsgRecTimer(func, duringTime) {
+    this.fireMsgRecTimer();
+    this.clearMsgRecTimer();
+    this.msgRecTimerFunc = func;
+    this.msgRecTimer = window.setTimeout(() => {
+      func();
+      this.clearMsgRecTimer();
+    }, duringTime);
+  }
+  fireMsgRecTimer() {
+    if (this.msgRecTimerFunc)
+      this.msgRecTimerFunc();
+  }
+  clearMsgRecTimer() {
+    if (this.msgRecTimer)
+      window.clearTimeout(this.msgRecTimer);
+    this.msgRecTimer = void 0;
+    this.msgRecTimerFunc = void 0;
+  }
+}
+class Comment extends Component {
+  constructor(ctx, data) {
+    super(ctx);
+    __publicField(this, "data");
+    __publicField(this, "$main");
+    __publicField(this, "$header");
+    __publicField(this, "$body");
+    __publicField(this, "$content");
+    __publicField(this, "$children");
+    __publicField(this, "$actions");
+    __publicField(this, "voteBtnUp");
+    __publicField(this, "voteBtnDown");
+    __publicField(this, "parent");
+    __publicField(this, "nestedNum");
+    __publicField(this, "maxNestingNum");
+    __publicField(this, "children", []);
+    __publicField(this, "replyTo");
+    __publicField(this, "$replyTo");
+    __publicField(this, "afterRender");
+    __publicField(this, "unread", false);
+    __publicField(this, "openable", false);
+    __publicField(this, "openURL");
+    __publicField(this, "openEvt");
+    __publicField(this, "onDelete");
+    this.maxNestingNum = ctx.conf.maxNesting || 3;
+    this.data = __spreadValues({}, data);
+    this.data.date = this.data.date.replace(/-/g, "/");
+    this.parent = null;
+    this.nestedNum = 1;
+  }
+  render() {
+    this.$el = createElement(CommentHTML);
+    this.$main = this.$el.querySelector(".atk-comment-main");
+    this.$header = this.$el.querySelector(".atk-header");
+    this.$body = this.$el.querySelector(".atk-body");
+    this.$content = this.$body.querySelector(".atk-content");
+    this.$actions = this.$el.querySelector(".atk-comment-actions");
+    this.$children = null;
+    this.$el.setAttribute("data-comment-id", `${this.data.id}`);
+    this.renderCheckUnread();
+    this.renderCheckClickable();
+    this.renderAvatar();
+    this.renderHeader();
+    this.renderContent();
+    this.renderReplyTo();
+    this.renderPending();
+    this.renderActionBtn();
+    if (this.afterRender)
+      this.afterRender();
+    return this.$el;
+  }
+  renderCheckUnread() {
+    if (this.unread)
+      this.$el.classList.add("atk-unread");
+    else
+      this.$el.classList.remove("atk-unread");
+  }
+  renderCheckClickable() {
+    if (this.openable) {
+      this.$el.classList.add("atk-openable");
+    } else {
+      this.$el.classList.remove("atk-openable");
+    }
+    this.$el.addEventListener("click", (evt) => {
+      if (this.openable && this.openURL) {
+        evt.preventDefault();
+        window.open(this.openURL);
+      }
+      if (this.openEvt)
+        this.openEvt();
+    });
+  }
+  renderAvatar() {
+    const $avatar = this.$el.querySelector(".atk-avatar");
+    const $avatarImg = createElement("<img />");
+    $avatarImg.src = this.getGravatarUrl();
+    if (this.data.link) {
+      const $avatarA = createElement('<a target="_blank" rel="noreferrer noopener nofollow"></a>');
+      $avatarA.href = this.data.link;
+      $avatarA.append($avatarImg);
+      $avatar.append($avatarA);
+    } else {
+      $avatar.append($avatarImg);
+    }
+  }
+  renderHeader() {
+    const $nick = this.$el.querySelector(".atk-nick");
+    if (this.data.link) {
+      const $nickA = createElement('<a target="_blank" rel="noreferrer noopener nofollow"></a>');
+      $nickA.innerText = this.data.nick;
+      $nickA.href = this.data.link;
+      $nick.append($nickA);
+    } else {
+      $nick.innerText = this.data.nick;
+    }
+    const $badge = this.$el.querySelector(".atk-badge");
+    if (this.data.badge_name) {
+      $badge.innerText = this.data.badge_name;
+      if (this.data.badge_color)
+        $badge.style.backgroundColor = this.data.badge_color;
+    } else {
+      $badge.remove();
+    }
+    const $date = this.$el.querySelector(".atk-date");
+    $date.innerText = this.getDateFormatted();
+    $date.setAttribute("data-atk-comment-date", String(+new Date(this.data.date)));
+    if (this.conf.uaBadge) {
+      const $uaWrap = createElement(`<span class="atk-ua-wrap"></span>`);
+      const $uaBrowser = createElement(`<span class="atk-ua ua-browser"></span>`);
+      const $usOS = createElement(`<span class="atk-ua ua-os"></span>`);
+      $uaBrowser.innerText = this.getUserUaBrowser();
+      $usOS.innerText = this.getUserUaOS();
+      $uaWrap.append($uaBrowser);
+      $uaWrap.append($usOS);
+      this.$header.append($uaWrap);
+    }
+  }
+  renderContent() {
+    if (!this.data.is_collapsed) {
+      this.$content.innerHTML = this.getContentMarked();
+      return;
+    }
+    this.$content.classList.add("atk-hide", "atk-type-collapsed");
+    const collapsedInfoEl = createElement(`
+      <div class="atk-collapsed">
+        <span class="atk-text">\u8BE5\u8BC4\u8BBA\u5DF2\u88AB\u7CFB\u7EDF\u6216\u7BA1\u7406\u5458\u6298\u53E0</span>
+        <span class="atk-show-btn">\u67E5\u770B\u5185\u5BB9</span>
+      </div>`);
+    this.$body.insertAdjacentElement("beforeend", collapsedInfoEl);
+    const contentShowBtn = collapsedInfoEl.querySelector(".atk-show-btn");
+    contentShowBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (this.$content.classList.contains("atk-hide")) {
+        this.$content.innerHTML = this.getContentMarked();
+        this.$content.classList.remove("atk-hide");
+        playFadeInAnim(this.$content);
+        contentShowBtn.innerHTML = "\u6536\u8D77\u5185\u5BB9";
+      } else {
+        this.$content.innerHTML = "";
+        this.$content.classList.add("atk-hide");
+        contentShowBtn.innerHTML = "\u67E5\u770B\u5185\u5BB9";
+      }
+    });
+  }
+  renderReplyTo() {
+    if (!this.replyTo)
+      return;
+    this.$replyTo = createElement(`
+      <div class="atk-reply-to">
+        <div class="atk-meta">\u56DE\u590D <span class="atk-nick"></span>:</div>
+        <div class="atk-content"></div>
+      </div>`);
+    this.$replyTo.querySelector(".atk-nick").innerText = `@${this.replyTo.nick}`;
+    let replyContent = marked(this.ctx, this.replyTo.content);
+    if (this.replyTo.is_collapsed)
+      replyContent = "[\u5DF2\u6298\u53E0]";
+    this.$replyTo.querySelector(".atk-content").innerHTML = replyContent;
+    this.$body.prepend(this.$replyTo);
+  }
+  renderPending() {
+    if (!this.data.is_pending)
+      return;
+    const pendingEl = createElement(`<div class="atk-pending">\u5BA1\u6838\u4E2D\uFF0C\u4EC5\u672C\u4EBA\u53EF\u89C1\u3002</div>`);
+    this.$body.prepend(pendingEl);
+  }
+  renderActionBtn() {
+    if (this.ctx.conf.vote) {
+      this.voteBtnUp = new ActionBtn(() => `\u8D5E\u540C (${this.data.vote_up || 0})`).appendTo(this.$actions);
+      this.voteBtnUp.setClick(() => {
+        this.vote("up");
+      });
+      if (this.ctx.conf.voteDown) {
+        this.voteBtnDown = new ActionBtn(() => `\u53CD\u5BF9 (${this.data.vote_down || 0})`).appendTo(this.$actions);
+        this.voteBtnDown.setClick(() => {
+          this.vote("down");
+        });
+      }
+    }
+    if (this.data.is_allow_reply) {
+      const replyBtn = createElement(`<span data-atk-action="comment-reply">\u56DE\u590D</span>`);
+      this.$actions.append(replyBtn);
+      replyBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.ctx.trigger("editor-reply", this.data);
+      });
+    }
+    const collapseBtn = new ActionBtn({
+      text: () => this.data.is_collapsed ? "\u53D6\u6D88\u6298\u53E0" : "\u6298\u53E0",
+      adminOnly: true
+    });
+    collapseBtn.appendTo(this.$actions);
+    collapseBtn.setClick(() => {
+      this.adminEdit("collapsed", collapseBtn);
+    });
+    const pendingBtn = new ActionBtn({
+      text: () => this.data.is_pending ? "\u5F85\u5BA1" : "\u5DF2\u5BA1",
+      adminOnly: true
+    });
+    pendingBtn.appendTo(this.$actions);
+    pendingBtn.setClick(() => {
+      this.adminEdit("pending", pendingBtn);
+    });
+    const delBtn = new ActionBtn({
+      text: "\u5220\u9664",
+      confirm: true,
+      confirmText: "\u786E\u8BA4\u5220\u9664",
+      adminOnly: true
+    });
+    delBtn.appendTo(this.$actions);
+    delBtn.setClick(() => {
+      this.adminDelete(delBtn);
+    });
+  }
+  refreshUI() {
+    const originalEl = this.$el;
+    const newEl = this.render();
+    originalEl.replaceWith(newEl);
+    this.playFadeInAnim();
+    this.eachComment(this.children, (child) => {
+      var _a;
+      (_a = child.parent) == null ? void 0 : _a.getChildrenEl().appendChild(child.render());
+      child.playFadeInAnim();
+    });
+    this.ctx.trigger("comments-loaded");
+  }
+  eachComment(commentList, action) {
+    if (commentList.length === 0)
+      return;
+    commentList.every((item) => {
+      if (action(item, commentList) === false)
+        return false;
+      this.eachComment(item.getChildren(), action);
+      return true;
+    });
+  }
+  getIsRoot() {
+    return this.parent === null;
+  }
+  getChildren() {
+    return this.children;
+  }
+  putChild(childC) {
+    childC.parent = this;
+    childC.nestedNum = this.nestedNum + 1;
+    this.children.push(childC);
+    this.getChildrenEl().appendChild(childC.getEl());
+    childC.playFadeInAnim();
+  }
+  getChildrenEl() {
+    if (this.$children === null) {
+      if (this.nestedNum < this.maxNestingNum) {
+        this.$children = createElement('<div class="atk-comment-children"></div>');
+        this.$main.appendChild(this.$children);
+      } else if (this.parent) {
+        this.$children = this.parent.getChildrenEl();
+      }
+    }
+    return this.$children;
+  }
+  getParent() {
+    return this.parent;
+  }
+  getEl() {
+    return this.$el;
+  }
+  getData() {
+    return this.data;
+  }
+  getGravatarUrl() {
+    return getGravatarURL(this.ctx, this.data.email_encrypted);
+  }
+  getContentMarked() {
+    return marked(this.ctx, this.data.content);
+  }
+  getDateFormatted() {
+    return timeAgo(new Date(this.data.date));
+  }
+  getUserUaBrowser() {
+    const info = detectFactory(this.data.ua);
+    return `${info.browser} ${info.version}`;
+  }
+  getUserUaOS() {
+    const info = detectFactory(this.data.ua);
+    return `${info.os} ${info.osVersion}`;
+  }
+  playFadeInAnim() {
+    playFadeInAnim(this.$el);
+  }
+  vote(type) {
+    const actionBtn = type === "up" ? this.voteBtnUp : this.voteBtnDown;
+    new Api(this.ctx).vote(this.data.id, `comment_${type}`).then((v) => {
+      var _a, _b;
+      this.data.vote_up = v.up;
+      this.data.vote_down = v.down;
+      (_a = this.voteBtnUp) == null ? void 0 : _a.updateText();
+      (_b = this.voteBtnDown) == null ? void 0 : _b.updateText();
+    }).catch((err) => {
+      actionBtn == null ? void 0 : actionBtn.setError(`\u6295\u7968\u5931\u8D25`);
+      console.log(err);
+    });
+  }
+  adminEdit(type, btnElem) {
+    if (btnElem.isLoading)
+      return;
+    btnElem.setLoading(true, "\u4FEE\u6539\u4E2D...");
+    const modify = __spreadValues({}, this.data);
+    if (type === "collapsed") {
+      modify.is_collapsed = !modify.is_collapsed;
+    } else if (type === "pending") {
+      modify.is_pending = !modify.is_pending;
+    }
+    new Api(this.ctx).commentEdit(modify).then((comment2) => {
+      btnElem.setLoading(false);
+      this.data = comment2;
+      this.refreshUI();
+      playFadeInAnim(this.$body);
+      this.ctx.trigger("list-refresh-ui");
+    }).catch((err) => {
+      console.error(err);
+      btnElem.setError("\u4FEE\u6539\u5931\u8D25");
+    });
+  }
+  adminDelete(btnElem) {
+    if (btnElem.isLoading)
+      return;
+    btnElem.setLoading(true, "\u5220\u9664\u4E2D...");
+    new Api(this.ctx).commentDel(this.data.id, this.data.site_name).then(() => {
+      btnElem.setLoading(false);
+      if (this.onDelete)
+        this.onDelete(this);
+    }).catch((e) => {
+      console.error(e);
+      btnElem.setError("\u5220\u9664\u5931\u8D25");
+    });
+  }
+  setUnread(val) {
+    this.unread = val;
+    if (this.unread)
+      this.$el.classList.add("atk-unread");
+    else
+      this.$el.classList.remove("atk-unread");
+  }
+  setOpenURL(url) {
+    if (!url) {
+      this.openable = false;
+      this.$el.classList.remove("atk-openable");
+    }
+    this.openable = true;
+    this.openURL = url;
+    this.$el.classList.add("atk-openable");
+  }
+  checkMoreHide($target, allowHeight = 300) {
+    if (!$target)
+      return;
+    let $hideMoreOpenBtn = $target == null ? void 0 : $target.querySelector(".atk-more-hide-open-btn");
+    const removeHideMore = () => {
+      $target.classList.remove("atk-comment-more-hide");
+      if ($hideMoreOpenBtn)
+        $hideMoreOpenBtn.remove();
+      $target.style.height = "";
+      $target.style.overflow = "";
+    };
+    if (getHeight($target) > allowHeight) {
+      $target.classList.add("atk-comment-more-hide");
+      $target.style.height = `${allowHeight}px`;
+      $target.style.overflow = "hidden";
+      if (!$hideMoreOpenBtn) {
+        $hideMoreOpenBtn = createElement(`<div class="atk-more-hide-open-btn">\u9605\u8BFB\u66F4\u591A</span>`);
+        $hideMoreOpenBtn.onclick = (e) => {
+          e.stopPropagation();
+          removeHideMore();
+        };
+        $target.append($hideMoreOpenBtn);
+      }
+    }
+  }
+}
+var pagination = "";
+class Pagination {
+  constructor(total, conf) {
+    __publicField(this, "conf");
+    __publicField(this, "total");
+    __publicField(this, "$el");
+    __publicField(this, "$input");
+    __publicField(this, "inputTimer");
+    __publicField(this, "$prevBtn");
+    __publicField(this, "$nextBtn");
+    __publicField(this, "page", 1);
+    this.total = total;
+    this.conf = conf;
+    this.$el = createElement(`<div class="atk-pagination-wrap">
+        <div class="atk-pagination">
+          <div class="atk-btn atk-btn-prev">Prev</div>
+          <input type="text" class="atk-input" />
+          <div class="atk-btn atk-btn-next">Next</div>
+        </div>
+      </div>`);
+    this.$input = this.$el.querySelector(".atk-input");
+    this.$input.value = `${this.page}`;
+    this.$input.oninput = () => this.input();
+    this.$input.onkeydown = (e) => this.keydown(e);
+    this.$prevBtn = this.$el.querySelector(".atk-btn-prev");
+    this.$nextBtn = this.$el.querySelector(".atk-btn-next");
+    this.$prevBtn.onclick = () => this.prev();
+    this.$nextBtn.onclick = () => this.next();
+    this.checkDisabled();
+  }
+  get pageSize() {
+    return this.conf.pageSize || 15;
+  }
+  get offset() {
+    return this.pageSize * (this.page - 1);
+  }
+  get maxPage() {
+    return Math.ceil(this.total / this.pageSize);
+  }
+  update(offset, total) {
+    this.page = Math.ceil(offset / this.pageSize) + 1;
+    this.total = total;
+    this.setInput(this.page);
+    this.checkDisabled();
+  }
+  setInput(page) {
+    this.$input.value = `${page}`;
+  }
+  input(now = false) {
+    window.clearTimeout(this.inputTimer);
+    const value = this.$input.value.trim();
+    const modify = () => {
+      if (value === "") {
+        this.setInput(this.page);
+        return;
+      }
+      let page = Number(value);
+      if (Number.isNaN(page)) {
+        this.setInput(this.page);
+        return;
+      }
+      if (page < 1) {
+        this.setInput(this.page);
+        return;
+      }
+      if (page > this.maxPage) {
+        this.setInput(this.maxPage);
+        page = this.maxPage;
+      }
+      this.change(page);
+    };
+    if (!now)
+      this.inputTimer = window.setTimeout(() => modify(), 800);
+    else
+      modify();
+  }
+  prev() {
+    const page = this.page - 1;
+    if (page < 1) {
+      return;
+    }
+    this.change(page);
+  }
+  next() {
+    const page = this.page + 1;
+    if (page > this.maxPage) {
+      return;
+    }
+    this.change(page);
+  }
+  change(page) {
+    this.page = page;
+    this.conf.onChange(this.offset);
+    this.setInput(page);
+    this.checkDisabled();
+  }
+  checkDisabled() {
+    if (this.page + 1 > this.maxPage) {
+      this.$nextBtn.classList.add("atk-disabled");
+    } else {
+      this.$nextBtn.classList.remove("atk-disabled");
+    }
+    if (this.page - 1 < 1) {
+      this.$prevBtn.classList.add("atk-disabled");
+    } else {
+      this.$prevBtn.classList.remove("atk-disabled");
+    }
+  }
+  keydown(e) {
+    const keyCode = e.keyCode || e.which;
+    if (keyCode === 38) {
+      const page = Number(this.$input.value) + 1;
+      if (page > this.maxPage) {
+        return;
+      }
+      this.setInput(page);
+      this.input();
+    } else if (keyCode === 40) {
+      const page = Number(this.$input.value) - 1;
+      if (page < 1) {
+        return;
+      }
+      this.setInput(page);
+      this.input();
+    } else if (keyCode === 13) {
+      this.input(true);
+    }
+  }
+  setLoading(isLoading) {
+    if (isLoading)
+      showLoading(this.$el);
+    else
+      hideLoading(this.$el);
+  }
+}
+class ReadMoreBtn {
+  constructor(conf) {
+    __publicField(this, "conf");
+    __publicField(this, "$el");
+    __publicField(this, "$loading");
+    __publicField(this, "$text");
+    this.conf = conf;
+    this.$el = createElement(`<div class="atk-list-read-more" style="display: none;">
+      <div class="atk-list-read-more-inner">
+        <div class="atk-loading-icon" style="display: none;"></div>
+        <span class="atk-text">\u67E5\u770B\u66F4\u591A</span>
+      </div>
+    </div>`);
+    this.$loading = this.$el.querySelector(".atk-loading-icon");
+    this.$text = this.$el.querySelector(".atk-text");
+    this.$el.onclick = () => this.click();
+  }
+  click() {
+    this.conf.onClick();
+  }
+  show() {
+    this.$el.style.display = "";
+  }
+  hide() {
+    this.$el.style.display = "none";
+  }
+  setLoading(isLoading) {
+    this.$loading.style.display = isLoading ? "" : "none";
+    this.$text.style.display = isLoading ? "none" : "";
+  }
+  showErr(errMsg) {
+    this.setLoading(false);
+    this.$text.innerText = errMsg;
+    this.$el.classList.add("atk-err");
+    window.setTimeout(() => {
+      this.$text.innerText = "\u67E5\u770B\u66F4\u591A";
+      this.$el.classList.remove("atk-err");
+    }, 2e3);
+  }
+}
+class ListLite extends Component {
+  constructor(ctx, $parent) {
+    super(ctx);
+    __publicField(this, "$parent");
+    __publicField(this, "$commentsWrap");
+    __publicField(this, "comments", []);
+    __publicField(this, "data");
+    __publicField(this, "pageSize", 15);
+    __publicField(this, "offset", 0);
+    __publicField(this, "type");
+    __publicField(this, "noCommentText");
+    __publicField(this, "renderComment");
+    __publicField(this, "paramsEditor");
+    __publicField(this, "onAfterLoad");
+    __publicField(this, "isLoading", false);
+    __publicField(this, "isFirstLoad", true);
+    __publicField(this, "flatMode");
+    __publicField(this, "pageMode", "pagination");
+    __publicField(this, "pagination");
+    __publicField(this, "readMoreBtn");
+    __publicField(this, "autoLoadScrollEvent");
+    __publicField(this, "autoLoadListenerAt");
+    __publicField(this, "unread", []);
+    __publicField(this, "unreadHighlight", false);
+    this.$parent = $parent;
+    this.$el = createElement(`<div class="atk-list-lite">
+      <div class="atk-list-comments-wrap"></div>
+    </div>`);
+    this.$commentsWrap = this.$el.querySelector(".atk-list-comments-wrap");
+    this.pageSize = this.conf.pagination ? this.conf.pagination.pageSize || this.pageSize : this.pageSize;
+    this.noCommentText = this.conf.noComment || "\u65E0\u8BC4\u8BBA";
+    window.setInterval(() => {
+      this.$el.querySelectorAll("[data-atk-comment-date]").forEach((el) => {
+        const date = el.getAttribute("data-atk-comment-date");
+        el.innerText = timeAgo(new Date(Number(date)));
+      });
+    }, 30 * 1e3);
+    this.ctx.on("unread-update", (data) => this.updateUnread(data.notifies));
+  }
+  reqComments(offset = 0) {
+    return __async(this, null, function* () {
+      if (offset === 0 && this.pageMode !== "pagination") {
+        this.clearAllComments();
+      }
+      const showLoading$1 = () => {
+        this.isLoading = true;
+        if (offset === 0)
+          showLoading(this.$el);
+        else if (this.pageMode === "read-more")
+          this.readMoreBtn.setLoading(true);
+        else if (this.pageMode === "pagination")
+          this.pagination.setLoading(true);
+      };
+      const hideLoading$1 = () => {
+        this.isLoading = false;
+        if (offset === 0)
+          hideLoading(this.$el);
+        else if (this.pageMode === "read-more")
+          this.readMoreBtn.setLoading(false);
+        else if (this.pageMode === "pagination")
+          this.pagination.setLoading(false);
+      };
+      showLoading$1();
+      this.ctx.trigger("comments-load");
+      let listData;
+      try {
+        listData = yield new Api(this.ctx).get(offset, this.type, this.flatMode, this.paramsEditor);
+      } catch (e) {
+        this.onError(e.msg || String(e));
+        throw e;
+      } finally {
+        hideLoading$1();
+      }
+      if (this.ctx.conf.versionCheck) {
+        const needUpdate = this.apiVersionCheck(listData.api_version || {});
+        if (needUpdate)
+          return;
+      }
+      this.offset = offset;
+      try {
+        this.onLoad(listData, offset);
+        if (this.onAfterLoad) {
+          this.onAfterLoad(listData);
+        }
+      } catch (e) {
+        this.onError(String(e));
+        throw e;
+      } finally {
+        hideLoading$1();
+      }
+    });
+  }
+  onLoad(data, offset) {
+    var _a;
+    setError(this.$el, null);
+    if (this.pageMode === "pagination") {
+      this.clearAllComments();
+    }
+    this.data = data;
+    this.importComments(data.comments);
+    if (this.isFirstLoad) {
+      this.onLoadInit();
+    }
+    if (this.pageMode === "pagination") {
+      this.pagination.update(offset, ((_a = this.data) == null ? void 0 : _a.total_parents) || 0);
+    }
+    if (this.pageMode === "read-more") {
+      if (this.hasMoreComments)
+        this.readMoreBtn.show();
+      else
+        this.readMoreBtn.hide();
+    }
+    this.ctx.trigger("unread-update", { notifies: data.unread || [] });
+    this.isFirstLoad = false;
+  }
+  onLoadInit() {
+    var _a;
+    if (this.autoLoadScrollEvent) {
+      const at = this.autoLoadListenerAt || document;
+      at.removeEventListener("scroll", this.autoLoadScrollEvent);
+    }
+    if (this.pageMode === "read-more") {
+      const readMoreBtn = new ReadMoreBtn({
+        pageSize: this.pageSize,
+        total: 0,
+        onClick: () => __async(this, null, function* () {
+          const offset = this.offset + this.pageSize;
+          yield this.reqComments(offset);
+        })
+      });
+      if (this.readMoreBtn)
+        this.readMoreBtn.$el.replaceWith(readMoreBtn.$el);
+      else
+        this.$el.append(readMoreBtn.$el);
+      this.readMoreBtn = readMoreBtn;
+      if ((_a = this.conf.pagination) == null ? void 0 : _a.autoLoad) {
+        this.autoLoadScrollEvent = () => {
+          if (this.pageMode !== "read-more")
+            return;
+          if (!this.hasMoreComments)
+            return;
+          if (this.isLoading)
+            return;
+          const $target = this.$el.querySelector(".atk-list-comments-wrap > .atk-comment-wrap:nth-last-child(3)");
+          if (!$target)
+            return;
+          if (isVisible($target, this.autoLoadListenerAt)) {
+            this.readMoreBtn.click();
+          }
+        };
+        const at = this.autoLoadListenerAt || document;
+        at.addEventListener("scroll", this.autoLoadScrollEvent);
+      }
+    } else if (this.pageMode === "pagination") {
+      const pagination2 = new Pagination(this.parentCommentsCount, {
+        pageSize: this.pageSize,
+        onChange: (offset) => __async(this, null, function* () {
+          yield this.reqComments(offset);
+          if (this.$parent) {
+            let topPos = 0;
+            if (!this.autoLoadListenerAt && this.$parent) {
+              topPos = getOffset(this.$parent).top;
+            }
+            const at = this.autoLoadListenerAt || window;
+            at.scroll({
+              top: topPos,
+              left: 0
+            });
+          }
+        })
+      });
+      if (this.pagination)
+        this.pagination.$el.replaceWith(pagination2.$el);
+      else
+        this.$el.append(pagination2.$el);
+      this.pagination = pagination2;
+    }
+  }
+  onError(msg) {
+    var _a;
+    msg = String(msg);
+    console.error(msg);
+    if (this.isFirstLoad || this.pageMode === "pagination") {
+      const errEl = createElement(`<span>${msg}\uFF0C\u65E0\u6CD5\u83B7\u53D6\u8BC4\u8BBA\u5217\u8868\u6570\u636E<br/></span>`);
+      const retryBtn = createElement('<span style="cursor:pointer;">\u70B9\u51FB\u91CD\u65B0\u83B7\u53D6</span>');
+      retryBtn.onclick = () => {
+        this.reqComments(this.offset);
+      };
+      errEl.appendChild(retryBtn);
+      const adminBtn = createElement('<span atk-only-admin-show> | <span style="cursor:pointer;">\u6253\u5F00\u63A7\u5236\u53F0</span></span>');
+      adminBtn.onclick = () => {
+        this.ctx.trigger("sidebar-show");
+      };
+      if (!this.ctx.user.data.isAdmin) {
+        adminBtn.classList.add("atk-hide");
+      }
+      errEl.appendChild(adminBtn);
+      setError(this.$el, errEl);
+    } else {
+      (_a = this.readMoreBtn) == null ? void 0 : _a.showErr(`\u83B7\u53D6\u5931\u8D25`);
+    }
+  }
+  refreshUI() {
+    const noComment = this.comments.length <= 0;
+    let noCommentEl = this.$commentsWrap.querySelector(".atk-list-no-comment");
+    if (noComment) {
+      if (!noCommentEl) {
+        noCommentEl = createElement('<div class="atk-list-no-comment"></div>');
+        this.$commentsWrap.appendChild(noCommentEl);
+        noCommentEl.innerHTML = this.noCommentText;
+      }
+    }
+    if (!noComment && noCommentEl)
+      noCommentEl.remove();
+    this.ctx.trigger("check-admin-show-el");
+  }
+  createComment(data) {
+    const comment2 = new Comment(this.ctx, data);
+    comment2.afterRender = () => {
+      if (this.renderComment)
+        this.renderComment(comment2);
+    };
+    comment2.onDelete = (c) => {
+      this.deleteComment(c);
+      this.refreshUI();
+    };
+    return comment2;
+  }
+  importComments(rawData) {
+    const queryImportChildren = (parentC) => {
+      const children = rawData.filter((o) => o.rid === parentC.data.id);
+      if (children.length === 0)
+        return;
+      children.forEach((itemData) => {
+        itemData.is_allow_reply = parentC.data.is_allow_reply;
+        const childC = this.createComment(itemData);
+        childC.render();
+        parentC.putChild(childC);
+        queryImportChildren(childC);
+      });
+    };
+    if (!this.flatMode) {
+      rawData.filter((o) => o.rid === 0).forEach((rootCommentData) => {
+        if (rootCommentData.is_collapsed)
+          rootCommentData.is_allow_reply = false;
+        const rootComment = this.createComment(rootCommentData);
+        rootComment.render();
+        this.comments.push(rootComment);
+        this.$commentsWrap.appendChild(rootComment.getEl());
+        rootComment.playFadeInAnim();
+        queryImportChildren(rootComment);
+      });
+    } else {
+      rawData.forEach((commentData) => {
+        this.putCommentFlatMode(commentData, rawData, "append");
+      });
+    }
+    this.eachComment(this.comments, (c) => {
+      this.checkMoreHide(c);
+    });
+    this.refreshUI();
+    this.ctx.trigger("comments-loaded");
+  }
+  putCommentFlatMode(commentItem, comments, insertMode) {
+    if (commentItem.is_collapsed)
+      commentItem.is_allow_reply = false;
+    const comment2 = this.createComment(commentItem);
+    if (commentItem.rid !== 0) {
+      const rComment = comments.find((o) => o.id === commentItem.rid);
+      if (rComment)
+        comment2.replyTo = rComment;
+    }
+    comment2.render();
+    if (insertMode === "append") {
+      this.comments.push(comment2);
+    } else {
+      this.comments.unshift(comment2);
+    }
+    if (commentItem.visible) {
+      if (insertMode === "append") {
+        this.$commentsWrap.appendChild(comment2.getEl());
+      } else {
+        this.$commentsWrap.prepend(comment2.getEl());
+      }
+      comment2.playFadeInAnim();
+    }
+    this.checkMoreHide(comment2);
+  }
+  insertComment(commentData) {
+    var _a;
+    if (!this.flatMode) {
+      const comment2 = this.createComment(commentData);
+      comment2.render();
+      if (commentData.rid !== 0) {
+        (_a = this.findComment(commentData.rid)) == null ? void 0 : _a.putChild(comment2);
+      } else {
+        this.$commentsWrap.prepend(comment2.getEl());
+        this.comments.unshift(comment2);
+      }
+      scrollIntoView(comment2.getEl());
+      comment2.playFadeInAnim();
+      this.checkMoreHide(comment2);
+    } else {
+      this.putCommentFlatMode(commentData, this.comments.map((c) => c.data), "prepend");
+    }
+    if (this.data)
+      this.data.total += 1;
+    this.refreshUI();
+    this.ctx.trigger("comments-loaded");
+  }
+  checkMoreHide(c) {
+    var _a, _b;
+    const childrenH = (_a = this.ctx.conf.heightLimit) == null ? void 0 : _a.children;
+    const contentH = (_b = this.ctx.conf.heightLimit) == null ? void 0 : _b.content;
+    const isChildrenLimit = typeof childrenH === "number" && childrenH > 0;
+    const isContentLimit = typeof contentH === "number" && contentH > 0;
+    if (isChildrenLimit && c.getIsRoot()) {
+      c.checkMoreHide(c.$children, childrenH || 300);
+    }
+    if (isContentLimit) {
+      c.checkMoreHide(c.$content, contentH || 200);
+      if (c.$replyTo)
+        c.checkMoreHide(c.$replyTo, contentH || 200);
+    }
+  }
+  get commentsCount() {
+    var _a;
+    return Number((_a = this.data) == null ? void 0 : _a.total) || 0;
+  }
+  get parentCommentsCount() {
+    var _a;
+    return Number((_a = this.data) == null ? void 0 : _a.total_parents) || 0;
+  }
+  get hasMoreComments() {
+    if (!this.data)
+      return false;
+    return this.data.total_parents > this.offset + this.pageSize;
+  }
+  eachComment(commentList, action) {
+    if (commentList.length === 0)
+      return;
+    commentList.every((item) => {
+      if (action(item, commentList) === false)
+        return false;
+      this.eachComment(item.getChildren(), action);
+      return true;
+    });
+  }
+  findComment(id, src) {
+    if (!src)
+      src = this.comments;
+    let comment2 = null;
+    this.eachComment(src, (item) => {
+      if (item.data.id === id) {
+        comment2 = item;
+        return false;
+      }
+      return true;
+    });
+    return comment2;
+  }
+  getCommentCount() {
+    let count = 0;
+    this.eachComment(this.comments, () => {
+      count++;
+    });
+    return count;
+  }
+  deleteComment(comment2) {
+    let findComment;
+    if (typeof comment2 === "number") {
+      findComment = this.findComment(comment2);
+      if (!findComment)
+        throw Error(`\u672A\u627E\u5230\u8BC4\u8BBA ${comment2}`);
+    } else
+      findComment = comment2;
+    findComment.getEl().remove();
+    this.eachComment(this.comments, (item, levelList) => {
+      if (item === findComment) {
+        levelList.splice(levelList.indexOf(item), 1);
+        return false;
+      }
+      return true;
+    });
+    this.refreshUI();
+  }
+  clearAllComments() {
+    this.$commentsWrap.innerHTML = "";
+    this.data = void 0;
+    this.comments = [];
+  }
+  updateUnread(notifies) {
+    this.unread = notifies;
+    if (this.unreadHighlight) {
+      this.eachComment(this.comments, (comment2) => {
+        const notify = this.unread.find((o) => o.comment_id === comment2.data.id);
+        if (notify) {
+          comment2.setUnread(true);
+          comment2.setOpenURL(notify.read_link);
+          comment2.openEvt = () => {
+            this.unread = this.unread.filter((o) => o.comment_id !== comment2.data.id);
+            this.ctx.trigger("unread-update", {
+              notifies: this.unread
+            });
+          };
+        } else {
+          comment2.setUnread(false);
+        }
+      });
+    }
+  }
+  apiVersionCheck(versionData) {
+    const needVersion = (versionData == null ? void 0 : versionData.fe_min_version) || "0.0.0";
+    const needUpdate = versionCompare(needVersion, "2.1.1") === 1;
+    if (needUpdate) {
+      const errEl = createElement(`<div>\u524D\u7AEF Artalk \u7248\u672C\u5DF2\u8FC7\u65F6\uFF0C\u8BF7\u66F4\u65B0\u4EE5\u83B7\u5F97\u5B8C\u6574\u4F53\u9A8C<br/>\u82E5\u60A8\u662F\u7AD9\u70B9\u7BA1\u7406\u5458\uFF0C\u8BF7\u524D\u5F80 \u201C<a href="https://artalk.js.org/" target="_blank">\u5B98\u65B9\u6587\u6863</a>\u201D \u83B7\u53D6\u5E2E\u52A9<br/><br/><span style="color: var(--at-color-meta);">\u524D\u7AEF\u7248\u672C ${"2.1.1"}\uFF0C\u9700\u6C42\u7248\u672C >= ${needVersion}</span><br/><br/></div>`);
+      const ignoreBtn = createElement('<span style="cursor:pointer;">\u5FFD\u7565</span>');
+      ignoreBtn.onclick = () => {
+        setError(this.ctx, null);
+        this.ctx.conf.versionCheck = false;
+        this.reqComments(0);
+      };
+      errEl.append(ignoreBtn);
+      setError(this.ctx, errEl, '<span class="atk-warn-title">Artalk Warn</span>');
+    }
+    return needUpdate;
+  }
+}
+class List extends ListLite {
+  constructor(ctx) {
+    var _a;
+    const el = createElement(ListHTML);
+    super(ctx, el);
+    __publicField(this, "$closeCommentBtn");
+    __publicField(this, "$openSidebarBtn");
+    __publicField(this, "$unreadBadge");
+    el.querySelector(".atk-list-body").append(this.$el);
+    this.$el = el;
+    let flatMode = false;
+    if (this.ctx.conf.flatMode === "auto") {
+      if (window.matchMedia("(max-width: 768px)").matches)
+        flatMode = true;
+    } else if (this.ctx.conf.flatMode === true) {
+      flatMode = true;
+    }
+    this.flatMode = flatMode;
+    this.pageMode = ((_a = this.conf.pagination) == null ? void 0 : _a.readMore) ? "read-more" : "pagination";
+    this.initListActionBtn();
+    this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.1.1"}">Artalk</a>`;
+    this.ctx.on("list-reload", () => this.reqComments(0));
+    this.ctx.on("list-refresh-ui", () => this.refreshUI());
+    this.ctx.on("list-import", (data) => this.importComments(data));
+    this.ctx.on("list-insert", (data) => this.insertComment(data));
+    this.ctx.on("list-delete", (comment2) => this.deleteComment(comment2.id));
+    this.ctx.on("list-update", (updateData) => {
+      updateData(this.data);
+      this.refreshUI();
+    });
+    this.ctx.on("unread-update", (data) => {
+      var _a2;
+      return this.showUnreadBadge(((_a2 = data.notifies) == null ? void 0 : _a2.length) || 0);
+    });
+  }
+  initListActionBtn() {
+    this.$openSidebarBtn = this.$el.querySelector('[data-action="open-sidebar"]');
+    this.$closeCommentBtn = this.$el.querySelector('[data-action="admin-close-comment"]');
+    this.$unreadBadge = this.$el.querySelector(".atk-unread-badge");
+    this.$openSidebarBtn.addEventListener("click", () => {
+      this.ctx.trigger("sidebar-show");
+    });
+    this.$closeCommentBtn.addEventListener("click", () => {
+      if (!this.data)
+        return;
+      this.data.page.admin_only = !this.data.page.admin_only;
+      this.adminPageEditSave();
+    });
+  }
+  refreshUI() {
+    super.refreshUI();
+    this.$el.querySelector(".atk-comment-count-num").innerText = String(this.commentsCount);
+    if (!!this.ctx.user.data.nick && !!this.ctx.user.data.email) {
+      this.$openSidebarBtn.classList.remove("atk-hide");
+    } else {
+      this.$openSidebarBtn.classList.add("atk-hide");
+    }
+    this.ctx.trigger("check-admin-show-el");
+    this.$openSidebarBtn.innerText = !this.ctx.user.data.isAdmin ? "\u901A\u77E5\u4E2D\u5FC3" : "\u63A7\u5236\u4E2D\u5FC3";
+    if (!!this.data && !!this.data.page && this.data.page.admin_only === true) {
+      this.ctx.trigger("editor-close");
+      this.$closeCommentBtn.innerHTML = "\u6253\u5F00\u8BC4\u8BBA";
+    } else {
+      this.ctx.trigger("editor-open");
+      this.$closeCommentBtn.innerHTML = "\u5173\u95ED\u8BC4\u8BBA";
+    }
+  }
+  onLoad(data, offset) {
+    super.onLoad(data, offset);
+    this.checkGoToCommentByUrlHash();
+  }
+  checkGoToCommentByUrlHash() {
+    return __async(this, null, function* () {
+      let commentId = Number(getQueryParam("atk_comment"));
+      if (!commentId) {
+        const match = window.location.hash.match(/#atk-comment-([0-9]+)/);
+        if (!match || !match[1] || Number.isNaN(Number(match[1])))
+          return;
+        commentId = Number(match[1]);
+      }
+      if (!commentId)
+        return;
+      const notifyKey = getQueryParam("atk_notify_key");
+      if (notifyKey) {
+        new Api(this.ctx).markRead(notifyKey).then(() => {
+          this.unread = this.unread.filter((o) => o.comment_id !== commentId);
+          this.ctx.trigger("unread-update", {
+            notifies: this.unread
+          });
+        });
+      }
+      const comment2 = this.findComment(commentId);
+      if (!comment2)
+        return;
+      scrollIntoView(comment2.getEl(), false);
+      window.setTimeout(() => {
+        comment2.getEl().classList.add("atk-flash-once");
+      }, 800);
+    });
+  }
+  adminPageEditSave() {
+    if (!this.data || !this.data.page)
+      return;
+    this.ctx.trigger("editor-show-loading");
+    new Api(this.ctx).pageEdit(this.data.page).then((page) => {
+      if (this.data)
+        this.data.page = __spreadValues({}, page);
+      this.refreshUI();
+    }).catch((err) => {
+      this.ctx.trigger("editor-notify", { msg: `\u4FEE\u6539\u9875\u9762\u6570\u636E\u5931\u8D25\uFF1A${err.msg || String(err)}`, type: "e" });
+    }).finally(() => {
+      this.ctx.trigger("editor-hide-loading");
+    });
+  }
+  showUnreadBadge(count) {
+    if (count > 0) {
+      this.$unreadBadge.innerText = `${Number(count || 0)}`;
+      this.$unreadBadge.style.display = "block";
+    } else {
+      this.$unreadBadge.style.display = "none";
+    }
+  }
+}
+var sidebar = "";
+var MD5 = function(d) {
+  var r = M(V(Y(X(d), 8 * d.length)));
+  return r.toLowerCase();
+};
+function M(d) {
+  for (var _, m = "0123456789ABCDEF", f = "", r = 0; r < d.length; r++)
+    _ = d.charCodeAt(r), f += m.charAt(_ >>> 4 & 15) + m.charAt(15 & _);
+  return f;
+}
+function X(d) {
+  for (var _ = Array(d.length >> 2), m = 0; m < _.length; m++)
+    _[m] = 0;
+  for (m = 0; m < 8 * d.length; m += 8)
+    _[m >> 5] |= (255 & d.charCodeAt(m / 8)) << m % 32;
+  return _;
+}
+function V(d) {
+  for (var _ = "", m = 0; m < 32 * d.length; m += 8)
+    _ += String.fromCharCode(d[m >> 5] >>> m % 32 & 255);
+  return _;
+}
+function Y(d, _) {
+  d[_ >> 5] |= 128 << _ % 32, d[14 + (_ + 64 >>> 9 << 4)] = _;
+  for (var m = 1732584193, f = -271733879, r = -1732584194, i = 271733878, n = 0; n < d.length; n += 16) {
+    var h = m, t = f, g = r, e = i;
+    f = md5_ii(f = md5_ii(f = md5_ii(f = md5_ii(f = md5_hh(f = md5_hh(f = md5_hh(f = md5_hh(f = md5_gg(f = md5_gg(f = md5_gg(f = md5_gg(f = md5_ff(f = md5_ff(f = md5_ff(f = md5_ff(f, r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 0], 7, -680876936), f, r, d[n + 1], 12, -389564586), m, f, d[n + 2], 17, 606105819), i, m, d[n + 3], 22, -1044525330), r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 4], 7, -176418897), f, r, d[n + 5], 12, 1200080426), m, f, d[n + 6], 17, -1473231341), i, m, d[n + 7], 22, -45705983), r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 8], 7, 1770035416), f, r, d[n + 9], 12, -1958414417), m, f, d[n + 10], 17, -42063), i, m, d[n + 11], 22, -1990404162), r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 12], 7, 1804603682), f, r, d[n + 13], 12, -40341101), m, f, d[n + 14], 17, -1502002290), i, m, d[n + 15], 22, 1236535329), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 1], 5, -165796510), f, r, d[n + 6], 9, -1069501632), m, f, d[n + 11], 14, 643717713), i, m, d[n + 0], 20, -373897302), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 5], 5, -701558691), f, r, d[n + 10], 9, 38016083), m, f, d[n + 15], 14, -660478335), i, m, d[n + 4], 20, -405537848), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 9], 5, 568446438), f, r, d[n + 14], 9, -1019803690), m, f, d[n + 3], 14, -187363961), i, m, d[n + 8], 20, 1163531501), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 13], 5, -1444681467), f, r, d[n + 2], 9, -51403784), m, f, d[n + 7], 14, 1735328473), i, m, d[n + 12], 20, -1926607734), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 5], 4, -378558), f, r, d[n + 8], 11, -2022574463), m, f, d[n + 11], 16, 1839030562), i, m, d[n + 14], 23, -35309556), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 1], 4, -1530992060), f, r, d[n + 4], 11, 1272893353), m, f, d[n + 7], 16, -155497632), i, m, d[n + 10], 23, -1094730640), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 13], 4, 681279174), f, r, d[n + 0], 11, -358537222), m, f, d[n + 3], 16, -722521979), i, m, d[n + 6], 23, 76029189), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 9], 4, -640364487), f, r, d[n + 12], 11, -421815835), m, f, d[n + 15], 16, 530742520), i, m, d[n + 2], 23, -995338651), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 0], 6, -198630844), f, r, d[n + 7], 10, 1126891415), m, f, d[n + 14], 15, -1416354905), i, m, d[n + 5], 21, -57434055), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 12], 6, 1700485571), f, r, d[n + 3], 10, -1894986606), m, f, d[n + 10], 15, -1051523), i, m, d[n + 1], 21, -2054922799), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 8], 6, 1873313359), f, r, d[n + 15], 10, -30611744), m, f, d[n + 6], 15, -1560198380), i, m, d[n + 13], 21, 1309151649), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 4], 6, -145523070), f, r, d[n + 11], 10, -1120210379), m, f, d[n + 2], 15, 718787259), i, m, d[n + 9], 21, -343485551), m = safe_add(m, h), f = safe_add(f, t), r = safe_add(r, g), i = safe_add(i, e);
+  }
+  return Array(m, f, r, i);
+}
+function md5_cmn(d, _, m, f, r, i) {
+  return safe_add(bit_rol(safe_add(safe_add(_, d), safe_add(f, i)), r), m);
+}
+function md5_ff(d, _, m, f, r, i, n) {
+  return md5_cmn(_ & m | ~_ & f, d, _, r, i, n);
+}
+function md5_gg(d, _, m, f, r, i, n) {
+  return md5_cmn(_ & f | m & ~f, d, _, r, i, n);
+}
+function md5_hh(d, _, m, f, r, i, n) {
+  return md5_cmn(_ ^ m ^ f, d, _, r, i, n);
+}
+function md5_ii(d, _, m, f, r, i, n) {
+  return md5_cmn(m ^ (_ | ~f), d, _, r, i, n);
+}
+function safe_add(d, _) {
+  var m = (65535 & d) + (65535 & _);
+  return (d >> 16) + (_ >> 16) + (m >> 16) << 16 | 65535 & m;
+}
+function bit_rol(d, _) {
+  return d << _ | d >>> 32 - _;
+}
+var SidebarHTML = '<div class="atk-sidebar">\n  <div class="atk-sidebar-inner">\n    <div class="atk-sidebar-header">\n      <span class="atk-avatar">\n        <span class="atk-site-logo"></span>\n      </span>\n      <span class="atk-menu">\n        <span class="atk-item atk-active atk-sidebar-title">\u63A7\u5236\u4E2D\u5FC3</span>\n      </span>\n      <div class="atk-sidebar-close"><i class="atk-icon atk-icon-close"></i></div>\n    </div>\n    <div class="atk-sidebar-nav">\n      <div class="akt-curt-view-btn">\n        <div class="atk-icon"><span></span><span></span><span></span></div>\n        <div class="atk-text"></div>\n      </div>\n      <div class="atk-tabs"></div>\n      <div class="atk-tabs atk-views" style="display: none;"></div>\n    </div>\n    <div class="atk-sidebar-view-wrap"></div>\n  </div>\n</div>\n';
+class SidebarView extends Component {
+  constructor(ctx, $parent) {
+    super(ctx);
+    __publicField(this, "viewTabs", {});
+    __publicField(this, "viewActiveTab", "");
+    __publicField(this, "$parent");
+    this.$parent = $parent;
+    this.$el = createElement(`<div class="atk-sidebar-view"></div>`);
+  }
+  mount(siteName) {
+  }
+  switchTab(tab, siteName) {
+  }
+}
+__publicField(SidebarView, "viewName", "");
+__publicField(SidebarView, "viewTitle", "");
+__publicField(SidebarView, "viewAdminOnly", false);
+class MessageView extends SidebarView {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "viewTabs", {});
+    __publicField(this, "viewActiveTab", "");
+    __publicField(this, "list");
+  }
+  mount(siteName) {
+    if (this.ctx.user.data.isAdmin) {
+      this.viewTabs = {
+        admin_all: "\u5168\u90E8",
+        admin_pending: "\u5F85\u5BA1",
+        all: "\u4E2A\u4EBA"
+      };
+      this.viewActiveTab = "admin_all";
+    } else {
+      this.viewTabs = {
+        mentions: "\u63D0\u53CA",
+        all: "\u5168\u90E8",
+        mine: "\u6211\u7684",
+        pending: "\u5F85\u5BA1"
+      };
+      this.viewActiveTab = "mentions";
+    }
+    this.list = new ListLite(this.ctx, this.$el);
+    this.list.flatMode = true;
+    this.list.unreadHighlight = true;
+    this.list.autoLoadListenerAt = this.$parent;
+    this.list.pageMode = "pagination";
+    this.list.noCommentText = '<div class="atk-sidebar-no-content">\u65E0\u5185\u5BB9</div>';
+    this.list.renderComment = (comment2) => {
+      comment2.setOpenURL(`${comment2.data.page_key}#atk-comment-${comment2.data.id}`);
+    };
+    this.list.paramsEditor = (params) => {
+      params.site_name = siteName;
+    };
+    this.$el.innerHTML = "";
+    this.$el.append(this.list.$el);
+    this.switchTab(this.viewActiveTab, siteName);
+  }
+  switchTab(tab, siteName) {
+    this.viewActiveTab = tab;
+    this.list.type = tab;
+    this.list.isFirstLoad = true;
+    this.list.paramsEditor = (params) => {
+      params.site_name = siteName;
+    };
+    this.list.reqComments();
+    return true;
+  }
+}
+__publicField(MessageView, "viewName", "comments");
+__publicField(MessageView, "viewTitle", "\u8BC4\u8BBA");
+var pageList = "";
+var itemTextEditor = "";
+class ItemTextEditor {
+  constructor(conf) {
+    __publicField(this, "conf");
+    __publicField(this, "$el");
+    __publicField(this, "$input");
+    __publicField(this, "$yesBtn");
+    __publicField(this, "$noBtn");
+    __publicField(this, "value", "");
+    __publicField(this, "allowSubmit", true);
+    this.conf = conf;
+    this.$el = createElement(`<div class="atk-item-text-editor-layer">
+      <div class="atk-edit-form">
+        <input class="atk-main-input" type="text" placeholder="\u8F93\u5165\u5185\u5BB9..." autocomplete="off" autofocus>
+      </div>
+      <div class="atk-actions">
+        <div class="atk-item atk-yes-btn">
+          <i class="atk-icon atk-icon-yes"></i>
+        </div>
+        <div class="atk-item atk-no-btn">
+          <i class="atk-icon atk-icon-no"></i>
+        </div>
+      </div>
+    </div>`);
+    this.$input = this.$el.querySelector(".atk-main-input");
+    this.$yesBtn = this.$el.querySelector(".atk-yes-btn");
+    this.$noBtn = this.$el.querySelector(".atk-no-btn");
+    this.$input.value = conf.initValue || "";
+    this.value = conf.initValue || "";
+    if (this.conf.placeholder)
+      this.$input.placeholder = this.conf.placeholder;
+    this.$input.oninput = () => this.onInput();
+    this.$input.onkeyup = (evt) => {
+      if (evt.key === "Enter" || evt.keyCode === 13) {
+        evt.preventDefault();
+        this.submit();
+      }
+    };
+    window.setTimeout(() => this.$input.focus(), 80);
+    this.$yesBtn.onclick = () => {
+      this.submit();
+    };
+    this.$noBtn.onclick = () => {
+      this.cancel();
+    };
+  }
+  appendTo(parentDOM) {
+    parentDOM.append(this.$el);
+    return this;
+  }
+  onInput() {
+    this.value = this.$input.value;
+    if (this.conf.validator) {
+      const ok = this.conf.validator(this.value);
+      this.setAllowSubmit(ok);
+      if (!ok) {
+        this.$input.classList.add("atk-invalid");
+      } else {
+        this.$input.classList.remove("atk-invalid");
+      }
+    }
+  }
+  setAllowSubmit(allow) {
+    if (this.allowSubmit === allow)
+      return;
+    this.allowSubmit = allow;
+    if (!allow) {
+      this.$yesBtn.classList.add(".atk-disabled");
+    } else {
+      this.$yesBtn.classList.remove(".atk-disabled");
+    }
+  }
+  submit() {
+    return __async(this, null, function* () {
+      if (!this.allowSubmit)
+        return;
+      if (this.conf.onYes) {
+        let isContinue;
+        if (this.conf.onYes instanceof (() => __async(this, null, function* () {
+        })).constructor) {
+          isContinue = yield this.conf.onYes(this.value);
+        } else {
+          isContinue = this.conf.onYes(this.value);
+        }
+        if (isContinue === void 0 || isContinue === true) {
+          this.closeEditor();
+        }
+      } else {
+        this.closeEditor();
+      }
+    });
+  }
+  cancel() {
+    return __async(this, null, function* () {
+      if (this.conf.onNo) {
+        let isContinue;
+        if (this.conf.onNo instanceof (() => __async(this, null, function* () {
+        })).constructor) {
+          isContinue = yield this.conf.onNo();
+        } else {
+          isContinue = this.conf.onNo();
+        }
+        if (isContinue === void 0 || isContinue === true) {
+          this.closeEditor();
+        }
+      } else {
+        this.closeEditor();
+      }
+    });
+  }
+  closeEditor() {
+    this.$el.remove();
+  }
+}
+class PageList extends Component {
+  constructor(ctx) {
+    super(ctx);
+    __publicField(this, "$editor");
+    __publicField(this, "$inputer");
+    __publicField(this, "pages", []);
+    this.$el = createElement(`<div class="atk-page-list"></div>`);
+  }
+  clearAll() {
+    this.pages = [];
+    this.$el.innerHTML = "";
+  }
+  importPages(pages) {
+    this.pages.push(...pages);
+    pages.forEach((page) => {
+      const $page = this.renderPage(page);
+      this.$el.append($page);
+    });
+  }
+  renderPage(page) {
+    const $page = createElement(`<div class="atk-page-item">
+        <div class="atk-page-main">
+          <div class="atk-title"></div>
+          <div class="atk-sub"></div>
+        </div>
+        <div class="atk-page-actions">
+          <div class="atk-item atk-edit-btn">
+            <i class="atk-icon atk-icon-edit"></i>
+          </div>
+        </div>
+      </div>`);
+    const $main = $page.querySelector(".atk-page-main");
+    const $title = $main.querySelector(".atk-title");
+    const $sub = $main.querySelector(".atk-sub");
+    const $editBtn = $page.querySelector(".atk-edit-btn");
+    $title.innerText = page.title;
+    $sub.innerText = page.url || page.key;
+    $editBtn.onclick = () => this.showEditor(page, $page);
+    return $page;
+  }
+  showEditor(page, $page) {
+    this.closeEditor();
+    this.$editor = createElement(`<div class="atk-page-edit-layer">
+      <div class="atk-page-main-actions">
+        <div class="atk-item atk-title-edit-btn">\u6807\u9898\u4FEE\u6539</div>
+        <div class="atk-item atk-key-edit-btn">KEY \u53D8\u66F4</div>
+        <div class="atk-item atk-admin-only-btn"></div>
+      </div>
+      <div class="atk-page-actions">
+        <div class="atk-item atk-sync-btn">
+          <i class="atk-icon atk-icon-sync"></i>
+        </div>
+        <div class="atk-item atk-del-btn">
+          <i class="atk-icon atk-icon-del"></i>
+        </div>
+        <div class="atk-item atk-close-btn">
+          <i class="atk-icon atk-icon-close"></i>
+        </div>
+      </div>
+    </div>`);
+    $page.prepend(this.$editor);
+    const $titleEditBtn = this.$editor.querySelector(".atk-title-edit-btn");
+    const $keyEditBtn = this.$editor.querySelector(".atk-key-edit-btn");
+    const $adminOnlyBtn = this.$editor.querySelector(".atk-admin-only-btn");
+    const $syncBtn = this.$editor.querySelector(".atk-sync-btn");
+    const $delBtn = this.$editor.querySelector(".atk-del-btn");
+    const $closeBtn = this.$editor.querySelector(".atk-close-btn");
+    const showLoading$1 = () => {
+      showLoading(this.$editor);
+    };
+    const hideLoading$1 = () => {
+      hideLoading(this.$editor);
+    };
+    const showError = (msg) => {
+      window.alert(msg);
+    };
+    $closeBtn.onclick = () => this.closeEditor();
+    const openTextEditor = (key) => {
+      const textEditor = new ItemTextEditor({
+        initValue: page[key] || "",
+        onYes: (val) => __async(this, null, function* () {
+          showLoading(textEditor.$el);
+          let p;
+          try {
+            p = yield new Api(this.ctx).pageEdit(__spreadProps(__spreadValues({}, page), { [key]: val }));
+          } catch (err) {
+            showError(`\u4FEE\u6539\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
+            console.error(err);
+            return false;
+          } finally {
+            hideLoading(textEditor.$el);
+          }
+          $page.replaceWith(this.renderPage(p));
+          return true;
+        })
+      });
+      textEditor.appendTo(this.$editor);
+    };
+    $titleEditBtn.onclick = () => openTextEditor("title");
+    $keyEditBtn.onclick = () => openTextEditor("key");
+    const adminOnlyActionBtn = new ActionBtn({
+      text: () => {
+        $adminOnlyBtn.classList.remove("atk-green", "atk-yellow");
+        $adminOnlyBtn.classList.add(!page.admin_only ? "atk-green" : "atk-yellow");
+        return !page.admin_only ? "\u6240\u6709\u4EBA\u53EF\u8BC4" : "\u7BA1\u7406\u5458\u53EF\u8BC4";
+      }
+    }).appendTo($adminOnlyBtn);
+    $adminOnlyBtn.onclick = () => __async(this, null, function* () {
+      showLoading$1();
+      let p;
+      try {
+        p = yield new Api(this.ctx).pageEdit(__spreadProps(__spreadValues({}, page), { admin_only: !page.admin_only }));
+      } catch (err) {
+        showError(`\u4FEE\u6539\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
+        console.log(err);
+        return;
+      } finally {
+        hideLoading$1();
+      }
+      page.admin_only = p.admin_only;
+      adminOnlyActionBtn.updateText();
+    });
+    $syncBtn.onclick = () => __async(this, null, function* () {
+      showLoading$1();
+      let p;
+      try {
+        p = yield new Api(this.ctx).pageFetch(page.id);
+      } catch (err) {
+        showError(`\u540C\u6B65\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
+        console.log(err);
+        return;
+      } finally {
+        hideLoading$1();
+      }
+      $page.replaceWith(this.renderPage(p));
+    });
+    $delBtn.onclick = () => {
+      const del = () => __async(this, null, function* () {
+        showLoading$1();
+        try {
+          yield new Api(this.ctx).pageDel(page.key, page.site_name);
+        } catch (err) {
+          console.log(err);
+          showError(`\u5220\u9664\u5931\u8D25 ${String(err)}`);
+          return;
+        } finally {
+          hideLoading$1();
+        }
+        $page.remove();
+      });
+      if (window.confirm(`\u786E\u8BA4\u5220\u9664\u9875\u9762 "${page.title || page.key}"\uFF1F\u5C06\u4F1A\u5220\u9664\u6240\u6709\u76F8\u5173\u6570\u636E`))
+        del();
+    };
+  }
+  closeEditor() {
+    if (!this.$editor)
+      return;
+    this.$editor.remove();
+  }
+}
+const PAGE_SIZE = 20;
+class PagesView extends SidebarView {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "viewTabs", {});
+    __publicField(this, "viewActiveTab", "");
+    __publicField(this, "pageList");
+    __publicField(this, "pagination");
+  }
+  mount(siteName) {
+    if (!this.pageList) {
+      this.pageList = new PageList(this.ctx);
+      this.$el.append(this.pageList.$el);
+    }
+    this.switchTab(this.viewActiveTab, siteName);
+  }
+  switchTab(tab, siteName) {
+    this.reqPages(siteName, 0);
+  }
+  reqPages(siteName, offset) {
+    return __async(this, null, function* () {
+      var _a;
+      this.pageList.clearAll();
+      (_a = this.$el.parentNode) == null ? void 0 : _a.scrollTo(0, 0);
+      showLoading(this.$el);
+      const data = yield new Api(this.ctx).pageGet(siteName, offset, PAGE_SIZE);
+      this.pageList.importPages(data.pages || []);
+      hideLoading(this.$el);
+      if (!this.pagination) {
+        this.pagination = new Pagination(data.total, {
+          pageSize: PAGE_SIZE,
+          onChange: (o) => {
+            this.reqPages(siteName, o);
+          }
+        });
+        this.$el.append(this.pagination.$el);
+      }
+      if (this.pagination && offset === 0)
+        this.pagination.update(offset, data.total);
+    });
+  }
+}
+__publicField(PagesView, "viewName", "pages");
+__publicField(PagesView, "viewTitle", "\u9875\u9762");
+__publicField(PagesView, "viewAdminOnly", true);
+var siteList = "";
+class SiteList extends Component {
+  constructor(ctx) {
+    super(ctx);
+    __publicField(this, "sites", []);
+    __publicField(this, "$header");
+    __publicField(this, "$headerTitle");
+    __publicField(this, "$headerActions");
+    __publicField(this, "$rowsWrap");
+    __publicField(this, "$editor");
+    __publicField(this, "activeSite", "");
+    __publicField(this, "$add");
+    this.$el = createElement(`<div class="atk-site-list">
+      <div class="atk-header">
+        <div class="atk-title"></div>
+        <div class="atk-actions">
+          <div class="atk-item atk-site-add-btn"><i class="atk-icon atk-icon-plus"></i></div>
+        </div>
+      </div>
+      <div class="atk-site-rows-wrap"></div>
+    </div>`);
+    this.$header = this.$el.querySelector(".atk-header");
+    this.$headerTitle = this.$header.querySelector(".atk-title");
+    this.$headerActions = this.$header.querySelector(".atk-actions");
+    this.$rowsWrap = this.$el.querySelector(".atk-site-rows-wrap");
+    this.$headerTitle.innerText = `\u5171 0 \u4E2A\u7AD9\u70B9`;
+    const $addBtn = this.$headerActions.querySelector(".atk-site-add-btn");
+    $addBtn.onclick = () => {
+      this.closeEditor();
+      this.showAdd();
+    };
+  }
+  loadSites(sites) {
+    this.sites = sites;
+    this.activeSite = "";
+    this.$rowsWrap.innerHTML = "";
+    this.$headerTitle.innerText = `\u5171 0 \u4E2A\u7AD9\u70B9`;
+    let $row;
+    for (let i = 0; i < sites.length; i++) {
+      const site = sites[i];
+      if (i % 4 === 0) {
+        $row = createElement('<div class="atk-site-row">');
+        this.$rowsWrap.append($row);
+      }
+      const $site = this.renderSite(site, $row);
+      $row.append($site);
+    }
+    this.$headerTitle.innerText = `\u5171 ${sites.length} \u4E2A\u7AD9\u70B9`;
+  }
+  renderSite(site, $row) {
+    const $site = createElement(`<div class="atk-site-item">
+        <div class="atk-site-logo"></div>
+        <div class="atk-site-name"></div>
+      </div>`);
+    const $siteLogo = $site.querySelector(".atk-site-logo");
+    const $siteName = $site.querySelector(".atk-site-name");
+    const setActive = () => {
+      $site.classList.add("atk-active");
+    };
+    $siteLogo.innerText = site.name.substr(0, 1);
+    $siteName.innerText = site.name;
+    $site.onclick = () => {
+      this.closeEditor();
+      this.closeAdd();
+      setActive();
+      this.showEditor(site, $site, $row);
+    };
+    if (this.activeSite === site.name) {
+      setActive();
+    }
+    return $site;
+  }
+  showEditor(site, $site, $row) {
+    this.activeSite = site.name;
+    this.$editor = createElement(`
+    <div class="atk-site-edit">
+    <div class="atk-header">
+      <div class="atk-site-info">
+        <span class="atk-site-name"></span>
+        <span class="atk-site-urls"></span>
+      </div>
+      <div class="atk-close-btn">
+        <i class="atk-icon atk-icon-close"></i>
+      </div>
+    </div>
+    <div class="atk-main">
+      <div class="atk-site-text-actions">
+        <div class="atk-item atk-rename-btn">\u91CD\u547D\u540D</div>
+        <div class="atk-item atk-edit-url-btn">\u4FEE\u6539 URL</div>
+        <!--<div class="atk-item atk-export-btn">\u5BFC\u51FA</div>
+        <div class="atk-item atk-import-btn">\u5BFC\u5165</div>-->
+      </div>
+      <div class="atk-site-btn-actions">
+        <div class="atk-item atk-del-btn">
+          <i class="atk-icon atk-icon-del"></i>
+        </div>
+      </div>
+    </div>
+    </div>`);
+    $row.before(this.$editor);
+    const $siteName = this.$editor.querySelector(".atk-site-name");
+    const $siteUrls = this.$editor.querySelector(".atk-site-urls");
+    const $closeBtn = this.$editor.querySelector(".atk-close-btn");
+    $closeBtn.onclick = () => this.closeEditor();
+    const update = (s) => {
+      var _a;
+      site = s;
+      $siteName.innerText = site.name;
+      $siteName.onclick = () => {
+        if (site.first_url)
+          window.open(site.first_url);
+      };
+      $siteUrls.innerHTML = "";
+      (_a = site.urls) == null ? void 0 : _a.forEach((u) => {
+        const $item = createElement('<span class="atk-url-item"></span>');
+        $siteUrls.append($item);
+        $item.innerText = (u || "").replace(/\/$/, "");
+        $item.onclick = () => {
+          window.open(u);
+        };
+      });
+    };
+    update(site);
+    const $main = this.$editor.querySelector(".atk-main");
+    const $actions = this.$editor.querySelector(".atk-site-text-actions");
+    const $renameBtn = $actions.querySelector(".atk-rename-btn");
+    const $editUrlBtn = $actions.querySelector(".atk-edit-url-btn");
+    const $delBtn = this.$editor.querySelector(".atk-del-btn");
+    const showLoading$1 = () => {
+      showLoading(this.$editor);
+    };
+    const hideLoading$1 = () => {
+      hideLoading(this.$editor);
+    };
+    const showError = (msg) => {
+      window.alert(msg);
+    };
+    const openTextEditor = (key) => {
+      let initValue = site[key] || "";
+      if (key === "urls")
+        initValue = site.urls_raw || "";
+      const textEditor = new ItemTextEditor({
+        initValue,
+        onYes: (val) => __async(this, null, function* () {
+          showLoading(textEditor.$el);
+          let s;
+          try {
+            s = yield new Api(this.ctx).siteEdit(__spreadProps(__spreadValues({}, site), { [key]: val }));
+          } catch (err) {
+            showError(`\u4FEE\u6539\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
+            console.error(err);
+            return false;
+          } finally {
+            hideLoading(textEditor.$el);
+          }
+          $site.replaceWith(this.renderSite(s, $row));
+          update(s);
+          return true;
+        })
+      });
+      textEditor.appendTo($main);
+    };
+    $renameBtn.onclick = () => openTextEditor("name");
+    $editUrlBtn.onclick = () => openTextEditor("urls");
+    $delBtn.onclick = () => {
+      const del = () => __async(this, null, function* () {
+        showLoading$1();
+        try {
+          yield new Api(this.ctx).siteDel(site.id, true);
+        } catch (err) {
+          console.log(err);
+          showError(`\u5220\u9664\u5931\u8D25 ${String(err)}`);
+          return;
+        } finally {
+          hideLoading$1();
+        }
+        this.closeEditor();
+        $site.remove();
+        this.sites = this.sites.filter((s) => s.name !== site.name);
+      });
+      if (window.confirm(`\u786E\u8BA4\u5220\u9664\u7AD9\u70B9 "${site.name}"\uFF1F\u5C06\u4F1A\u5220\u9664\u6240\u6709\u76F8\u5173\u6570\u636E`))
+        del();
+    };
+  }
+  closeEditor() {
+    if (!this.$editor)
+      return;
+    this.$editor.remove();
+    this.$rowsWrap.querySelectorAll(".atk-site-item").forEach((e) => e.classList.remove("atk-active"));
+    this.activeSite = "";
+  }
+  showAdd() {
+    this.closeAdd();
+    this.$add = createElement(`
+    <div class="atk-site-add">
+    <div class="atk-header">
+      <div class="atk-title">\u65B0\u589E\u7AD9\u70B9</div>
+      <div class="atk-close-btn">
+        <i class="atk-icon atk-icon-close"></i>
+      </div>
+    </div>
+    <div class="atk-form">
+      <input type="text" name="AtkSiteName" placeholder="\u7AD9\u70B9\u540D\u79F0" autocomplete="off">
+      <input type="text" name="AtkSiteUrls" placeholder="\u7AD9\u70B9 URL\uFF08\u591A\u4E2A\u7528\u9017\u53F7\u9694\u5F00\uFF09" autocomplete="off">
+      <button class="atk-btn" name="AtkSubmit">\u521B\u5EFA</button>
+    </div>
+    </div>`);
+    this.$header.after(this.$add);
+    const $closeBtn = this.$add.querySelector(".atk-close-btn");
+    $closeBtn.onclick = () => this.closeAdd();
+    const $siteName = this.$add.querySelector('[name="AtkSiteName"]');
+    const $siteUrls = this.$add.querySelector('[name="AtkSiteUrls"]');
+    const $submitBtn = this.$add.querySelector('[name="AtkSubmit"]');
+    $submitBtn.onclick = () => __async(this, null, function* () {
+      const siteName = $siteName.value.trim();
+      const siteUrls = $siteUrls.value.trim();
+      if (siteName === "") {
+        $siteName.focus();
+        return;
+      }
+      showLoading(this.$add);
+      let s;
+      try {
+        s = yield new Api(this.ctx).siteAdd(siteName, siteUrls);
+      } catch (err) {
+        window.alert(`\u521B\u5EFA\u5931\u8D25\uFF1A${err.msg || ""}`);
+        console.error(err);
+        return;
+      } finally {
+        hideLoading(this.$add);
+      }
+      this.sites.push(s);
+      this.loadSites(this.sites);
+      this.closeAdd();
+    });
+    const keyDown = (evt) => {
+      if (evt.key === "Enter") {
+        $submitBtn.click();
+      }
+    };
+    $siteName.onkeyup = (evt) => keyDown(evt);
+    $siteUrls.onkeyup = (evt) => keyDown(evt);
+  }
+  closeAdd() {
+    var _a;
+    (_a = this.$add) == null ? void 0 : _a.remove();
+  }
+}
+class SitesView extends SidebarView {
+  constructor(ctx) {
+    super(ctx);
+    __publicField(this, "viewTabs", {});
+    __publicField(this, "viewActiveTab", "");
+    __publicField(this, "siteList");
+    this.$el = createElement(`<div class="atk-sidebar-view"></div>`);
+  }
+  mount(siteName) {
+    if (!this.siteList) {
+      this.siteList = new SiteList(this.ctx);
+      this.$el.append(this.siteList.$el);
+    }
+    this.reqSites();
+  }
+  switchTab(tab, siteName) {
+    this.reqSites();
+  }
+  reqSites() {
+    return __async(this, null, function* () {
+      const sites = yield new Api(this.ctx).siteGet();
+      this.siteList.loadSites(sites);
+    });
+  }
+}
+__publicField(SitesView, "viewName", "sites");
+__publicField(SitesView, "viewTitle", "\u7AD9\u70B9");
+__publicField(SitesView, "viewAdminOnly", true);
+class TransferView extends SidebarView {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "\xDF");
+    __publicField(this, "viewTabs", {
+      "import": "\u5BFC\u5165",
+      "export": "\u5BFC\u51FA"
+    });
+    __publicField(this, "viewActiveTab", "import");
+  }
+  mount(siteName) {
+    this.switchTab("import", siteName);
+  }
+  switchTab(tab, siteName) {
+    if (tab === "import") {
+      this.initImport();
+    } else if (tab === "export") {
+      this.initExport();
+      return false;
+    }
+    return true;
+  }
+  initImport() {
+    this.$el.innerHTML = `<div class="atk-log-wrap" style="display: none;">
+      <div class="atk-log-back-btn">\u8FD4\u56DE</div>
+      <div class="atk-log"></div>
+    </div>
+    <div class="atk-form">
+    <div class="atk-label">\u6570\u636E\u7C7B\u578B</div>
+    <select name="AtkDataType">
+      <option value="artrans">Artrans (\u6570\u636E\u884C\u56CA)</option>
+      <option value="artalk_v1">Artalk v1 (PHP \u65E7\u7248)</option>
+      <option value="typecho">Typecho</option>
+      <option value="wordpress">WordPress</option>
+      <option value="disqus">Disqus</option>
+      <option value="commento">Commento</option>
+      <option value="valine">Valine</option>
+      <option value="twikoo">Twikoo</option>
+    </select>
+    <div class="atk-label atk-data-file-label">\u6570\u636E\u6587\u4EF6</div>
+    <input type="file" name="AtkDataFile" accept="text/plain,.json">
+    <div class="atk-label">\u76EE\u6807\u7AD9\u70B9\u540D</div>
+    <input type="text" name="AtkSiteName" placeholder="\u8F93\u5165\u5185\u5BB9..." autocomplete="off">
+    <div class="atk-label">\u76EE\u6807\u7AD9\u70B9 URL</div>
+    <input type="text" name="AtkSiteURL" placeholder="\u8F93\u5165\u5185\u5BB9..." autocomplete="off">
+    <div class="atk-label">\u542F\u52A8\u53C2\u6570\uFF08\u53EF\u9009\uFF09</div>
+    <textarea name="AtkPayload"></textarea>
+    <span class="atk-desc">\u542F\u52A8\u53C2\u6570\u67E5\u9605\uFF1A\u201C<a href="https://artalk.js.org/guide/transfer.html" target="_blank">\u6587\u6863 \xB7 \u6570\u636E\u642C\u5BB6</a>\u201D</span>
+    <button class="atk-btn" name="AtkSubmit">\u5BFC\u5165</button>
+    </div>`;
+    const $form = this.$el.querySelector(".atk-form");
+    const $dataType = $form.querySelector('[name="AtkDataType"]');
+    const $dataFile = $form.querySelector('[name="AtkDataFile"]');
+    const $dataFileLabel = $form.querySelector(".atk-data-file-label");
+    const $siteName = $form.querySelector('[name="AtkSiteName"]');
+    const $siteURL = $form.querySelector('[name="AtkSiteURL"]');
+    const $payload = $form.querySelector('[name="AtkPayload"]');
+    const $submitBtn = $form.querySelector('[name="AtkSubmit"]');
+    const setError2 = (msg) => window.alert(msg);
+    $dataType.onchange = () => {
+      if (["typecho"].includes($dataType.value)) {
+        $dataFile.style.display = "none";
+        $dataFileLabel.style.display = "none";
+      } else {
+        $dataFile.style.display = "";
+        $dataFileLabel.style.display = "";
+      }
+    };
+    $submitBtn.onclick = () => {
+      var _a;
+      const dataType = $dataType.value.trim();
+      const siteName = $siteName.value.trim();
+      const siteURL = $siteURL.value.trim();
+      const payload = $payload.value.trim();
+      if (dataType === "") {
+        setError2("\u8BF7\u9009\u62E9\u6570\u636E\u7C7B\u578B");
+        return;
+      }
+      let rData = {};
+      if (payload) {
+        try {
+          rData = JSON.parse(payload);
+        } catch (err) {
+          setError2(`Payload JSON \u683C\u5F0F\u6709\u8BEF\uFF1A${String(err)}`);
+          return;
+        }
+        if (rData instanceof Object) {
+          setError2(`Payload \u9700\u4E3A JSON \u5BF9\u8C61`);
+          return;
+        }
+      }
+      if (siteName)
+        rData.t_name = siteName;
+      if (siteURL)
+        rData.t_url = siteURL;
+      const createSession = (dataStr) => {
+        const $logWrap = this.$el.querySelector(".atk-log-wrap");
+        const $log = $logWrap.querySelector(".atk-log");
+        const $backBtn = this.$el.querySelector(".atk-log-back-btn");
+        $logWrap.style.display = "";
+        $form.style.display = "none";
+        $backBtn.onclick = () => {
+          $logWrap.style.display = "none";
+          $form.style.display = "";
+        };
+        if (dataStr)
+          rData.json_data = dataStr;
+        const frameName = `f_${+new Date()}`;
+        const $frame = document.createElement("iframe");
+        $frame.className = "atk-iframe";
+        $frame.name = frameName;
+        $log.innerHTML = "";
+        $log.append($frame);
+        const formParams = {
+          type: dataType,
+          payload: JSON.stringify(rData),
+          token: this.ctx.user.data.token || ""
+        };
+        const $formTmp = document.createElement("form");
+        $formTmp.style.display = "none";
+        $formTmp.setAttribute("method", "post");
+        $formTmp.setAttribute("action", `${this.ctx.conf.server}/admin/import`);
+        $formTmp.setAttribute("target", frameName);
+        Object.entries(formParams).forEach(([key, val]) => {
+          const $inputTmp = document.createElement("input");
+          $inputTmp.setAttribute("type", "hidden");
+          $inputTmp.setAttribute("name", key);
+          $inputTmp.value = val;
+          $formTmp.appendChild($inputTmp);
+        });
+        $logWrap.append($formTmp);
+        $formTmp.submit();
+        $formTmp.remove();
+      };
+      const reader = new FileReader();
+      reader.onload = () => {
+        const data = String(reader.result);
+        createSession(data);
+      };
+      if ((_a = $dataFile.files) == null ? void 0 : _a.length) {
+        reader.readAsText($dataFile.files[0]);
+      } else {
+        createSession();
+      }
+    };
+  }
+  initExport() {
+    return __async(this, null, function* () {
+      showLoading(this.$el);
+      try {
+        const d = yield new Api(this.ctx).export();
+        this.download(`artrans-${this.getYmdHisFilename()}.json`, d);
+      } catch (err) {
+        console.log(err);
+        window.alert(`${String(err)}`);
+        return;
+      } finally {
+        hideLoading(this.$el);
+      }
+    });
+  }
+  download(filename, text) {
+    const el = document.createElement("a");
+    el.setAttribute("href", `data:text/json;charset=utf-8,${encodeURIComponent(text)}`);
+    el.setAttribute("download", filename);
+    el.style.display = "none";
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+  }
+  getYmdHisFilename() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    return `${year}${month}${day}-${hours}${padWithZeros(minutes, 2)}${padWithZeros(seconds, 2)}`;
+  }
+}
+__publicField(TransferView, "viewName", "transfer");
+__publicField(TransferView, "viewTitle", "\u8FC1\u79FB");
+__publicField(TransferView, "viewAdminOnly", true);
+class SiteListFloater {
+  constructor(ctx, conf) {
+    __publicField(this, "ctx");
+    __publicField(this, "conf");
+    __publicField(this, "$el");
+    __publicField(this, "sites", []);
+    __publicField(this, "$sites");
+    __publicField(this, "outsideChecker");
+    this.ctx = ctx;
+    this.conf = conf;
+    this.$el = createElement(`<div class="atk-site-list-floater" style="display: none;">
+      <div class="atk-sites"></div>
+    </div>`);
+    this.$sites = this.$el.querySelector(".atk-sites");
+  }
+  load(selectedSite) {
+    return __async(this, null, function* () {
+      this.$sites.innerHTML = "";
+      const renderSiteItem = (siteName, siteLogo, siteTarget, onclick) => {
+        const $site = createElement(`<div class="atk-site-item">
+          <div class="atk-site-logo"></div>
+          <div class="atk-site-name"></div>
+        </div>`);
+        $site.onclick = !onclick ? () => this.switch(siteTarget || siteName) : () => onclick();
+        $site.setAttribute("data-name", siteTarget || siteName);
+        const $siteLogo = $site.querySelector(".atk-site-logo");
+        const $siteName = $site.querySelector(".atk-site-name");
+        $siteLogo.innerText = siteLogo;
+        $siteName.innerText = siteName;
+        if (selectedSite === (siteTarget || siteName))
+          $site.classList.add("atk-active");
+        this.$sites.append($site);
+      };
+      renderSiteItem("\u6240\u6709\u7AD9\u70B9", "_", "__ATK_SITE_ALL");
+      const sites = yield new Api(this.ctx).siteGet();
+      sites.forEach((site) => {
+        renderSiteItem(site.name, site.name.substr(0, 1));
+      });
+      renderSiteItem("\u7AD9\u70B9\u7BA1\u7406", "+", "", () => {
+        this.conf.onClickSitesViewBtn();
+        this.hide();
+      });
+    });
+  }
+  switch(siteName) {
+    if (this.conf.onSwitchSite(siteName) === false) {
+      return;
+    }
+    this.$sites.querySelectorAll(".atk-site-item").forEach((e) => {
+      if (e.getAttribute("data-name") !== siteName) {
+        e.classList.remove("atk-active");
+      } else {
+        e.classList.add("atk-active");
+      }
+    });
+    this.hide();
+  }
+  show($trigger) {
+    this.$el.style.display = "";
+    if ($trigger) {
+      this.outsideChecker = (evt) => {
+        const isClickInside = $trigger.contains(evt.target) || this.$el.contains(evt.target);
+        if (!isClickInside) {
+          this.hide();
+        }
+      };
+      document.addEventListener("click", this.outsideChecker);
+    }
+  }
+  hide() {
+    this.$el.style.display = "none";
+    if (this.outsideChecker)
+      document.removeEventListener("click", this.outsideChecker);
+  }
+}
+const DEFAULT_VIEW = "comments";
+const REGISTER_VIEWS = [
+  MessageView,
+  PagesView,
+  SitesView,
+  TransferView
+];
+class Sidebar extends Component {
+  constructor(ctx) {
+    super(ctx);
+    __publicField(this, "layer");
+    __publicField(this, "$header");
+    __publicField(this, "$headerMenu");
+    __publicField(this, "$title");
+    __publicField(this, "$avatar");
+    __publicField(this, "$siteLogo");
+    __publicField(this, "$closeBtn");
+    __publicField(this, "$nav");
+    __publicField(this, "$curtViewBtn");
+    __publicField(this, "$curtViewBtnIcon");
+    __publicField(this, "$curtViewBtnText");
+    __publicField(this, "$navTabs");
+    __publicField(this, "$navViews");
+    __publicField(this, "$viewWrap");
+    __publicField(this, "siteSwitcher");
+    __publicField(this, "curtSite");
+    __publicField(this, "curtView", DEFAULT_VIEW);
+    __publicField(this, "curtTab");
+    __publicField(this, "viewInstances", {});
+    __publicField(this, "viewSwitcherShow", false);
+    __publicField(this, "firstShow", true);
+    this.$el = createElement(SidebarHTML);
+    this.$header = this.$el.querySelector(".atk-sidebar-header");
+    this.$headerMenu = this.$header.querySelector(".atk-menu");
+    this.$title = this.$header.querySelector(".atk-sidebar-title");
+    this.$avatar = this.$header.querySelector(".atk-avatar");
+    this.$closeBtn = this.$header.querySelector(".atk-sidebar-close");
+    this.$nav = this.$el.querySelector(".atk-sidebar-nav");
+    this.$curtViewBtn = this.$nav.querySelector(".akt-curt-view-btn");
+    this.$curtViewBtnIcon = this.$curtViewBtn.querySelector(".atk-icon");
+    this.$curtViewBtnText = this.$curtViewBtn.querySelector(".atk-text");
+    this.$navTabs = this.$nav.querySelector(".atk-tabs");
+    this.$navViews = this.$nav.querySelector(".atk-views");
+    this.$viewWrap = this.$el.querySelector(".atk-sidebar-view-wrap");
+    this.initViewSwitcher();
+    this.$closeBtn.onclick = () => {
+      this.hide();
+    };
+    this.ctx.on("sidebar-show", () => this.show());
+    this.ctx.on("sidebar-hide", () => this.hide());
+    this.ctx.on("user-changed", () => {
+      this.firstShow = true;
+    });
+  }
+  get isAdmin() {
+    return this.ctx.user.data.isAdmin;
+  }
+  get curtViewInstance() {
+    return this.curtView ? this.viewInstances[this.curtView] : void 0;
+  }
+  initViewSwitcher() {
+    this.$curtViewBtn.onclick = () => {
+      this.toggleViewSwitcher();
+    };
+    this.$navViews.innerHTML = "";
+    REGISTER_VIEWS.forEach((view) => {
+      const $item = createElement(`<div class="atk-tab-item"></div>`);
+      this.$navViews.append($item);
+      $item.setAttribute("data-name", view.viewName);
+      $item.innerText = view.viewTitle;
+      if (view.viewName === this.curtView) {
+        $item.classList.add("atk-active");
+        this.$curtViewBtnText.innerText = view.viewTitle;
+      }
+      $item.onclick = () => {
+        this.switchView(view.viewName);
+        this.toggleViewSwitcher();
+      };
+    });
+  }
+  toggleViewSwitcher() {
+    if (!this.viewSwitcherShow) {
+      this.$navViews.style.display = "";
+      this.$navTabs.style.display = "none";
+      this.$curtViewBtnIcon.classList.add("atk-arrow");
+    } else {
+      this.$navViews.style.display = "none";
+      this.$navTabs.style.display = "";
+      this.$curtViewBtnIcon.classList.remove("atk-arrow");
+    }
+    this.viewSwitcherShow = !this.viewSwitcherShow;
+  }
+  show() {
+    return __async(this, null, function* () {
+      this.$el.style.transform = "";
+      this.layer = new Layer(this.ctx, "sidebar", this.$el);
+      this.layer.show();
+      this.$viewWrap.scrollTo(0, 0);
+      setTimeout(() => {
+        this.$el.style.transform = "translate(0, 0)";
+      }, 20);
+      if (this.firstShow) {
+        if (this.isAdmin) {
+          this.$title.innerText = "\u63A7\u5236\u4E2D\u5FC3";
+          this.$curtViewBtn.style.display = "";
+          if (!this.siteSwitcher) {
+            this.siteSwitcher = new SiteListFloater(this.ctx, {
+              onSwitchSite: (siteName) => {
+                this.switchSite(siteName);
+              },
+              onClickSitesViewBtn: () => {
+                this.switchView("sites");
+              }
+            });
+            this.$viewWrap.before(this.siteSwitcher.$el);
+            this.$avatar.onclick = (evt) => {
+              var _a;
+              if (!this.isAdmin)
+                return;
+              (_a = this.siteSwitcher) == null ? void 0 : _a.show(evt.target);
+            };
+          }
+          this.curtSite = this.conf.site;
+          showLoading(this.$el);
+          try {
+            yield this.siteSwitcher.load(this.curtSite);
+          } catch (err) {
+            const $err = createElement(`<span>\u52A0\u8F7D\u5931\u8D25\uFF1A${err.msg || "\u7F51\u7EDC\u9519\u8BEF"}<br/></span>`);
+            const $retryBtn = createElement('<span style="cursor:pointer;">\u70B9\u51FB\u91CD\u65B0\u83B7\u53D6</span>');
+            $err.appendChild($retryBtn);
+            $retryBtn.onclick = () => {
+              setError(this.$el, null);
+              this.show();
+            };
+            setError(this.$el, $err);
+            return;
+          } finally {
+            hideLoading(this.$el);
+          }
+          this.$avatar.innerHTML = "";
+          this.$siteLogo = createElement('<div class="atk-site-logo"></div>');
+          this.$siteLogo.innerText = (this.curtSite || "").substr(0, 1);
+          this.$avatar.append(this.$siteLogo);
+        } else {
+          this.$title.innerText = "\u901A\u77E5\u4E2D\u5FC3";
+          this.$curtViewBtn.style.display = "none";
+          this.curtSite = this.conf.site;
+          const $avatarImg = document.createElement("img");
+          $avatarImg.src = getGravatarURL(this.ctx, MD5(this.ctx.user.data.email.toLowerCase()));
+          this.$avatar.innerHTML = "";
+          this.$avatar.append($avatarImg);
+        }
+        this.switchView(DEFAULT_VIEW);
+        this.firstShow = false;
+      }
+    });
+  }
+  hide() {
+    var _a;
+    this.$el.style.transform = "";
+    (_a = this.layer) == null ? void 0 : _a.dispose();
+  }
+  switchView(viewName) {
+    let view = this.viewInstances[viewName];
+    if (!view) {
+      const View = REGISTER_VIEWS.find((o) => o.viewName === viewName);
+      view = new View(this.ctx, this.$viewWrap);
+      this.viewInstances[viewName] = view;
+    }
+    view.mount(this.curtSite);
+    this.curtView = viewName;
+    this.curtTab = view.viewActiveTab;
+    this.$curtViewBtnText.innerText = view.constructor.viewTitle;
+    this.$navViews.querySelectorAll(".atk-tab-item").forEach((e) => {
+      if (e.getAttribute("data-name") === viewName) {
+        e.classList.add("atk-active");
+      } else {
+        e.classList.remove("atk-active");
+      }
+    });
+    this.loadViewTabs(view);
+    this.$viewWrap.innerHTML = "";
+    this.$viewWrap.append(view.$el);
+    this.$viewWrap.classList.forEach((c) => {
+      if (c.startsWith("atk-view-name-"))
+        this.$viewWrap.classList.remove(c);
+    });
+    this.$viewWrap.classList.add(`atk-view-name-${view.constructor.viewName}`);
+  }
+  loadViewTabs(view) {
+    this.$navTabs.innerHTML = "";
+    Object.entries(view.viewTabs).forEach(([tabName, label]) => {
+      const $tab = createElement(`<div class="atk-tab-item"></div>`);
+      this.$navTabs.append($tab);
+      $tab.innerText = label;
+      if (view.viewActiveTab === tabName)
+        $tab.classList.add("atk-active");
+      $tab.onclick = () => {
+        if (view.switchTab(tabName, this.curtSite) === false) {
+          return;
+        }
+        this.$navTabs.querySelectorAll(".atk-active").forEach((e) => e.classList.remove("atk-active"));
+        $tab.classList.add("atk-active");
+        this.curtTab = tabName;
+      };
+    });
+  }
+  switchSite(siteName) {
+    this.curtSite = siteName;
+    const curtView = this.curtViewInstance;
+    curtView == null ? void 0 : curtView.switchTab(this.curtTab, siteName);
+    if (this.$siteLogo)
+      this.$siteLogo.innerText = this.curtSite.substr(0, 1);
+  }
+}
+const _Artalk = class {
+  constructor(customConf) {
+    __publicField(this, "ctx");
+    __publicField(this, "conf");
+    __publicField(this, "$root");
+    __publicField(this, "checkerLauncher");
+    __publicField(this, "editor");
+    __publicField(this, "list");
+    __publicField(this, "sidebar");
+    this.conf = __spreadValues(__spreadValues({}, _Artalk.defaults), customConf);
+    this.conf.server = this.conf.server.replace(/\/$/, "");
+    if (!this.conf.pageKey) {
+      this.conf.pageKey = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+    }
+    try {
+      const $root = document.querySelector(this.conf.el);
+      if (!$root)
+        throw Error(`Sorry, target element "${this.conf.el}" was not found.`);
+      this.$root = $root;
+    } catch (e) {
+      console.error(e);
+      throw new Error("Please check your Artalk `el` config.");
+    }
+    this.ctx = new Context(this.$root, this.conf);
+    this.$root.classList.add("artalk");
+    this.$root.innerHTML = "";
+    this.initDarkMode();
+    this.checkerLauncher = new CheckerLauncher(this.ctx);
+    this.editor = new Editor(this.ctx);
+    this.$root.appendChild(this.editor.$el);
+    this.list = new List(this.ctx);
+    this.$root.appendChild(this.list.$el);
+    this.sidebar = new Sidebar(this.ctx);
+    this.$root.appendChild(this.sidebar.$el);
+    this.list.reqComments();
+    this.initEventBind();
+  }
+  initEventBind() {
+    window.addEventListener("hashchange", () => {
+      this.list.checkGoToCommentByUrlHash();
+    });
+    this.ctx.on("check-admin-show-el", () => {
+      const items = [];
+      this.$root.querySelectorAll(`[atk-only-admin-show]`).forEach((item) => items.push(item));
+      const { $wrap: $layerWrap } = GetLayerWrap(this.ctx);
+      if ($layerWrap)
+        $layerWrap.querySelectorAll(`[atk-only-admin-show]`).forEach((item) => items.push(item));
+      items.forEach(($item) => {
+        if (this.ctx.user.data.isAdmin)
+          $item.classList.remove("atk-hide");
+        else
+          $item.classList.add("atk-hide");
+      });
+    });
+    this.ctx.on("user-changed", () => {
+      this.ctx.trigger("check-admin-show-el");
+      this.ctx.trigger("list-refresh-ui");
+    });
+  }
+  reload() {
+    this.list.reqComments();
+  }
+  initDarkMode() {
+    const darkModeClassName = "atk-dark-mode";
+    if (this.conf.darkMode) {
+      this.$root.classList.add(darkModeClassName);
+    } else {
+      this.$root.classList.remove(darkModeClassName);
+    }
+    const { $wrap: $layerWrap } = GetLayerWrap(this.ctx);
+    if ($layerWrap) {
+      if (this.conf.darkMode) {
+        $layerWrap.classList.add(darkModeClassName);
+      } else {
+        $layerWrap.classList.remove(darkModeClassName);
+      }
+    }
+  }
+  setDarkMode(darkMode) {
+    this.ctx.conf.darkMode = darkMode;
+    this.initDarkMode();
+  }
+  on(name, handler) {
+    this.ctx.on(name, handler, "external");
+  }
+  off(name, handler) {
+    this.ctx.off(name, handler, "external");
+  }
+  trigger(name, payload) {
+    this.ctx.trigger(name, payload, "external");
+  }
+};
+let Artalk = _Artalk;
+__publicField(Artalk, "defaults", defaults$3);
+export { Artalk as default };

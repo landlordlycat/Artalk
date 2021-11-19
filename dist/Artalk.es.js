@@ -5167,6 +5167,7 @@ class ListLite extends Component {
       comment2.playFadeInAnim();
     }
     this.checkMoreHide(comment2);
+    return comment2;
   }
   insertComment(commentData) {
     if (!this.flatMode) {
@@ -5190,7 +5191,8 @@ class ListLite extends Component {
       scrollIntoView(comment2.getEl());
       comment2.playFadeInAnim();
     } else {
-      this.putCommentFlatMode(commentData, this.comments.map((c) => c.data), "prepend");
+      const comment2 = this.putCommentFlatMode(commentData, this.comments.map((c) => c.data), "prepend");
+      scrollIntoView(comment2.getEl());
     }
     if (this.data)
       this.data.total += 1;

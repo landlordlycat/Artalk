@@ -5228,7 +5228,7 @@ class ListLite extends Component {
   get hasMoreComments() {
     if (!this.data)
       return false;
-    return this.data.total_parents > this.offset + this.pageSize;
+    return (!this.flatMode ? this.data.total_parents : this.data.total) > this.offset + this.pageSize;
   }
   eachComment(commentList, action) {
     if (commentList.length === 0)

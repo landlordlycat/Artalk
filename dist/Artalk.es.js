@@ -3452,7 +3452,7 @@ class EmoticonsPlug extends EditorPlug {
       grp.container.forEach((item, index) => {
         const iconStr = item.icon;
         if (/<(img|IMG)/.test(iconStr)) {
-          const find = /src=["'](.*)["']/.exec(iconStr);
+          const find = /src=["'](.*?)["']/.exec(iconStr);
           if (find && find.length > 1)
             item.icon = find[1];
         }

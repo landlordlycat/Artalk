@@ -5023,6 +5023,9 @@ class ListLite extends Component {
       const pagination2 = new Pagination(this.parentCommentsCount, {
         pageSize: this.pageSize,
         onChange: (offset) => __async(this, null, function* () {
+          if (this.ctx.conf.editorTravel === true) {
+            this.ctx.trigger("editor-travel-back");
+          }
           yield this.reqComments(offset);
           if (this.$parent) {
             let topPos = 0;

@@ -2583,6 +2583,25 @@ function timeAgo(date) {
     return " - ";
   }
 }
+function onImagesLoaded($container, event) {
+  const images = $container.getElementsByTagName("img");
+  if (!images.length)
+    return;
+  let loaded = images.length;
+  for (let i = 0; i < images.length; i++) {
+    if (images[i].complete) {
+      loaded--;
+    } else {
+      images[i].addEventListener("load", () => {
+        loaded--;
+        if (loaded === 0)
+          event();
+      });
+    }
+    if (loaded === 0)
+      event();
+  }
+}
 function getGravatarURL(ctx, emailMD5) {
   var _a, _b;
   return `${(((_a = ctx.conf.gravatar) == null ? void 0 : _a.mirror) || "").replace(/\/$/, "")}/${emailMD5}?d=${encodeURIComponent(((_b = ctx.conf.gravatar) == null ? void 0 : _b.default) || "")}&s=80`;
@@ -5206,10 +5225,18 @@ class ListLite extends Component {
     this.ctx.trigger("comments-loaded");
   }
   checkMoreHide(c) {
-    this.checkMoreHideEl(c, "children");
-    this.checkMoreHideEl(c, "content");
-    if (c.$replyTo)
-      this.checkMoreHideEl(c, "replyTo");
+    const check = () => {
+      this.checkMoreHideEl(c, "children");
+      this.checkMoreHideEl(c, "content");
+      if (c.$replyTo)
+        this.checkMoreHideEl(c, "replyTo");
+    };
+    check();
+    if (c.$content.querySelectorAll("img").length) {
+      onImagesLoaded(c.$content, () => {
+        check();
+      });
+    }
   }
   checkMoreHideEl(comment2, area, allowHeight = 300) {
     var _a, _b;

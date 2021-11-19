@@ -2801,10 +2801,7 @@ const _Layer = class extends Component {
     return this.$el;
   }
   show() {
-    _Layer.hideTimeoutList.forEach((item) => {
-      clearTimeout(item);
-    });
-    _Layer.hideTimeoutList = [];
+    this.fireAllActionTimer();
     this.$wrap.style.display = "block";
     this.$mask.style.display = "block";
     this.$mask.classList.add("atk-fade-in");
@@ -2820,20 +2817,34 @@ const _Layer = class extends Component {
     document.body.style.paddingRight = `${getScrollBarWidth() + bpr || 0}px`;
   }
   hide() {
-    _Layer.hideTimeoutList.push(window.setTimeout(() => {
+    this.$wrap.classList.add("atk-fade-out");
+    this.$el.style.display = "none";
+    this.newActionTimer(() => {
       this.$wrap.style.display = "none";
       document.body.style.overflow = this.bodyStyleOrgOverflow;
       document.body.style.paddingRight = this.bodyStyleOrgPaddingRight;
-    }, 450));
-    this.$wrap.classList.add("atk-fade-out");
-    _Layer.hideTimeoutList.push(window.setTimeout(() => {
+    }, 450);
+    this.newActionTimer(() => {
       this.$wrap.style.display = "none";
       this.$wrap.classList.remove("atk-fade-out");
-    }, 200));
-    this.$el.style.display = "none";
+    }, 200);
   }
   setMaskClickHide(enable) {
     this.maskClickHideEnable = enable;
+  }
+  newActionTimer(func, delay) {
+    const act = () => {
+      func();
+      _Layer.actionTimers = _Layer.actionTimers.filter((o) => o.act !== act);
+    };
+    const tid = window.setTimeout(() => act(), delay);
+    _Layer.actionTimers.push({ act, tid });
+  }
+  fireAllActionTimer() {
+    _Layer.actionTimers.forEach((item) => {
+      clearTimeout(item.tid);
+      item.act();
+    });
   }
   disposeNow() {
     document.body.style.overflow = "";
@@ -2852,7 +2863,7 @@ const _Layer = class extends Component {
   }
 };
 let Layer = _Layer;
-__publicField(Layer, "hideTimeoutList", []);
+__publicField(Layer, "actionTimers", []);
 function GetLayerWrap(ctx) {
   let $wrap = document.querySelector(`.atk-layer-wrap#ctx-${ctx.cid}`);
   if (!$wrap) {

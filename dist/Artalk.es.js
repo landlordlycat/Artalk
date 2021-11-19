@@ -5285,6 +5285,8 @@ class ListLite extends Component {
       }
       return true;
     });
+    if (this.data)
+      this.data.total -= 1;
     this.refreshUI();
   }
   clearAllComments() {

@@ -4957,8 +4957,6 @@ class ListLite extends Component {
     }
     if (this.pageMode === "read-more") {
       const readMoreBtn = new ReadMoreBtn({
-        pageSize: this.pageSize,
-        total: 0,
         onClick: () => __async(this, null, function* () {
           const offset = this.offset + this.pageSize;
           yield this.reqComments(offset);

@@ -3370,29 +3370,61 @@ class EmoticonsPlug extends EditorPlug {
   init() {
     return __async(this, null, function* () {
       showLoading(this.$el);
-      if (typeof this.ctx.conf.emoticons === "string") {
-        this.emoticons = yield this.remoteLoad(this.ctx.conf.emoticons);
-      } else {
-        this.emoticons = this.ctx.conf.emoticons;
-      }
-      this.checkConvertOwO();
-      if (!Array.isArray(this.emoticons)) {
-        setError(this.$el, "\u8868\u60C5\u5305\u6570\u636E\u5FC5\u987B\u4E3A Array \u7C7B\u578B");
-        hideLoading(this.$el);
-        return;
-      }
-      yield Promise.all(this.emoticons.map((grp, index) => __async(this, null, function* () {
-        if (typeof grp === "string") {
-          const grpData = yield this.remoteLoad(grp);
-          if (grpData) {
-            this.emoticons[index] = grpData;
-          }
-        }
-      })));
+      this.emoticons = yield this.handleData(this.ctx.conf.emoticons);
       hideLoading(this.$el);
-      this.solveNullKey();
-      this.solveSameKey();
       this.initEmoticonsList();
+    });
+  }
+  handleData(data) {
+    return __async(this, null, function* () {
+      if (!Array.isArray(data) && ["object", "string"].includes(typeof data)) {
+        data = [data];
+      }
+      if (!Array.isArray(data)) {
+        setError(this.$el, "\u8868\u60C5\u5305\u6570\u636E\u5FC5\u987B\u4E3A Array/Object/String \u7C7B\u578B");
+        hideLoading(this.$el);
+        return [];
+      }
+      const pushGrp = (grp) => {
+        if (typeof grp !== "object")
+          return;
+        if (grp.name && data.find((o) => o.name === grp.name))
+          return;
+        data.push(grp);
+      };
+      const remoteLoad = (d) => __async(this, null, function* () {
+        yield Promise.all(d.map((grp, index) => __async(this, null, function* () {
+          if (typeof grp === "object" && !Array.isArray(grp)) {
+            pushGrp(grp);
+          } else if (Array.isArray(grp)) {
+            yield remoteLoad(grp);
+          } else if (typeof grp === "string") {
+            const grpData = yield this.remoteLoad(grp);
+            if (Array.isArray(grpData))
+              yield remoteLoad(grpData);
+            else if (typeof grpData === "object")
+              pushGrp(grpData);
+          }
+        })));
+      });
+      yield remoteLoad(data);
+      data.forEach((item) => {
+        if (this.isOwOFormat(item)) {
+          const c = this.convertOwO(item);
+          c.forEach((grp) => {
+            pushGrp(grp);
+          });
+        } else if (Array.isArray(item)) {
+          item.forEach((grp) => {
+            pushGrp(grp);
+          });
+        }
+      });
+      data = data.filter((item) => typeof item === "object" && !Array.isArray(item) && !!item && !!item.name);
+      console.log(data);
+      this.solveNullKey(data);
+      this.solveSameKey(data);
+      return data;
     });
   }
   remoteLoad(url) {
@@ -3410,17 +3442,17 @@ class EmoticonsPlug extends EditorPlug {
       }
     });
   }
-  solveNullKey() {
-    this.emoticons.forEach((grp) => {
+  solveNullKey(data) {
+    data.forEach((grp) => {
       grp.items.forEach((item, index) => {
         if (!item.key)
           item.key = `${grp.name} ${index + 1}`;
       });
     });
   }
-  solveSameKey() {
+  solveSameKey(data) {
     const tmp = {};
-    this.emoticons.forEach((grp) => {
+    data.forEach((grp) => {
       grp.items.forEach((item) => {
         if (!item.key || String(item.key).trim() === "")
           return;
@@ -3432,11 +3464,6 @@ class EmoticonsPlug extends EditorPlug {
           item.key = `${item.key} ${tmp[item.key]}`;
       });
     });
-  }
-  checkConvertOwO() {
-    if (this.isOwOFormat(this.emoticons)) {
-      this.emoticons = this.convertOwO(this.emoticons);
-    }
   }
   isOwOFormat(data) {
     try {
@@ -3499,13 +3526,13 @@ class EmoticonsPlug extends EditorPlug {
       const $item = createElement("<span />");
       $item.innerText = grp.name;
       $item.setAttribute("data-index", String(index));
-      $item.onclick = () => this.openType(index);
+      $item.onclick = () => this.openGrp(index);
       this.$types.append($item);
     });
     if (this.emoticons.length > 0)
-      this.openType(0);
+      this.openGrp(0);
   }
-  openType(index) {
+  openGrp(index) {
     var _a;
     Array.from(this.$listWrap.children).forEach((item) => {
       const el = item;

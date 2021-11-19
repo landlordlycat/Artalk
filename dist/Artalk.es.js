@@ -2622,15 +2622,17 @@ function marked(ctx, src) {
       breaks: true,
       smartLists: true,
       smartypants: true,
-      xhtml: false
+      xhtml: false,
+      sanitize: true,
+      sanitizer: (html) => insane_1(html, __spreadProps(__spreadValues({}, insane_1.defaults), {
+        allowedAttributes: __spreadProps(__spreadValues({}, insane_1.defaults.allowedAttributes), {
+          img: ["src", "atk-emoticon"]
+        })
+      })),
+      silent: true
     });
     markedInstance = nMarked;
   }
-  src = insane_1(src, __spreadProps(__spreadValues({}, insane_1.defaults), {
-    allowedAttributes: __spreadProps(__spreadValues({}, insane_1.defaults.allowedAttributes), {
-      img: ["src", "atk-emoticon"]
-    })
-  }));
   return markedInstance.parse(src);
 }
 function showLoading(parentElem) {

@@ -2775,6 +2775,7 @@ const _Layer = class extends Component {
     __publicField(this, "maskClickHideEnable", true);
     __publicField(this, "bodyStyleOrgOverflow", "");
     __publicField(this, "bodyStyleOrgPaddingRight", "");
+    __publicField(this, "afterHide");
     this.name = name;
     const { $wrap, $mask } = GetLayerWrap(ctx);
     this.$wrap = $wrap;
@@ -2818,12 +2819,15 @@ const _Layer = class extends Component {
     document.body.style.paddingRight = `${getScrollBarWidth() + bpr || 0}px`;
   }
   hide() {
+    if (this.afterHide)
+      this.afterHide();
     this.$wrap.classList.add("atk-fade-out");
     this.$el.style.display = "none";
     this.newActionTimer(() => {
       this.$wrap.style.display = "none";
       document.body.style.overflow = this.bodyStyleOrgOverflow;
       document.body.style.paddingRight = this.bodyStyleOrgPaddingRight;
+      this.checkCleanLayer();
     }, 450);
     this.newActionTimer(() => {
       this.$wrap.style.display = "none";
@@ -3358,7 +3362,7 @@ class CheckerLauncher {
   }
 }
 var editor = "";
-var EditorHTML = '<div class="atk-editor">\n  <div class="atk-editor-header">\n    <input name="nick" placeholder="\u6635\u79F0" class="atk-nick" type="text" required="required">\n    <input name="email" placeholder="\u90AE\u7BB1" class="atk-email" type="email" required="required">\n    <input name="link" placeholder="\u7F51\u5740 (https://)" class="atk-link" type="url">\n  </div>\n  <div class="atk-editor-textarea-wrap">\n    <div class="atk-close-comment" style="display: none;"><span>\u4EC5\u7BA1\u7406\u5458\u53EF\u8BC4\u8BBA</span></div>\n    <textarea id="atk-editor-textarea" class="atk-editor-textarea" placeholder=""></textarea>\n  </div>\n  <div class="atk-editor-plug-wrap" style="display: none;"></div>\n  <div class="atk-editor-bottom">\n    <div class="atk-editor-bottom-part atk-left atk-editor-plug-switcher-wrap"></div>\n    <div class="atk-editor-bottom-part atk-right">\n      <button type="button" class="atk-send-btn"></button>\n    </div>\n  </div>\n  <div class="atk-editor-notify-wrap"></div>\n</div>\n';
+var EditorHTML = '<div class="atk-main-editor">\n  <div class="atk-editor-header">\n    <input name="nick" placeholder="\u6635\u79F0" class="atk-nick" type="text" required="required">\n    <input name="email" placeholder="\u90AE\u7BB1" class="atk-email" type="email" required="required">\n    <input name="link" placeholder="\u7F51\u5740 (https://)" class="atk-link" type="url">\n  </div>\n  <div class="atk-editor-textarea-wrap">\n    <div class="atk-close-comment" style="display: none;"><span>\u4EC5\u7BA1\u7406\u5458\u53EF\u8BC4\u8BBA</span></div>\n    <textarea id="atk-editor-textarea" class="atk-editor-textarea" placeholder=""></textarea>\n  </div>\n  <div class="atk-editor-plug-wrap" style="display: none;"></div>\n  <div class="atk-editor-bottom">\n    <div class="atk-editor-bottom-part atk-left atk-editor-plug-switcher-wrap"></div>\n    <div class="atk-editor-bottom-part atk-right">\n      <button type="button" class="atk-send-btn"></button>\n    </div>\n  </div>\n  <div class="atk-editor-notify-wrap"></div>\n</div>\n';
 var emoticonsPlug = "";
 class EditorPlug {
   constructor(editor2) {
@@ -3668,6 +3672,7 @@ class Editor extends Component {
     this.ctx.on("editor-open", () => this.open());
     this.ctx.on("editor-close", () => this.close());
     this.ctx.on("editor-reply", (p) => this.setReply(p.data, p.$el));
+    this.ctx.on("editor-reply-cancel", () => this.cancelReply());
     this.ctx.on("editor-show-loading", () => showLoading(this.$el));
     this.ctx.on("editor-hide-loading", () => hideLoading(this.$el));
     this.ctx.on("editor-notify", (f) => this.showNotify(f.msg, f.type));
@@ -3870,7 +3875,6 @@ class Editor extends Component {
     if (this.replyComment !== null) {
       this.cancelReply();
     }
-    this.ctx.trigger("editor-travel", this.$el);
     if (this.$sendReply === null) {
       this.$sendReply = createElement('<div class="atk-send-reply">\u56DE\u590D <span class="atk-text"></span><span class="atk-cancel" title="\u53D6\u6D88 AT">\xD7</span></div>');
       this.$sendReply.querySelector(".atk-text").innerText = `@${commentData.nick}`;
@@ -3957,6 +3961,8 @@ class Editor extends Component {
     this.$bottom.style.display = "";
   }
   travel($afterEl) {
+    if (this.isTraveling)
+      return;
     this.isTraveling = true;
     this.$el.after(createElement('<div class="atk-editor-travel-placeholder"></div>'));
     const $travelPlace = createElement("<div></div>");
@@ -3965,8 +3971,12 @@ class Editor extends Component {
   }
   travelBack() {
     var _a;
+    if (!this.isTraveling)
+      return;
     this.isTraveling = false;
     (_a = this.ctx.$root.querySelector(".atk-editor-travel-placeholder")) == null ? void 0 : _a.replaceWith(this.$el);
+    if (this.replyComment !== null)
+      this.cancelReply();
   }
 }
 var list = "";
@@ -5584,7 +5594,9 @@ class MessageView extends SidebarView {
       var _a;
       comment2.setOpenURL(`${comment2.data.page_key}#atk-comment-${comment2.data.id}`);
       (_a = comment2.$actions.querySelector('[data-atk-action="comment-reply"]')) == null ? void 0 : _a.addEventListener("click", () => {
-        this.ctx.trigger("sidebar-hide");
+        if (this.ctx.conf.editorTravel !== true) {
+          this.ctx.trigger("sidebar-hide");
+        }
       });
     };
     this.list.paramsEditor = (params) => {
@@ -6557,6 +6569,11 @@ class Sidebar extends Component {
     return __async(this, null, function* () {
       this.$el.style.transform = "";
       this.layer = new Layer(this.ctx, "sidebar", this.$el);
+      this.layer.afterHide = () => {
+        if (this.ctx.conf.editorTravel === true) {
+          this.ctx.trigger("editor-travel-back");
+        }
+      };
       this.layer.show();
       this.$viewWrap.scrollTo(0, 0);
       setTimeout(() => {
@@ -6621,7 +6638,7 @@ class Sidebar extends Component {
   hide() {
     var _a;
     this.$el.style.transform = "";
-    (_a = this.layer) == null ? void 0 : _a.dispose();
+    (_a = this.layer) == null ? void 0 : _a.hide();
   }
   switchView(viewName) {
     let view = this.viewInstances[viewName];

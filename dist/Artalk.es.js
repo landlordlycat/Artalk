@@ -3671,7 +3671,7 @@ class Editor extends Component {
     this.initBottomPart();
     this.ctx.on("editor-open", () => this.open());
     this.ctx.on("editor-close", () => this.close());
-    this.ctx.on("editor-reply", (p) => this.setReply(p.data, p.$el));
+    this.ctx.on("editor-reply", (p) => this.setReply(p.data, p.$el, p.scroll));
     this.ctx.on("editor-reply-cancel", () => this.cancelReply());
     this.ctx.on("editor-show-loading", () => showLoading(this.$el));
     this.ctx.on("editor-hide-loading", () => hideLoading(this.$el));
@@ -3871,7 +3871,7 @@ class Editor extends Component {
     this.replyComment = null;
     this.$sendReply = null;
   }
-  setReply(commentData, $comment) {
+  setReply(commentData, $comment, scroll = true) {
     if (this.replyComment !== null) {
       this.cancelReply();
     }
@@ -3887,7 +3887,8 @@ class Editor extends Component {
     if (this.ctx.conf.editorTravel === true) {
       this.travel($comment);
     }
-    scrollIntoView(this.$el);
+    if (scroll)
+      scrollIntoView(this.$el);
     this.$textarea.focus();
   }
   cancelReply() {
@@ -4363,6 +4364,7 @@ class Comment extends Component {
     __publicField(this, "openable", false);
     __publicField(this, "openURL");
     __publicField(this, "openEvt");
+    __publicField(this, "onReplyBtnClick");
     __publicField(this, "onDelete");
     this.maxNestingNum = ctx.conf.maxNesting || 3;
     this.data = __spreadValues({}, data);
@@ -4523,7 +4525,11 @@ class Comment extends Component {
       this.$actions.append(replyBtn);
       replyBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        this.ctx.trigger("editor-reply", { data: this.data, $el: this.$el });
+        if (!this.onReplyBtnClick) {
+          this.ctx.trigger("editor-reply", { data: this.data, $el: this.$el });
+        } else {
+          this.onReplyBtnClick();
+        }
       });
     }
     const collapseBtn = new ActionBtn({
@@ -5593,13 +5599,15 @@ class MessageView extends SidebarView {
     this.list.pageMode = "pagination";
     this.list.noCommentText = '<div class="atk-sidebar-no-content">\u65E0\u5185\u5BB9</div>';
     this.list.renderComment = (comment2) => {
-      var _a;
       comment2.setOpenURL(`${comment2.data.page_key}#atk-comment-${comment2.data.id}`);
-      (_a = comment2.$actions.querySelector('[data-atk-action="comment-reply"]')) == null ? void 0 : _a.addEventListener("click", () => {
-        if (this.ctx.conf.editorTravel !== true) {
+      comment2.onReplyBtnClick = () => {
+        if (this.ctx.conf.editorTravel === true) {
+          this.ctx.trigger("editor-reply", { data: comment2.data, $el: comment2.$el, scroll: false });
+        } else {
           this.ctx.trigger("sidebar-hide");
+          this.ctx.trigger("editor-reply", { data: comment2.data, $el: comment2.$el, scroll: true });
         }
-      });
+      };
     };
     this.list.paramsEditor = (params) => {
       params.site_name = siteName;

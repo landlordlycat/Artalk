@@ -97,6 +97,7 @@ const defaults$3 = {
   noComment: "\u300C\u6B64\u65F6\u65E0\u58F0\u80DC\u6709\u58F0\u300D",
   sendBtn: "\u53D1\u9001\u8BC4\u8BBA",
   darkMode: false,
+  editorTravel: true,
   emoticons: "https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json",
   vote: true,
   voteDown: false,
@@ -3641,6 +3642,7 @@ class Editor extends Component {
     __publicField(this, "$notifyWrap");
     __publicField(this, "replyComment", null);
     __publicField(this, "$sendReply", null);
+    __publicField(this, "isTraveling", false);
     __publicField(this, "queryUserInfo", {
       timeout: null,
       abortFunc: null
@@ -3665,10 +3667,12 @@ class Editor extends Component {
     this.initBottomPart();
     this.ctx.on("editor-open", () => this.open());
     this.ctx.on("editor-close", () => this.close());
-    this.ctx.on("editor-reply", (commentData) => this.setReply(commentData));
+    this.ctx.on("editor-reply", (p) => this.setReply(p.data, p.$el));
     this.ctx.on("editor-show-loading", () => showLoading(this.$el));
     this.ctx.on("editor-hide-loading", () => hideLoading(this.$el));
     this.ctx.on("editor-notify", (f) => this.showNotify(f.msg, f.type));
+    this.ctx.on("editor-travel", ($el) => this.travel($el));
+    this.ctx.on("editor-travel-back", () => this.travelBack());
   }
   get user() {
     return this.ctx.user;
@@ -3862,10 +3866,11 @@ class Editor extends Component {
     this.replyComment = null;
     this.$sendReply = null;
   }
-  setReply(commentData) {
+  setReply(commentData, $comment) {
     if (this.replyComment !== null) {
       this.cancelReply();
     }
+    this.ctx.trigger("editor-travel", this.$el);
     if (this.$sendReply === null) {
       this.$sendReply = createElement('<div class="atk-send-reply">\u56DE\u590D <span class="atk-text"></span><span class="atk-cancel" title="\u53D6\u6D88 AT">\xD7</span></div>');
       this.$sendReply.querySelector(".atk-text").innerText = `@${commentData.nick}`;
@@ -3875,6 +3880,9 @@ class Editor extends Component {
       this.$textareaWrap.append(this.$sendReply);
     }
     this.replyComment = commentData;
+    if (this.ctx.conf.editorTravel === true) {
+      this.travel($comment);
+    }
     scrollIntoView(this.$el);
     this.$textarea.focus();
   }
@@ -3884,6 +3892,9 @@ class Editor extends Component {
       this.$sendReply = null;
     }
     this.replyComment = null;
+    if (this.ctx.conf.editorTravel === true) {
+      this.travelBack();
+    }
   }
   initSubmit() {
     this.$submitBtn.innerText = this.ctx.conf.sendBtn || "Send";
@@ -3944,6 +3955,18 @@ class Editor extends Component {
     this.$closeComment.style.display = "none";
     this.$textarea.style.display = "";
     this.$bottom.style.display = "";
+  }
+  travel($afterEl) {
+    this.isTraveling = true;
+    this.$el.after(createElement('<div class="atk-editor-travel-placeholder"></div>'));
+    const $travelPlace = createElement("<div></div>");
+    $afterEl.after($travelPlace);
+    $travelPlace.replaceWith(this.$el);
+  }
+  travelBack() {
+    var _a;
+    this.isTraveling = false;
+    (_a = this.ctx.$root.querySelector(".atk-editor-travel-placeholder")) == null ? void 0 : _a.replaceWith(this.$el);
   }
 }
 var list = "";
@@ -4490,7 +4513,7 @@ class Comment extends Component {
       this.$actions.append(replyBtn);
       replyBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        this.ctx.trigger("editor-reply", this.data);
+        this.ctx.trigger("editor-reply", { data: this.data, $el: this.$el });
       });
     }
     const collapseBtn = new ActionBtn({

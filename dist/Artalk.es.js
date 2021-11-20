@@ -2584,6 +2584,8 @@ function timeAgo(date) {
   }
 }
 function onImagesLoaded($container, event) {
+  if (!$container)
+    return;
   const images = $container.getElementsByTagName("img");
   if (!images.length)
     return;
@@ -3038,7 +3040,7 @@ class Api {
     this.ctx = ctx;
     this.baseURL = ctx.conf.server;
   }
-  get(offset, type, flatMode, paramsEditor) {
+  get(offset, flatMode, paramsEditor) {
     var _a;
     const params = {
       page_key: this.ctx.conf.pageKey,
@@ -3046,8 +3048,6 @@ class Api {
       limit: ((_a = this.ctx.conf.pagination) == null ? void 0 : _a.pageSize) || 15,
       offset
     };
-    if (type)
-      params.type = type;
     if (flatMode)
       params.flat_mode = flatMode;
     if (this.ctx.user.checkHasBasicUserInfo()) {
@@ -4612,6 +4612,7 @@ class Comment extends Component {
     this.children.push(childC);
     this.getChildrenEl().appendChild(childC.getEl());
     childC.playFadeInAnim();
+    childC.checkHeightLimitArea("content");
   }
   getChildrenEl() {
     if (this.$children === null) {
@@ -4726,6 +4727,76 @@ class Comment extends Component {
     this.openable = true;
     this.openURL = url;
     this.$el.classList.add("atk-openable");
+  }
+  checkHeightLimit() {
+    this.checkHeightLimitArea("content");
+    this.checkHeightLimitArea("children");
+  }
+  checkHeightLimitArea(area) {
+    var _a, _b;
+    const childrenMaxH = (_a = this.ctx.conf.heightLimit) == null ? void 0 : _a.children;
+    const contentMaxH = (_b = this.ctx.conf.heightLimit) == null ? void 0 : _b.content;
+    if (area === "children" && !childrenMaxH)
+      return;
+    if (area === "content" && !contentMaxH)
+      return;
+    let maxHeight;
+    if (area === "children")
+      maxHeight = childrenMaxH;
+    if (area === "content")
+      maxHeight = contentMaxH;
+    const checkEl = ($el) => {
+      if (!$el)
+        return;
+      if (getHeight($el) > maxHeight) {
+        this.heightLimitAdd($el, maxHeight);
+      }
+    };
+    if (area === "children") {
+      checkEl(this.$children);
+    } else if (area === "content") {
+      checkEl(this.$content);
+      checkEl(this.$replyTo);
+      onImagesLoaded(this.$content, () => {
+        checkEl(this.$content);
+      });
+      if (this.$replyTo) {
+        onImagesLoaded(this.$replyTo, () => {
+          checkEl(this.$replyTo);
+        });
+      }
+    }
+  }
+  heightLimitRemove($el) {
+    if (!$el)
+      return;
+    if (!$el.classList.contains("atk-height-limit"))
+      return;
+    $el.classList.remove("atk-height-limit");
+    Array.from($el.children).forEach((e) => {
+      if (e.classList.contains("atk-height-limit-btn"))
+        e.remove();
+    });
+    $el.style.height = "";
+    $el.style.overflow = "";
+  }
+  heightLimitAdd($el, maxHeight) {
+    if (!$el)
+      return;
+    if ($el.classList.contains("atk-height-limit"))
+      return;
+    $el.classList.add("atk-height-limit");
+    $el.style.height = `${maxHeight}px`;
+    $el.style.overflow = "hidden";
+    const $hideMoreOpenBtn = createElement(`<div class="atk-height-limit-btn">\u9605\u8BFB\u66F4\u591A</span>`);
+    $hideMoreOpenBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.heightLimitRemove($el);
+      const children = this.getChildren();
+      if (children.length === 1)
+        children[0].heightLimitRemove(children[0].$content);
+    };
+    $el.append($hideMoreOpenBtn);
   }
 }
 var pagination = "";
@@ -4912,7 +4983,6 @@ class ListLite extends Component {
     __publicField(this, "data");
     __publicField(this, "pageSize", 15);
     __publicField(this, "offset", 0);
-    __publicField(this, "type");
     __publicField(this, "noCommentText");
     __publicField(this, "renderComment");
     __publicField(this, "paramsEditor");
@@ -4927,12 +4997,13 @@ class ListLite extends Component {
     __publicField(this, "autoLoadListenerAt");
     __publicField(this, "unread", []);
     __publicField(this, "unreadHighlight", false);
+    var _a;
     this.$parent = $parent;
     this.$el = createElement(`<div class="atk-list-lite">
       <div class="atk-list-comments-wrap"></div>
     </div>`);
     this.$commentsWrap = this.$el.querySelector(".atk-list-comments-wrap");
-    this.pageSize = this.conf.pagination ? this.conf.pagination.pageSize || this.pageSize : this.pageSize;
+    this.pageSize = ((_a = this.conf.pagination) == null ? void 0 : _a.pageSize) || this.pageSize;
     this.noCommentText = this.conf.noComment || "\u65E0\u8BC4\u8BBA";
     window.setInterval(() => {
       this.$el.querySelectorAll("[data-atk-comment-date]").forEach((el) => {
@@ -4944,7 +5015,7 @@ class ListLite extends Component {
   }
   reqComments(offset = 0) {
     return __async(this, null, function* () {
-      if (offset === 0 && this.pageMode !== "pagination") {
+      if (this.pageMode === "read-more" && offset === 0) {
         this.clearAllComments();
       }
       const showLoading$1 = () => {
@@ -4969,7 +5040,7 @@ class ListLite extends Component {
       this.ctx.trigger("comments-load");
       let listData;
       try {
-        listData = yield new Api(this.ctx).get(offset, this.type, this.flatMode, this.paramsEditor);
+        listData = yield new Api(this.ctx).get(offset, this.flatMode, this.paramsEditor);
       } catch (e) {
         this.onError(e.msg || String(e));
         throw e;
@@ -4984,30 +5055,28 @@ class ListLite extends Component {
       this.offset = offset;
       try {
         this.onLoad(listData, offset);
-        if (this.onAfterLoad) {
-          this.onAfterLoad(listData);
-        }
       } catch (e) {
         this.onError(String(e));
         throw e;
       } finally {
         hideLoading$1();
       }
+      this.isFirstLoad = false;
     });
   }
   onLoad(data, offset) {
     var _a;
-    setError(this.$el, null);
     if (this.pageMode === "pagination") {
       this.clearAllComments();
     }
+    setError(this.$el, null);
     this.data = data;
     this.importComments(data.comments);
     if (this.isFirstLoad) {
-      this.onLoadInit();
+      this.initPageMode();
     }
     if (this.pageMode === "pagination") {
-      this.pagination.update(offset, ((_a = this.data) == null ? void 0 : _a.total_parents) || 0);
+      this.pagination.update(offset, ((_a = this.data) == null ? void 0 : _a.total_roots) || 0);
     }
     if (this.pageMode === "read-more") {
       if (this.hasMoreComments)
@@ -5015,10 +5084,13 @@ class ListLite extends Component {
       else
         this.readMoreBtn.hide();
     }
+    this.refreshUI();
     this.ctx.trigger("unread-update", { notifies: data.unread || [] });
-    this.isFirstLoad = false;
+    this.ctx.trigger("comments-loaded");
+    if (this.onAfterLoad)
+      this.onAfterLoad(data);
   }
-  onLoadInit() {
+  initPageMode() {
     var _a;
     if (this.autoLoadScrollEvent) {
       const at = this.autoLoadListenerAt || document;
@@ -5054,8 +5126,9 @@ class ListLite extends Component {
         const at = this.autoLoadListenerAt || document;
         at.addEventListener("scroll", this.autoLoadScrollEvent);
       }
-    } else if (this.pageMode === "pagination") {
-      const pagination2 = new Pagination(!this.flatMode ? this.data.total_parents : this.data.total, {
+    }
+    if (this.pageMode === "pagination") {
+      const pagination2 = new Pagination(!this.flatMode ? this.data.total_roots : this.data.total, {
         pageSize: this.pageSize,
         onChange: (offset) => __async(this, null, function* () {
           if (this.ctx.conf.editorTravel === true) {
@@ -5086,38 +5159,33 @@ class ListLite extends Component {
     var _a;
     msg = String(msg);
     console.error(msg);
-    if (this.isFirstLoad || this.pageMode === "pagination") {
-      const errEl = createElement(`<span>${msg}\uFF0C\u65E0\u6CD5\u83B7\u53D6\u8BC4\u8BBA\u5217\u8868\u6570\u636E<br/></span>`);
-      const retryBtn = createElement('<span style="cursor:pointer;">\u70B9\u51FB\u91CD\u65B0\u83B7\u53D6</span>');
-      retryBtn.onclick = () => {
-        this.reqComments(this.offset);
-      };
-      errEl.appendChild(retryBtn);
-      const adminBtn = createElement('<span atk-only-admin-show> | <span style="cursor:pointer;">\u6253\u5F00\u63A7\u5236\u53F0</span></span>');
-      adminBtn.onclick = () => {
-        this.ctx.trigger("sidebar-show");
-      };
-      if (!this.ctx.user.data.isAdmin) {
-        adminBtn.classList.add("atk-hide");
-      }
-      errEl.appendChild(adminBtn);
-      setError(this.$el, errEl);
-    } else {
+    if (!this.isFirstLoad && this.pageMode === "read-more") {
       (_a = this.readMoreBtn) == null ? void 0 : _a.showErr(`\u83B7\u53D6\u5931\u8D25`);
+      return;
     }
+    const $err = createElement(`<span>${msg}\uFF0C\u65E0\u6CD5\u83B7\u53D6\u8BC4\u8BBA\u5217\u8868\u6570\u636E<br/></span>`);
+    const $retryBtn = createElement('<span style="cursor:pointer;">\u70B9\u51FB\u91CD\u65B0\u83B7\u53D6</span>');
+    $retryBtn.onclick = () => this.reqComments(this.offset);
+    $err.appendChild($retryBtn);
+    const adminBtn = createElement('<span atk-only-admin-show> | <span style="cursor:pointer;">\u6253\u5F00\u63A7\u5236\u53F0</span></span>');
+    adminBtn.onclick = () => this.ctx.trigger("sidebar-show");
+    if (!this.ctx.user.data.isAdmin)
+      adminBtn.classList.add("atk-hide");
+    $err.appendChild(adminBtn);
+    setError(this.$el, $err);
   }
   refreshUI() {
-    const noComment = this.comments.length <= 0;
-    let noCommentEl = this.$commentsWrap.querySelector(".atk-list-no-comment");
-    if (noComment) {
-      if (!noCommentEl) {
-        noCommentEl = createElement('<div class="atk-list-no-comment"></div>');
-        this.$commentsWrap.appendChild(noCommentEl);
-        noCommentEl.innerHTML = this.noCommentText;
+    const isNoComment = this.comments.length <= 0;
+    let $noComment = this.$commentsWrap.querySelector(".atk-list-no-comment");
+    if (isNoComment) {
+      if (!$noComment) {
+        $noComment = createElement('<div class="atk-list-no-comment"></div>');
+        $noComment.innerHTML = this.noCommentText;
+        this.$commentsWrap.appendChild($noComment);
       }
+    } else {
+      $noComment == null ? void 0 : $noComment.remove();
     }
-    if (!noComment && noCommentEl)
-      noCommentEl.remove();
     this.ctx.trigger("check-admin-show-el");
   }
   createComment(data) {
@@ -5132,66 +5200,58 @@ class ListLite extends Component {
     };
     return comment2;
   }
-  importComments(rawData) {
-    const queryImportChildren = (parentC) => {
-      const children = rawData.filter((o) => o.rid === parentC.data.id);
-      if (children.length === 0)
-        return;
-      children.forEach((itemData) => {
-        itemData.is_allow_reply = parentC.data.is_allow_reply;
-        const childC = this.createComment(itemData);
-        childC.render();
-        parentC.putChild(childC);
-        queryImportChildren(childC);
-      });
-    };
-    if (!this.flatMode) {
-      rawData.filter((o) => o.rid === 0).forEach((rootCommentData) => {
-        if (rootCommentData.is_collapsed)
-          rootCommentData.is_allow_reply = false;
-        const rootComment = this.createComment(rootCommentData);
-        rootComment.render();
-        this.comments.push(rootComment);
-        this.$commentsWrap.appendChild(rootComment.getEl());
-        rootComment.playFadeInAnim();
-        queryImportChildren(rootComment);
+  importComments(srcData) {
+    if (this.flatMode) {
+      srcData.forEach((commentData) => {
+        this.putCommentFlatMode(commentData, srcData, "append");
       });
     } else {
-      rawData.forEach((commentData) => {
-        this.putCommentFlatMode(commentData, rawData, "append");
-      });
+      this.importCommentsNesting(srcData);
     }
-    this.eachComment(this.comments, (c) => {
-      if (c.getIsRoot())
-        this.checkMoreHide(c);
-    });
-    this.refreshUI();
-    this.ctx.trigger("comments-loaded");
   }
-  putCommentFlatMode(commentItem, comments, insertMode) {
-    if (commentItem.is_collapsed)
-      commentItem.is_allow_reply = false;
-    const comment2 = this.createComment(commentItem);
-    if (commentItem.rid !== 0) {
-      const rComment = comments.find((o) => o.id === commentItem.rid);
+  importCommentsNesting(srcData) {
+    const loadChildren = (parentC) => {
+      const children = srcData.filter((o) => o.rid === parentC.data.id);
+      children.forEach((childData) => {
+        const childC = this.createComment(childData);
+        childC.render();
+        parentC.putChild(childC);
+        loadChildren(childC);
+      });
+    };
+    const rootComments = srcData.filter((o) => o.rid === 0);
+    rootComments.forEach((rootData) => {
+      const rootC = this.createComment(rootData);
+      rootC.render();
+      this.$commentsWrap.appendChild(rootC.getEl());
+      rootC.playFadeInAnim();
+      this.comments.push(rootC);
+      loadChildren(rootC);
+      rootC.checkHeightLimit();
+    });
+  }
+  putCommentFlatMode(cData, srcData, insertMode) {
+    if (cData.is_collapsed)
+      cData.is_allow_reply = false;
+    const comment2 = this.createComment(cData);
+    if (cData.rid !== 0) {
+      const rComment = srcData.find((o) => o.id === cData.rid);
       if (rComment)
         comment2.replyTo = rComment;
     }
     comment2.render();
-    if (insertMode === "append") {
+    if (insertMode === "append")
       this.comments.push(comment2);
-    } else {
+    if (insertMode === "prepend")
       this.comments.unshift(comment2);
-    }
-    if (commentItem.visible) {
-      if (insertMode === "append") {
-        this.$commentsWrap.appendChild(comment2.getEl());
-      } else {
+    if (cData.visible) {
+      if (insertMode === "append")
+        this.$commentsWrap.append(comment2.getEl());
+      if (insertMode === "prepend")
         this.$commentsWrap.prepend(comment2.getEl());
-      }
       comment2.playFadeInAnim();
     }
-    this.checkMoreHide(comment2);
+    comment2.checkHeightLimit();
     return comment2;
   }
   insertComment(commentData) {
@@ -5201,18 +5261,17 @@ class ListLite extends Component {
       if (commentData.rid === 0) {
         this.$commentsWrap.prepend(comment2.getEl());
         this.comments.unshift(comment2);
-        this.checkMoreHide(comment2);
       } else {
         const parent = this.findComment(commentData.rid);
         if (parent) {
           parent.putChild(comment2);
-          if (parent.$children)
-            this.removeHideMore(parent.$children);
-          this.eachComment(parent.children, (c) => {
-            this.checkMoreHide(c);
+          comment2.getParents().forEach((p) => {
+            if (p.$children)
+              p.heightLimitRemove(p.$children);
           });
         }
       }
+      comment2.checkHeightLimit();
       scrollIntoView(comment2.getEl());
       comment2.playFadeInAnim();
     } else {
@@ -5224,91 +5283,14 @@ class ListLite extends Component {
     this.refreshUI();
     this.ctx.trigger("comments-loaded");
   }
-  checkMoreHide(c) {
-    const check = () => {
-      this.checkMoreHideEl(c, "children");
-      this.checkMoreHideEl(c, "content");
-      if (c.$replyTo)
-        this.checkMoreHideEl(c, "replyTo");
-    };
-    check();
-    if (c.$content.querySelectorAll("img").length) {
-      onImagesLoaded(c.$content, () => {
-        check();
-      });
-    }
-  }
-  checkMoreHideEl(comment2, area, allowHeight = 300) {
-    var _a, _b;
-    const childrenH = (_a = this.ctx.conf.heightLimit) == null ? void 0 : _a.children;
-    const contentH = (_b = this.ctx.conf.heightLimit) == null ? void 0 : _b.content;
-    if (area === "children" && !childrenH)
-      return;
-    if ((area === "content" || area === "replyTo") && !contentH)
-      return;
-    if (area === "children")
-      allowHeight = childrenH || 300;
-    else
-      allowHeight = contentH || 200;
-    let $target;
-    if (area === "children")
-      $target = comment2.$children;
-    else if (area === "content")
-      $target = comment2.$content;
-    else if (area === "replyTo")
-      $target = comment2.$replyTo;
-    if (!$target)
-      return;
-    let $hideMoreOpenBtn = $target.querySelector(".atk-more-hide-open-btn");
-    const removeHideMore = () => {
-      $target.classList.remove("atk-comment-more-hide");
-      if ($hideMoreOpenBtn)
-        $hideMoreOpenBtn.remove();
-      $target.style.height = "";
-      $target.style.overflow = "";
-    };
-    if (getHeight($target) > allowHeight) {
-      $target.classList.add("atk-comment-more-hide");
-      $target.style.height = `${allowHeight}px`;
-      $target.style.overflow = "hidden";
-      if (!$hideMoreOpenBtn) {
-        $hideMoreOpenBtn = createElement(`<div class="atk-more-hide-open-btn">\u9605\u8BFB\u66F4\u591A</span>`);
-        $hideMoreOpenBtn.onclick = (e) => {
-          e.stopPropagation();
-          removeHideMore();
-          if (comment2.getIsRoot()) {
-            const children = comment2.getChildren();
-            if (children.length > 1) {
-              this.eachComment(children, (c) => {
-                this.checkMoreHideEl(c, "content", contentH || 200);
-              });
-            }
-          }
-        };
-        $target.append($hideMoreOpenBtn);
-      }
-    }
-  }
-  removeHideMore($target) {
-    const $hideMoreOpenBtn = $target.querySelector(".atk-more-hide-open-btn");
-    $target.classList.remove("atk-comment-more-hide");
-    if ($hideMoreOpenBtn)
-      $hideMoreOpenBtn.remove();
-    $target.style.height = "";
-    $target.style.overflow = "";
-  }
   get commentsCount() {
     var _a;
     return Number((_a = this.data) == null ? void 0 : _a.total) || 0;
   }
-  get parentCommentsCount() {
-    var _a;
-    return Number((_a = this.data) == null ? void 0 : _a.total_parents) || 0;
-  }
   get hasMoreComments() {
     if (!this.data)
       return false;
-    return (!this.flatMode ? this.data.total_parents : this.data.total) > this.offset + this.pageSize;
+    return (!this.flatMode ? this.data.total_roots : this.data.total) > this.offset + this.pageSize;
   }
   eachComment(commentList, action) {
     if (commentList.length === 0)
@@ -5332,13 +5314,6 @@ class ListLite extends Component {
       return true;
     });
     return comment2;
-  }
-  getCommentCount() {
-    let count = 0;
-    this.eachComment(this.comments, () => {
-      count++;
-    });
-    return count;
   }
   deleteComment(comment2) {
     let findComment;
@@ -5645,9 +5620,9 @@ class MessageView extends SidebarView {
   }
   switchTab(tab, siteName) {
     this.viewActiveTab = tab;
-    this.list.type = tab;
     this.list.isFirstLoad = true;
     this.list.paramsEditor = (params) => {
+      params.type = tab;
       params.site_name = siteName;
     };
     this.list.reqComments();

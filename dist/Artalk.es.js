@@ -5055,7 +5055,7 @@ class ListLite extends Component {
         at.addEventListener("scroll", this.autoLoadScrollEvent);
       }
     } else if (this.pageMode === "pagination") {
-      const pagination2 = new Pagination(this.parentCommentsCount, {
+      const pagination2 = new Pagination(!this.flatMode ? this.data.total_parents : this.data.total, {
         pageSize: this.pageSize,
         onChange: (offset) => __async(this, null, function* () {
           if (this.ctx.conf.editorTravel === true) {

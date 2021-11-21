@@ -4830,7 +4830,7 @@ class Pagination {
     this.checkDisabled();
   }
   get pageSize() {
-    return this.conf.pageSize || 15;
+    return this.conf.pageSize;
   }
   get offset() {
     return this.pageSize * (this.page - 1);
@@ -4940,19 +4940,28 @@ class ReadMoreBtn {
     __publicField(this, "$el");
     __publicField(this, "$loading");
     __publicField(this, "$text");
+    __publicField(this, "offset", 0);
+    __publicField(this, "total", 0);
     this.conf = conf;
     this.$el = createElement(`<div class="atk-list-read-more" style="display: none;">
       <div class="atk-list-read-more-inner">
         <div class="atk-loading-icon" style="display: none;"></div>
-        <span class="atk-text">\u67E5\u770B\u66F4\u591A</span>
+        <span class="atk-text">\u52A0\u8F7D\u66F4\u591A</span>
       </div>
     </div>`);
     this.$loading = this.$el.querySelector(".atk-loading-icon");
     this.$text = this.$el.querySelector(".atk-text");
-    this.$el.onclick = () => this.click();
+    this.$el.onclick = () => {
+      this.click();
+    };
+  }
+  get hasMore() {
+    return this.total > this.offset + this.conf.pageSize;
   }
   click() {
-    this.conf.onClick();
+    if (this.hasMore)
+      this.conf.onClick(this.offset + this.conf.pageSize);
+    this.checkDisabled();
   }
   show() {
     this.$el.style.display = "";
@@ -4973,6 +4982,17 @@ class ReadMoreBtn {
       this.$el.classList.remove("atk-err");
     }, 2e3);
   }
+  update(offset, total) {
+    this.offset = offset;
+    this.total = total;
+    this.checkDisabled();
+  }
+  checkDisabled() {
+    if (this.hasMore)
+      this.show();
+    else
+      this.hide();
+  }
 }
 class ListLite extends Component {
   constructor(ctx, $parent) {
@@ -4982,7 +5002,6 @@ class ListLite extends Component {
     __publicField(this, "comments", []);
     __publicField(this, "data");
     __publicField(this, "pageSize", 15);
-    __publicField(this, "offset", 0);
     __publicField(this, "noCommentText");
     __publicField(this, "renderComment");
     __publicField(this, "paramsEditor");
@@ -5013,7 +5032,7 @@ class ListLite extends Component {
     }, 30 * 1e3);
     this.ctx.on("unread-update", (data) => this.updateUnread(data.notifies));
   }
-  reqComments(offset = 0) {
+  fetchComments(offset = 0) {
     return __async(this, null, function* () {
       if (this.pageMode === "read-more" && offset === 0) {
         this.clearAllComments();
@@ -5047,12 +5066,7 @@ class ListLite extends Component {
       } finally {
         hideLoading$1();
       }
-      if (this.ctx.conf.versionCheck) {
-        const needUpdate = this.apiVersionCheck(listData.api_version || {});
-        if (needUpdate)
-          return;
-      }
-      this.offset = offset;
+      setError(this.$el, null);
       try {
         this.onLoad(listData, offset);
       } catch (e) {
@@ -5065,25 +5079,19 @@ class ListLite extends Component {
     });
   }
   onLoad(data, offset) {
-    var _a;
     if (this.pageMode === "pagination") {
       this.clearAllComments();
     }
-    setError(this.$el, null);
     this.data = data;
+    if (this.ctx.conf.versionCheck && this.versionCheck(data.api_version))
+      return;
     this.importComments(data.comments);
-    if (this.isFirstLoad) {
+    if (this.isFirstLoad)
       this.initPageMode();
-    }
-    if (this.pageMode === "pagination") {
-      this.pagination.update(offset, ((_a = this.data) == null ? void 0 : _a.total_roots) || 0);
-    }
-    if (this.pageMode === "read-more") {
-      if (this.hasMoreComments)
-        this.readMoreBtn.show();
-      else
-        this.readMoreBtn.hide();
-    }
+    if (this.pageMode === "pagination")
+      this.pagination.update(offset, (!this.flatMode ? data.total_roots : data.total) || 0);
+    if (this.pageMode === "read-more")
+      this.readMoreBtn.update(offset, (!this.flatMode ? data.total_roots : data.total) || 0);
     this.refreshUI();
     this.ctx.trigger("unread-update", { notifies: data.unread || [] });
     this.ctx.trigger("comments-loaded");
@@ -5098,9 +5106,9 @@ class ListLite extends Component {
     }
     if (this.pageMode === "read-more") {
       const readMoreBtn = new ReadMoreBtn({
-        onClick: () => __async(this, null, function* () {
-          const offset = this.offset + this.pageSize;
-          yield this.reqComments(offset);
+        pageSize: this.pageSize,
+        onClick: (offset) => __async(this, null, function* () {
+          yield this.fetchComments(offset);
         })
       });
       if (this.readMoreBtn)
@@ -5112,7 +5120,9 @@ class ListLite extends Component {
         this.autoLoadScrollEvent = () => {
           if (this.pageMode !== "read-more")
             return;
-          if (!this.hasMoreComments)
+          if (!this.readMoreBtn)
+            return;
+          if (!this.readMoreBtn.hasMore)
             return;
           if (this.isLoading)
             return;
@@ -5134,15 +5144,11 @@ class ListLite extends Component {
           if (this.ctx.conf.editorTravel === true) {
             this.ctx.trigger("editor-travel-back");
           }
-          yield this.reqComments(offset);
+          yield this.fetchComments(offset);
           if (this.$parent) {
-            let topPos = 0;
-            if (!this.autoLoadListenerAt && this.$parent) {
-              topPos = getOffset(this.$parent).top;
-            }
             const at = this.autoLoadListenerAt || window;
             at.scroll({
-              top: topPos,
+              top: at === window && this.$parent ? getOffset(this.$parent).top : 0,
               left: 0
             });
           }
@@ -5165,7 +5171,7 @@ class ListLite extends Component {
     }
     const $err = createElement(`<span>${msg}\uFF0C\u65E0\u6CD5\u83B7\u53D6\u8BC4\u8BBA\u5217\u8868\u6570\u636E<br/></span>`);
     const $retryBtn = createElement('<span style="cursor:pointer;">\u70B9\u51FB\u91CD\u65B0\u83B7\u53D6</span>');
-    $retryBtn.onclick = () => this.reqComments(this.offset);
+    $retryBtn.onclick = () => this.fetchComments();
     $err.appendChild($retryBtn);
     const adminBtn = createElement('<span atk-only-admin-show> | <span style="cursor:pointer;">\u6253\u5F00\u63A7\u5236\u53F0</span></span>');
     adminBtn.onclick = () => this.ctx.trigger("sidebar-show");
@@ -5283,15 +5289,6 @@ class ListLite extends Component {
     this.refreshUI();
     this.ctx.trigger("comments-loaded");
   }
-  get commentsCount() {
-    var _a;
-    return Number((_a = this.data) == null ? void 0 : _a.total) || 0;
-  }
-  get hasMoreComments() {
-    if (!this.data)
-      return false;
-    return (!this.flatMode ? this.data.total_roots : this.data.total) > this.offset + this.pageSize;
-  }
   eachComment(commentList, action) {
     if (commentList.length === 0)
       return;
@@ -5360,7 +5357,7 @@ class ListLite extends Component {
       });
     }
   }
-  apiVersionCheck(versionData) {
+  versionCheck(versionData) {
     const needVersion = (versionData == null ? void 0 : versionData.fe_min_version) || "0.0.0";
     const needUpdate = versionCompare(needVersion, "2.1.3") === 1;
     if (needUpdate) {
@@ -5369,7 +5366,7 @@ class ListLite extends Component {
       ignoreBtn.onclick = () => {
         setError(this.ctx, null);
         this.ctx.conf.versionCheck = false;
-        this.reqComments(0);
+        this.fetchComments(0);
       };
       errEl.append(ignoreBtn);
       setError(this.ctx, errEl, '<span class="atk-warn-title">Artalk Warn</span>');
@@ -5398,7 +5395,7 @@ class List extends ListLite {
     this.pageMode = ((_a = this.conf.pagination) == null ? void 0 : _a.readMore) ? "read-more" : "pagination";
     this.initListActionBtn();
     this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.1.3"}">Artalk</a>`;
-    this.ctx.on("list-reload", () => this.reqComments(0));
+    this.ctx.on("list-reload", () => this.fetchComments(0));
     this.ctx.on("list-refresh-ui", () => this.refreshUI());
     this.ctx.on("list-import", (data) => this.importComments(data));
     this.ctx.on("list-insert", (data) => this.insertComment(data));
@@ -5427,8 +5424,9 @@ class List extends ListLite {
     });
   }
   refreshUI() {
+    var _a;
     super.refreshUI();
-    this.$el.querySelector(".atk-comment-count-num").innerText = String(this.commentsCount);
+    this.$el.querySelector(".atk-comment-count-num").innerText = String(Number((_a = this.data) == null ? void 0 : _a.total) || 0);
     if (!!this.ctx.user.data.nick && !!this.ctx.user.data.email) {
       this.$openSidebarBtn.classList.remove("atk-hide");
     } else {
@@ -5625,7 +5623,7 @@ class MessageView extends SidebarView {
       params.type = tab;
       params.site_name = siteName;
     };
-    this.list.reqComments();
+    this.list.fetchComments();
     return true;
   }
 }
@@ -6739,7 +6737,7 @@ const _Artalk = class {
     this.$root.appendChild(this.list.$el);
     this.sidebar = new Sidebar(this.ctx);
     this.$root.appendChild(this.sidebar.$el);
-    this.list.reqComments();
+    this.list.fetchComments();
     this.initEventBind();
   }
   initEventBind() {
@@ -6765,7 +6763,7 @@ const _Artalk = class {
     });
   }
   reload() {
-    this.list.reqComments();
+    this.list.fetchComments();
   }
   initDarkMode() {
     const darkModeClassName = "atk-dark-mode";

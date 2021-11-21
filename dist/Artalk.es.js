@@ -4000,7 +4000,7 @@ class Editor extends Component {
   }
 }
 var list = "";
-var ListHTML = '<div class="atk-list">\n  <div class="atk-list-header">\n    <div class="atk-comment-count">\n      <span class="atk-comment-count-num">0</span>\n      \u6761\u8BC4\u8BBA\n    </div>\n    <div class="atk-right-action">\n      <span data-action="admin-close-comment" class="atk-hide" atk-only-admin-show>\u5173\u95ED\u8BC4\u8BBA</span>\n      <span data-action="open-sidebar" class="atk-hide atk-on">\n        <span class="atk-unread-badge" style="display: none;"></span>\n        \u901A\u77E5\u4E2D\u5FC3\n      </span>\n    </div>\n  </div>\n  <div class="atk-list-body"></div>\n  <div class="atk-list-footer">\n    <div class="atk-copyright"></div>\n  </div>\n</div>\n';
+var ListHTML = '<div class="atk-list">\n  <div class="atk-list-header">\n    <div class="atk-comment-count">\n      <span class="atk-comment-count-num">0</span>\n      \u6761\u8BC4\u8BBA\n    </div>\n    <div class="atk-right-action">\n      <span data-action="admin-close-comment" class="atk-hide" atk-only-admin-show>\u5173\u95ED\u8BC4\u8BBA</span>\n      <span data-action="open-sidebar" class="atk-hide atk-on">\n        <span class="atk-unread-badge" style="display: none;"></span>\n        <div class="atk-text">\u901A\u77E5\u4E2D\u5FC3</div>\n      </span>\n    </div>\n  </div>\n  <div class="atk-list-body"></div>\n  <div class="atk-list-footer">\n    <div class="atk-copyright"></div>\n  </div>\n</div>\n';
 var comment = "";
 var win = window || {};
 var nav = navigator || {};
@@ -5433,7 +5433,7 @@ class List extends ListLite {
       this.$openSidebarBtn.classList.add("atk-hide");
     }
     this.ctx.trigger("check-admin-show-el");
-    this.$openSidebarBtn.innerText = !this.ctx.user.data.isAdmin ? "\u901A\u77E5\u4E2D\u5FC3" : "\u63A7\u5236\u4E2D\u5FC3";
+    this.$openSidebarBtn.querySelector(".atk-text").innerText = !this.ctx.user.data.isAdmin ? "\u901A\u77E5\u4E2D\u5FC3" : "\u63A7\u5236\u4E2D\u5FC3";
     if (!!this.data && !!this.data.page && this.data.page.admin_only === true) {
       this.ctx.trigger("editor-close");
       this.$closeCommentBtn.innerHTML = "\u6253\u5F00\u8BC4\u8BBA";

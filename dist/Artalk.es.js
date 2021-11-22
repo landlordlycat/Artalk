@@ -109,7 +109,7 @@ const defaults$3 = {
     mirror: "https://sdn.geekzu.org/avatar/"
   },
   pagination: {
-    pageSize: 15,
+    pageSize: 20,
     readMore: true,
     autoLoad: true
   },
@@ -3040,12 +3040,11 @@ class Api {
     this.ctx = ctx;
     this.baseURL = ctx.conf.server;
   }
-  get(offset, flatMode, paramsEditor) {
-    var _a;
+  get(offset, pageSize, flatMode, paramsEditor) {
     const params = {
       page_key: this.ctx.conf.pageKey,
       site_name: this.ctx.conf.site || "",
-      limit: ((_a = this.ctx.conf.pagination) == null ? void 0 : _a.pageSize) || 15,
+      limit: pageSize,
       offset
     };
     if (flatMode)
@@ -3381,7 +3380,7 @@ class CheckerLauncher {
   }
 }
 var editor = "";
-var EditorHTML = '<div class="atk-main-editor">\n  <div class="atk-editor-header">\n    <input name="nick" placeholder="\u6635\u79F0" class="atk-nick" type="text" required="required">\n    <input name="email" placeholder="\u90AE\u7BB1" class="atk-email" type="email" required="required">\n    <input name="link" placeholder="\u7F51\u5740 (https://)" class="atk-link" type="url">\n  </div>\n  <div class="atk-editor-textarea-wrap">\n    <div class="atk-close-comment" style="display: none;"><span>\u4EC5\u7BA1\u7406\u5458\u53EF\u8BC4\u8BBA</span></div>\n    <textarea id="atk-editor-textarea" class="atk-editor-textarea" placeholder=""></textarea>\n  </div>\n  <div class="atk-editor-plug-wrap" style="display: none;"></div>\n  <div class="atk-editor-bottom">\n    <div class="atk-editor-bottom-part atk-left atk-editor-plug-switcher-wrap"></div>\n    <div class="atk-editor-bottom-part atk-right">\n      <button type="button" class="atk-send-btn"></button>\n    </div>\n  </div>\n  <div class="atk-editor-notify-wrap"></div>\n</div>\n';
+var EditorHTML = '<div class="atk-main-editor">\n  <div class="atk-header">\n    <input name="nick" placeholder="\u6635\u79F0" class="atk-nick" type="text" required="required">\n    <input name="email" placeholder="\u90AE\u7BB1" class="atk-email" type="email" required="required">\n    <input name="link" placeholder="\u7F51\u5740 (https://)" class="atk-link" type="url">\n  </div>\n  <div class="atk-textarea-wrap">\n    <textarea class="atk-textarea" placeholder=""></textarea>\n  </div>\n  <div class="atk-plug-wrap" style="display: none;"></div>\n  <div class="atk-bottom">\n    <div class="atk-item atk-plug-btn-wrap"></div>\n    <div class="atk-item">\n      <button type="button" class="atk-send-btn"></button>\n    </div>\n  </div>\n  <div class="atk-notify-wrap"></div>\n</div>\n';
 var emoticonsPlug = "";
 class EditorPlug {
   constructor(editor2) {
@@ -3398,8 +3397,8 @@ class EmoticonsPlug extends EditorPlug {
     super(editor2);
     __publicField(this, "$el");
     __publicField(this, "emoticons", []);
-    __publicField(this, "$listWrap");
-    __publicField(this, "$types");
+    __publicField(this, "$grpWrap");
+    __publicField(this, "$grpSwitcher");
     this.editor = editor2;
     this.$el = createElement(`<div class="atk-editor-plug-emoticons"></div>`);
     this.init();
@@ -3527,17 +3526,17 @@ class EmoticonsPlug extends EditorPlug {
     return dest;
   }
   initEmoticonsList() {
-    this.$listWrap = createElement(`<div class="atk-emoticons-list-wrap"></div>`);
-    this.$el.append(this.$listWrap);
+    this.$grpWrap = createElement(`<div class="atk-grp-wrap"></div>`);
+    this.$el.append(this.$grpWrap);
     this.emoticons.forEach((grp, index) => {
-      const emoticonsEl = createElement(`<div class="atk-emoticons-list" style="display: none;"></div>`);
-      this.$listWrap.append(emoticonsEl);
-      emoticonsEl.setAttribute("data-index", String(index));
-      emoticonsEl.setAttribute("data-grp-name", grp.name);
-      emoticonsEl.setAttribute("data-type", grp.type);
+      const $grp = createElement(`<div class="atk-grp" style="display: none;"></div>`);
+      this.$grpWrap.append($grp);
+      $grp.setAttribute("data-index", String(index));
+      $grp.setAttribute("data-grp-name", grp.name);
+      $grp.setAttribute("data-type", grp.type);
       grp.items.forEach((item) => {
-        const $item = createElement(`<span class="atk-emoticons-item"></span>`);
-        emoticonsEl.append($item);
+        const $item = createElement(`<span class="atk-item"></span>`);
+        $grp.append($item);
         if (!!item.key && !new RegExp(`^(${grp.name})?\\s?[0-9]+$`).test(item.key))
           $item.setAttribute("title", item.key);
         if (grp.type === "image") {
@@ -3557,21 +3556,21 @@ class EmoticonsPlug extends EditorPlug {
         };
       });
     });
-    this.$types = createElement(`<div class="atk-emoticons-types"></div>`);
-    this.$el.append(this.$types);
+    this.$grpSwitcher = createElement(`<div class="atk-grp-switcher"></div>`);
+    this.$el.append(this.$grpSwitcher);
     this.emoticons.forEach((grp, index) => {
       const $item = createElement("<span />");
       $item.innerText = grp.name;
       $item.setAttribute("data-index", String(index));
       $item.onclick = () => this.openGrp(index);
-      this.$types.append($item);
+      this.$grpSwitcher.append($item);
     });
     if (this.emoticons.length > 0)
       this.openGrp(0);
   }
   openGrp(index) {
     var _a;
-    Array.from(this.$listWrap.children).forEach((item) => {
+    Array.from(this.$grpWrap.children).forEach((item) => {
       const el = item;
       if (el.getAttribute("data-index") !== String(index)) {
         el.style.display = "none";
@@ -3579,8 +3578,8 @@ class EmoticonsPlug extends EditorPlug {
         el.style.display = "";
       }
     });
-    this.$types.querySelectorAll("span.active").forEach((item) => item.classList.remove("active"));
-    (_a = this.$types.querySelector(`span[data-index="${index}"]`)) == null ? void 0 : _a.classList.add("active");
+    this.$grpSwitcher.querySelectorAll("span.active").forEach((item) => item.classList.remove("active"));
+    (_a = this.$grpSwitcher.querySelector(`span[data-index="${index}"]`)) == null ? void 0 : _a.classList.add("active");
     this.changeListHeight();
   }
   getEl() {
@@ -3655,12 +3654,9 @@ class Editor extends Component {
     __publicField(this, "$header");
     __publicField(this, "$textareaWrap");
     __publicField(this, "$textarea");
-    __publicField(this, "$closeComment");
     __publicField(this, "$plugWrap");
     __publicField(this, "$bottom");
-    __publicField(this, "$bottomPartLeft");
-    __publicField(this, "$plugSwitcherWrap");
-    __publicField(this, "$bottomPartRight");
+    __publicField(this, "$plugBtnWrap");
     __publicField(this, "$submitBtn");
     __publicField(this, "$notifyWrap");
     __publicField(this, "replyComment", null);
@@ -3672,17 +3668,14 @@ class Editor extends Component {
     });
     __publicField(this, "openedPlugName", null);
     this.$el = createElement(EditorHTML);
-    this.$header = this.$el.querySelector(".atk-editor-header");
-    this.$textareaWrap = this.$el.querySelector(".atk-editor-textarea-wrap");
-    this.$textarea = this.$el.querySelector(".atk-editor-textarea");
-    this.$closeComment = this.$el.querySelector(".atk-close-comment");
-    this.$plugWrap = this.$el.querySelector(".atk-editor-plug-wrap");
-    this.$bottom = this.$el.querySelector(".atk-editor-bottom");
-    this.$bottomPartLeft = this.$el.querySelector(".atk-editor-bottom-part.atk-left");
-    this.$plugSwitcherWrap = this.$el.querySelector(".atk-editor-plug-switcher-wrap");
-    this.$bottomPartRight = this.$el.querySelector(".atk-editor-bottom-part.atk-right");
+    this.$header = this.$el.querySelector(".atk-header");
+    this.$textareaWrap = this.$el.querySelector(".atk-textarea-wrap");
+    this.$textarea = this.$el.querySelector(".atk-textarea");
+    this.$plugWrap = this.$el.querySelector(".atk-plug-wrap");
+    this.$bottom = this.$el.querySelector(".atk-bottom");
+    this.$plugBtnWrap = this.$el.querySelector(".atk-plug-btn-wrap");
     this.$submitBtn = this.$el.querySelector(".atk-send-btn");
-    this.$notifyWrap = this.$el.querySelector(".atk-editor-notify-wrap");
+    this.$notifyWrap = this.$el.querySelector(".atk-notify-wrap");
     this.initLocalStorage();
     this.initHeader();
     this.initTextarea();
@@ -3793,17 +3786,17 @@ class Editor extends Component {
     this.$plugWrap.innerHTML = "";
     this.$plugWrap.style.display = "none";
     this.openedPlugName = null;
-    this.$plugSwitcherWrap.innerHTML = "";
+    this.$plugBtnWrap.innerHTML = "";
     this.LOADABLE_PLUG_LIST.forEach((PlugObj) => {
-      const btnElem = createElement(`<span class="atk-editor-action atk-editor-plug-switcher">${PlugObj.BtnHTML}</span>`);
-      this.$plugSwitcherWrap.appendChild(btnElem);
+      const btnElem = createElement(`<span class="atk-plug-btn">${PlugObj.BtnHTML}</span>`);
+      this.$plugBtnWrap.appendChild(btnElem);
       btnElem.addEventListener("click", () => {
         let plug = this.plugList[PlugObj.Name];
         if (!plug) {
           plug = new PlugObj(this);
           this.plugList[PlugObj.Name] = plug;
         }
-        this.$plugSwitcherWrap.querySelectorAll(".active").forEach((item) => item.classList.remove("active"));
+        this.$plugBtnWrap.querySelectorAll(".active").forEach((item) => item.classList.remove("active"));
         if (PlugObj.Name === this.openedPlugName) {
           plug.onHide();
           this.$plugWrap.style.display = "none";
@@ -3965,7 +3958,8 @@ class Editor extends Component {
     showNotify(this.$notifyWrap, msg, type);
   }
   close() {
-    this.$closeComment.style.display = "";
+    if (!this.$textareaWrap.querySelector(".atk-comment-closed"))
+      this.$textareaWrap.prepend(createElement('<div class="atk-comment-closed">\u4EC5\u7BA1\u7406\u5458\u53EF\u8BC4\u8BBA</div>'));
     if (!this.user.data.isAdmin) {
       this.$textarea.style.display = "none";
       this.closePlug();
@@ -3976,7 +3970,8 @@ class Editor extends Component {
     }
   }
   open() {
-    this.$closeComment.style.display = "none";
+    var _a;
+    (_a = this.$textareaWrap.querySelector(".atk-comment-closed")) == null ? void 0 : _a.remove();
     this.$textarea.style.display = "";
     this.$bottom.style.display = "";
   }
@@ -4243,7 +4238,7 @@ function Detect(userAgent) {
 function detectFactory(u) {
   return new Detect(u);
 }
-var CommentHTML = '<div class="atk-comment-wrap" data-comment-id="">\n  <div class="atk-comment">\n\n    <div class="atk-avatar"></div>\n\n    <div class="atk-comment-main">\n\n      <div class="atk-header">\n        <span class="atk-nick"></span>\n        <span class="atk-badge"></span>\n        <span class="atk-date"></span>\n      </div>\n\n      <div class="atk-body">\n        <div class="atk-content"></div>\n      </div>\n\n      <div class="atk-footer">\n        <div class="atk-comment-actions"></div>\n      </div>\n\n    </div>\n\n  </div>\n</div>\n';
+var CommentHTML = '<div class="atk-comment-wrap">\n  <div class="atk-comment">\n    <div class="atk-avatar"></div>\n    <div class="atk-main">\n      <div class="atk-header">\n        <span class="atk-item atk-nick"></span>\n        <span class="atk-item atk-badge"></span>\n        <span class="atk-item atk-date"></span>\n      </div>\n      <div class="atk-body">\n        <div class="atk-content"></div>\n      </div>\n      <div class="atk-footer">\n        <div class="atk-actions"></div>\n      </div>\n    </div>\n  </div>\n</div>\n';
 class ActionBtn {
   constructor(conf) {
     __publicField(this, "conf");
@@ -4306,7 +4301,7 @@ class ActionBtn {
     this.setLoading(false);
     this.$el.innerText = this.getText();
   }
-  setLoading(value = true, loadingText) {
+  setLoading(value, loadingText) {
     if (this.isLoading === value)
       return;
     this.isLoading = value;
@@ -4393,11 +4388,11 @@ class Comment extends Component {
   }
   render() {
     this.$el = createElement(CommentHTML);
-    this.$main = this.$el.querySelector(".atk-comment-main");
+    this.$main = this.$el.querySelector(".atk-main");
     this.$header = this.$el.querySelector(".atk-header");
     this.$body = this.$el.querySelector(".atk-body");
     this.$content = this.$body.querySelector(".atk-content");
-    this.$actions = this.$el.querySelector(".atk-comment-actions");
+    this.$actions = this.$el.querySelector(".atk-actions");
     this.$children = null;
     this.$el.setAttribute("data-comment-id", `${this.data.id}`);
     this.renderCheckUnread();
@@ -4540,7 +4535,7 @@ class Comment extends Component {
       }
     }
     if (this.data.is_allow_reply) {
-      const replyBtn = createElement(`<span data-atk-action="comment-reply">\u56DE\u590D</span>`);
+      const replyBtn = createElement(`<span>\u56DE\u590D</span>`);
       this.$actions.append(replyBtn);
       replyBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -4995,35 +4990,30 @@ class ReadMoreBtn {
   }
 }
 class ListLite extends Component {
-  constructor(ctx, $parent) {
+  constructor(ctx) {
     super(ctx);
-    __publicField(this, "$parent");
     __publicField(this, "$commentsWrap");
     __publicField(this, "comments", []);
     __publicField(this, "data");
-    __publicField(this, "pageSize", 15);
-    __publicField(this, "noCommentText");
-    __publicField(this, "renderComment");
-    __publicField(this, "paramsEditor");
-    __publicField(this, "onAfterLoad");
     __publicField(this, "isLoading", false);
-    __publicField(this, "isFirstLoad", true);
-    __publicField(this, "flatMode");
+    __publicField(this, "noCommentText", "\u65E0\u5185\u5BB9");
+    __publicField(this, "flatMode", false);
     __publicField(this, "pageMode", "pagination");
+    __publicField(this, "pageSize", 20);
+    __publicField(this, "scrollListenerAt");
+    __publicField(this, "repositionAt");
     __publicField(this, "pagination");
     __publicField(this, "readMoreBtn");
     __publicField(this, "autoLoadScrollEvent");
-    __publicField(this, "autoLoadListenerAt");
+    __publicField(this, "renderComment");
+    __publicField(this, "paramsEditor");
+    __publicField(this, "onAfterLoad");
     __publicField(this, "unread", []);
-    __publicField(this, "unreadHighlight", false);
-    var _a;
-    this.$parent = $parent;
+    __publicField(this, "unreadHighlight");
     this.$el = createElement(`<div class="atk-list-lite">
       <div class="atk-list-comments-wrap"></div>
     </div>`);
     this.$commentsWrap = this.$el.querySelector(".atk-list-comments-wrap");
-    this.pageSize = ((_a = this.conf.pagination) == null ? void 0 : _a.pageSize) || this.pageSize;
-    this.noCommentText = this.conf.noComment || "\u65E0\u8BC4\u8BBA";
     window.setInterval(() => {
       this.$el.querySelectorAll("[data-atk-comment-date]").forEach((el) => {
         const date = el.getAttribute("data-atk-comment-date");
@@ -5032,11 +5022,10 @@ class ListLite extends Component {
     }, 30 * 1e3);
     this.ctx.on("unread-update", (data) => this.updateUnread(data.notifies));
   }
-  fetchComments(offset = 0) {
+  fetchComments(offset) {
     return __async(this, null, function* () {
-      if (this.pageMode === "read-more" && offset === 0) {
-        this.clearAllComments();
-      }
+      if (this.isLoading)
+        return;
       const showLoading$1 = () => {
         this.isLoading = true;
         if (offset === 0)
@@ -5057,11 +5046,14 @@ class ListLite extends Component {
       };
       showLoading$1();
       this.ctx.trigger("comments-load");
+      if (this.pageMode === "read-more" && offset === 0) {
+        this.clearAllComments();
+      }
       let listData;
       try {
-        listData = yield new Api(this.ctx).get(offset, this.flatMode, this.paramsEditor);
+        listData = yield new Api(this.ctx).get(offset, this.pageSize, this.flatMode, this.paramsEditor);
       } catch (e) {
-        this.onError(e.msg || String(e));
+        this.onError(e.msg || String(e), offset);
         throw e;
       } finally {
         hideLoading$1();
@@ -5070,12 +5062,11 @@ class ListLite extends Component {
       try {
         this.onLoad(listData, offset);
       } catch (e) {
-        this.onError(String(e));
+        this.onError(String(e), offset);
         throw e;
       } finally {
         hideLoading$1();
       }
-      this.isFirstLoad = false;
     });
   }
   onLoad(data, offset) {
@@ -5086,37 +5077,30 @@ class ListLite extends Component {
     if (this.ctx.conf.versionCheck && this.versionCheck(data.api_version))
       return;
     this.importComments(data.comments);
-    if (this.isFirstLoad)
-      this.initPageMode();
-    if (this.pageMode === "pagination")
-      this.pagination.update(offset, (!this.flatMode ? data.total_roots : data.total) || 0);
-    if (this.pageMode === "read-more")
-      this.readMoreBtn.update(offset, (!this.flatMode ? data.total_roots : data.total) || 0);
+    this.refreshPagination(offset, this.flatMode ? data.total : data.total_roots);
     this.refreshUI();
     this.ctx.trigger("unread-update", { notifies: data.unread || [] });
     this.ctx.trigger("comments-loaded");
     if (this.onAfterLoad)
       this.onAfterLoad(data);
   }
-  initPageMode() {
+  refreshPagination(offset, total) {
     var _a;
-    if (this.autoLoadScrollEvent) {
-      const at = this.autoLoadListenerAt || document;
-      at.removeEventListener("scroll", this.autoLoadScrollEvent);
-    }
-    if (this.pageMode === "read-more") {
-      const readMoreBtn = new ReadMoreBtn({
+    const modePagination = this.pageMode === "pagination";
+    const modeReadMoreBtn = this.pageMode === "read-more";
+    const initialized = modePagination ? !!this.pagination : !!this.readMoreBtn;
+    if (!initialized && modeReadMoreBtn) {
+      this.readMoreBtn = new ReadMoreBtn({
         pageSize: this.pageSize,
-        onClick: (offset) => __async(this, null, function* () {
-          yield this.fetchComments(offset);
+        onClick: (o) => __async(this, null, function* () {
+          yield this.fetchComments(o);
         })
       });
-      if (this.readMoreBtn)
-        this.readMoreBtn.$el.replaceWith(readMoreBtn.$el);
-      else
-        this.$el.append(readMoreBtn.$el);
-      this.readMoreBtn = readMoreBtn;
+      this.$el.append(this.readMoreBtn.$el);
       if ((_a = this.conf.pagination) == null ? void 0 : _a.autoLoad) {
+        const at = this.scrollListenerAt || document;
+        if (this.autoLoadScrollEvent)
+          at.removeEventListener("scroll", this.autoLoadScrollEvent);
         this.autoLoadScrollEvent = () => {
           if (this.pageMode !== "read-more")
             return;
@@ -5129,49 +5113,48 @@ class ListLite extends Component {
           const $target = this.$el.querySelector(".atk-list-comments-wrap > .atk-comment-wrap:nth-last-child(3)");
           if (!$target)
             return;
-          if (isVisible($target, this.autoLoadListenerAt)) {
+          if (isVisible($target, this.scrollListenerAt)) {
             this.readMoreBtn.click();
           }
         };
-        const at = this.autoLoadListenerAt || document;
         at.addEventListener("scroll", this.autoLoadScrollEvent);
       }
     }
-    if (this.pageMode === "pagination") {
-      const pagination2 = new Pagination(!this.flatMode ? this.data.total_roots : this.data.total, {
+    if (!initialized && modePagination) {
+      this.pagination = new Pagination(!this.flatMode ? this.data.total_roots : this.data.total, {
         pageSize: this.pageSize,
-        onChange: (offset) => __async(this, null, function* () {
+        onChange: (o) => __async(this, null, function* () {
           if (this.ctx.conf.editorTravel === true) {
             this.ctx.trigger("editor-travel-back");
           }
-          yield this.fetchComments(offset);
-          if (this.$parent) {
-            const at = this.autoLoadListenerAt || window;
+          yield this.fetchComments(o);
+          if (this.repositionAt) {
+            const at = this.scrollListenerAt || window;
             at.scroll({
-              top: at === window && this.$parent ? getOffset(this.$parent).top : 0,
+              top: this.repositionAt ? getOffset(this.repositionAt).top : 0,
               left: 0
             });
           }
         })
       });
-      if (this.pagination)
-        this.pagination.$el.replaceWith(pagination2.$el);
-      else
-        this.$el.append(pagination2.$el);
-      this.pagination = pagination2;
+      this.$el.append(this.pagination.$el);
     }
+    if (modePagination)
+      this.pagination.update(offset, total);
+    if (modeReadMoreBtn)
+      this.readMoreBtn.update(offset, total);
   }
-  onError(msg) {
+  onError(msg, offset) {
     var _a;
     msg = String(msg);
     console.error(msg);
-    if (!this.isFirstLoad && this.pageMode === "read-more") {
+    if (offset !== 0 && this.pageMode === "read-more") {
       (_a = this.readMoreBtn) == null ? void 0 : _a.showErr(`\u83B7\u53D6\u5931\u8D25`);
       return;
     }
     const $err = createElement(`<span>${msg}\uFF0C\u65E0\u6CD5\u83B7\u53D6\u8BC4\u8BBA\u5217\u8868\u6570\u636E<br/></span>`);
     const $retryBtn = createElement('<span style="cursor:pointer;">\u70B9\u51FB\u91CD\u65B0\u83B7\u53D6</span>');
-    $retryBtn.onclick = () => this.fetchComments();
+    $retryBtn.onclick = () => this.fetchComments(0);
     $err.appendChild($retryBtn);
     const adminBtn = createElement('<span atk-only-admin-show> | <span style="cursor:pointer;">\u6253\u5F00\u63A7\u5236\u53F0</span></span>');
     adminBtn.onclick = () => this.ctx.trigger("sidebar-show");
@@ -5339,7 +5322,7 @@ class ListLite extends Component {
   }
   updateUnread(notifies) {
     this.unread = notifies;
-    if (this.unreadHighlight) {
+    if (this.unreadHighlight === true) {
       this.eachComment(this.comments, (comment2) => {
         const notify = this.unread.find((o) => o.comment_id === comment2.data.id);
         if (notify) {
@@ -5376,9 +5359,9 @@ class ListLite extends Component {
 }
 class List extends ListLite {
   constructor(ctx) {
-    var _a;
+    var _a, _b;
     const el = createElement(ListHTML);
-    super(ctx, el);
+    super(ctx);
     __publicField(this, "$closeCommentBtn");
     __publicField(this, "$openSidebarBtn");
     __publicField(this, "$unreadBadge");
@@ -5393,6 +5376,8 @@ class List extends ListLite {
     }
     this.flatMode = flatMode;
     this.pageMode = ((_a = this.conf.pagination) == null ? void 0 : _a.readMore) ? "read-more" : "pagination";
+    this.pageSize = ((_b = this.conf.pagination) == null ? void 0 : _b.pageSize) || 20;
+    this.repositionAt = this.$el;
     this.initListActionBtn();
     this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.1.3"}">Artalk</a>`;
     this.ctx.on("list-reload", () => this.fetchComments(0));
@@ -5592,10 +5577,10 @@ class MessageView extends SidebarView {
       };
       this.viewActiveTab = "mentions";
     }
-    this.list = new ListLite(this.ctx, this.$el);
+    this.list = new ListLite(this.ctx);
     this.list.flatMode = true;
     this.list.unreadHighlight = true;
-    this.list.autoLoadListenerAt = this.$parent;
+    this.list.scrollListenerAt = this.$parent;
     this.list.pageMode = "pagination";
     this.list.noCommentText = '<div class="atk-sidebar-no-content">\u65E0\u5185\u5BB9</div>';
     this.list.renderComment = (comment2) => {
@@ -5618,12 +5603,11 @@ class MessageView extends SidebarView {
   }
   switchTab(tab, siteName) {
     this.viewActiveTab = tab;
-    this.list.isFirstLoad = true;
     this.list.paramsEditor = (params) => {
       params.type = tab;
       params.site_name = siteName;
     };
-    this.list.fetchComments();
+    this.list.fetchComments(0);
     return true;
   }
 }
@@ -6737,7 +6721,7 @@ const _Artalk = class {
     this.$root.appendChild(this.list.$el);
     this.sidebar = new Sidebar(this.ctx);
     this.$root.appendChild(this.sidebar.$el);
-    this.list.fetchComments();
+    this.list.fetchComments(0);
     this.initEventBind();
   }
   initEventBind() {
@@ -6763,7 +6747,7 @@ const _Artalk = class {
     });
   }
   reload() {
-    this.list.fetchComments();
+    this.list.fetchComments(0);
   }
   initDarkMode() {
     const darkModeClassName = "atk-dark-mode";

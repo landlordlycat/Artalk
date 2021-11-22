@@ -5085,11 +5085,20 @@ class ListLite extends Component {
       this.onAfterLoad(data);
   }
   refreshPagination(offset, total) {
-    var _a;
     const modePagination = this.pageMode === "pagination";
     const modeReadMoreBtn = this.pageMode === "read-more";
     const initialized = modePagination ? !!this.pagination : !!this.readMoreBtn;
-    if (!initialized && modeReadMoreBtn) {
+    if (!initialized) {
+      this.initPagination();
+    }
+    if (modePagination)
+      this.pagination.update(offset, total);
+    if (modeReadMoreBtn)
+      this.readMoreBtn.update(offset, total);
+  }
+  initPagination() {
+    var _a;
+    if (this.pageMode === "pagination") {
       this.readMoreBtn = new ReadMoreBtn({
         pageSize: this.pageSize,
         onClick: (o) => __async(this, null, function* () {
@@ -5120,7 +5129,7 @@ class ListLite extends Component {
         at.addEventListener("scroll", this.autoLoadScrollEvent);
       }
     }
-    if (!initialized && modePagination) {
+    if (this.pageMode === "read-more") {
       this.pagination = new Pagination(!this.flatMode ? this.data.total_roots : this.data.total, {
         pageSize: this.pageSize,
         onChange: (o) => __async(this, null, function* () {
@@ -5139,10 +5148,6 @@ class ListLite extends Component {
       });
       this.$el.append(this.pagination.$el);
     }
-    if (modePagination)
-      this.pagination.update(offset, total);
-    if (modeReadMoreBtn)
-      this.readMoreBtn.update(offset, total);
   }
   onError(msg, offset) {
     var _a;

@@ -5098,7 +5098,7 @@ class ListLite extends Component {
   }
   initPagination() {
     var _a;
-    if (this.pageMode === "pagination") {
+    if (this.pageMode === "read-more") {
       this.readMoreBtn = new ReadMoreBtn({
         pageSize: this.pageSize,
         onClick: (o) => __async(this, null, function* () {
@@ -5129,7 +5129,7 @@ class ListLite extends Component {
         at.addEventListener("scroll", this.autoLoadScrollEvent);
       }
     }
-    if (this.pageMode === "read-more") {
+    if (this.pageMode === "pagination") {
       this.pagination = new Pagination(!this.flatMode ? this.data.total_roots : this.data.total, {
         pageSize: this.pageSize,
         onChange: (o) => __async(this, null, function* () {

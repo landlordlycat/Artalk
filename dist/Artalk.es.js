@@ -4085,18 +4085,30 @@ function Detect(userAgent) {
   }
   var osVersion = {
     Windows: function() {
-      var v = u.replace(/^.*Windows NT ([\d.]+);.*$/, "$1");
-      var hash2 = {
-        6.4: "10",
-        6.3: "8.1",
-        6.2: "8",
-        6.1: "7",
-        "6.0": "Vista",
-        5.2: "XP",
-        5.1: "XP",
-        "5.0": "2000"
-      };
-      return hash2[v] || v;
+      return __async(this, null, function* () {
+        var v = u.replace(/^.*Windows NT ([\d.]+);.*$/, "$1");
+        if (v == 10) {
+          return yield nav.userAgentData.getHighEntropyValues(["platformVersion"]).then((ua) => {
+            const majorPlatformVersion = parseInt(ua.platformVersion.split(".")[0]);
+            if (majorPlatformVersion >= 13) {
+              return "11";
+            } else {
+              return "10";
+            }
+          });
+        }
+        var hash2 = {
+          6.4: "10",
+          6.3: "8.1",
+          6.2: "8",
+          6.1: "7",
+          "6.0": "Vista",
+          5.2: "XP",
+          5.1: "XP",
+          "5.0": "2000"
+        };
+        return hash2[v] || v;
+      });
     },
     Android: function() {
       return u.replace(/^.*Android ([\d.]+);.*$/, "$1");

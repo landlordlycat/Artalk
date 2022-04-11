@@ -194,7 +194,7 @@ function unescape(html) {
 }
 const caret = /(^|[^\[])\^/g;
 function edit(regex, opt) {
-  regex = regex.source || regex;
+  regex = typeof regex === "string" ? regex : regex.source;
   opt = opt || "";
   const obj = {
     replace: (name, val) => {
@@ -290,7 +290,7 @@ function splitCells(tableRow, count) {
   if (!cells[0].trim()) {
     cells.shift();
   }
-  if (!cells[cells.length - 1].trim()) {
+  if (cells.length > 0 && !cells[cells.length - 1].trim()) {
     cells.pop();
   }
   if (cells.length > count) {
@@ -320,7 +320,7 @@ function rtrim(str, c, invert) {
       break;
     }
   }
-  return str.substr(0, l - suffLen);
+  return str.slice(0, l - suffLen);
 }
 function findClosingBracket(str, b) {
   if (str.indexOf(b[1]) === -1) {
@@ -411,14 +411,11 @@ class Tokenizer {
   }
   space(src) {
     const cap = this.rules.block.newline.exec(src);
-    if (cap) {
-      if (cap[0].length > 1) {
-        return {
-          type: "space",
-          raw: cap[0]
-        };
-      }
-      return { raw: "\n" };
+    if (cap && cap[0].length > 0) {
+      return {
+        type: "space",
+        raw: cap[0]
+      };
     }
   }
   code(src) {
@@ -481,7 +478,7 @@ class Tokenizer {
   blockquote(src) {
     const cap = this.rules.block.blockquote.exec(src);
     if (cap) {
-      const text = cap[0].replace(/^ *> ?/gm, "");
+      const text = cap[0].replace(/^ *>[ \t]?/gm, "");
       return {
         type: "blockquote",
         raw: cap[0],
@@ -493,7 +490,7 @@ class Tokenizer {
   list(src) {
     let cap = this.rules.block.list.exec(src);
     if (cap) {
-      let raw, istask, ischecked, indent, i, blankLine, endsWithBlankLine, line, lines, itemContents;
+      let raw, istask, ischecked, indent, i, blankLine, endsWithBlankLine, line, nextLine, rawLine, itemContents, endEarly;
       let bull = cap[1].trim();
       const isordered = bull.length > 1;
       const list2 = {
@@ -508,57 +505,57 @@ class Tokenizer {
       if (this.options.pedantic) {
         bull = isordered ? bull : "[*+-]";
       }
-      const itemRegex = new RegExp(`^( {0,3}${bull})((?: [^\\n]*| *)(?:\\n[^\\n]*)*(?:\\n|$))`);
+      const itemRegex = new RegExp(`^( {0,3}${bull})((?:[	 ][^\\n]*)?(?:\\n|$))`);
       while (src) {
-        if (this.rules.block.hr.test(src)) {
-          break;
-        }
+        endEarly = false;
         if (!(cap = itemRegex.exec(src))) {
           break;
         }
-        lines = cap[2].split("\n");
+        if (this.rules.block.hr.test(src)) {
+          break;
+        }
+        raw = cap[0];
+        src = src.substring(raw.length);
+        line = cap[2].split("\n", 1)[0];
+        nextLine = src.split("\n", 1)[0];
         if (this.options.pedantic) {
           indent = 2;
-          itemContents = lines[0].trimLeft();
+          itemContents = line.trimLeft();
         } else {
           indent = cap[2].search(/[^ ]/);
-          indent = cap[1].length + (indent > 4 ? 1 : indent);
-          itemContents = lines[0].slice(indent - cap[1].length);
+          indent = indent > 4 ? 1 : indent;
+          itemContents = line.slice(indent);
+          indent += cap[1].length;
         }
         blankLine = false;
-        raw = cap[0];
-        if (!lines[0] && /^ *$/.test(lines[1])) {
-          raw = cap[1] + lines.slice(0, 2).join("\n") + "\n";
-          list2.loose = true;
-          lines = [];
+        if (!line && /^ *$/.test(nextLine)) {
+          raw += nextLine + "\n";
+          src = src.substring(nextLine.length + 1);
+          endEarly = true;
         }
-        const nextBulletRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:[*+-]|\\d{1,9}[.)])`);
-        for (i = 1; i < lines.length; i++) {
-          line = lines[i];
-          if (this.options.pedantic) {
-            line = line.replace(/^ {1,4}(?=( {4})*[^ ])/g, "  ");
-          }
-          if (nextBulletRegex.test(line)) {
-            raw = cap[1] + lines.slice(0, i).join("\n") + "\n";
-            break;
-          }
-          if (!blankLine) {
-            if (!line.trim()) {
+        if (!endEarly) {
+          const nextBulletRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:[*+-]|\\d{1,9}[.)])`);
+          while (src) {
+            rawLine = src.split("\n", 1)[0];
+            line = rawLine;
+            if (this.options.pedantic) {
+              line = line.replace(/^ {1,4}(?=( {4})*[^ ])/g, "  ");
+            }
+            if (nextBulletRegex.test(line)) {
+              break;
+            }
+            if (line.search(/[^ ]/) >= indent || !line.trim()) {
+              itemContents += "\n" + line.slice(indent);
+            } else if (!blankLine) {
+              itemContents += "\n" + line;
+            } else {
+              break;
+            }
+            if (!blankLine && !line.trim()) {
               blankLine = true;
             }
-            if (line.search(/[^ ]/) >= indent) {
-              itemContents += "\n" + line.slice(indent);
-            } else {
-              itemContents += "\n" + line;
-            }
-            continue;
-          }
-          if (line.search(/[^ ]/) >= indent || !line.trim()) {
-            itemContents += "\n" + line.slice(indent);
-            continue;
-          } else {
-            raw = cap[1] + lines.slice(0, i).join("\n") + "\n";
-            break;
+            raw += rawLine + "\n";
+            src = src.substring(rawLine.length + 1);
           }
         }
         if (!list2.loose) {
@@ -584,7 +581,6 @@ class Tokenizer {
           text: itemContents
         });
         list2.raw += raw;
-        src = src.slice(raw.length);
       }
       list2.items[list2.items.length - 1].raw = raw.trimRight();
       list2.items[list2.items.length - 1].text = itemContents.trimRight();
@@ -593,7 +589,21 @@ class Tokenizer {
       for (i = 0; i < l; i++) {
         this.lexer.state.top = false;
         list2.items[i].tokens = this.lexer.blockTokens(list2.items[i].text, []);
-        if (list2.items[i].tokens.some((t) => t.type === "space")) {
+        const spacers = list2.items[i].tokens.filter((t) => t.type === "space");
+        const hasMultipleLineBreaks = spacers.every((t) => {
+          const chars = t.raw.split("");
+          let lineBreaks = 0;
+          for (const char of chars) {
+            if (char === "\n") {
+              lineBreaks += 1;
+            }
+            if (lineBreaks > 1) {
+              return true;
+            }
+          }
+          return false;
+        });
+        if (!list2.loose && spacers.length && hasMultipleLineBreaks) {
           list2.loose = true;
           list2.items[i].loose = true;
         }
@@ -643,7 +653,7 @@ class Tokenizer {
           return { text: c };
         }),
         align: cap[2].replace(/^ *|\| *$/g, "").split(/ *\| */),
-        rows: cap[3] ? cap[3].replace(/\n$/, "").split("\n") : []
+        rows: cap[3] && cap[3].trim() ? cap[3].replace(/\n[ \t]*$/, "").split("\n") : []
       };
       if (item.header.length === item.align.length) {
         item.raw = cap[0];
@@ -987,18 +997,18 @@ const block = {
   newline: /^(?: *(?:\n|$))+/,
   code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
   fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?=\n|$)|$)/,
-  hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
+  hr: /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/,
   heading: /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,
   blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
-  list: /^( {0,3}bull)( [^\n]+?)?(?:\n|$)/,
+  list: /^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/,
   html: "^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$))",
-  def: /^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,
+  def: /^ {0,3}\[(label)\]: *(?:\n *)?<?([^\s>]+)>?(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/,
   table: noopTest,
   lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
-  _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html| +\n)[^\n]+)*)/,
+  _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,
   text: /^[^\n]+/
 };
-block._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/;
+block._label = /(?!\s*\])(?:\\.|[^\[\]\\])+/;
 block._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
 block.def = edit(block.def).replace("label", block._label).replace("title", block._title).getRegex();
 block.bullet = /(?:[*+-]|\d{1,9}[.)])/;
@@ -1007,13 +1017,14 @@ block.list = edit(block.list).replace(/bull/g, block.bullet).replace("hr", "\\n+
 block._tag = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul";
 block._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
 block.html = edit(block.html, "i").replace("comment", block._comment).replace("tag", block._tag).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
-block.paragraph = edit(block._paragraph).replace("hr", block.hr).replace("heading", " {0,3}#{1,6} ").replace("|lheading", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", block._tag).getRegex();
+block.paragraph = edit(block._paragraph).replace("hr", block.hr).replace("heading", " {0,3}#{1,6} ").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", block._tag).getRegex();
 block.blockquote = edit(block.blockquote).replace("paragraph", block.paragraph).getRegex();
 block.normal = merge({}, block);
 block.gfm = merge({}, block.normal, {
   table: "^ *([^\\n ].*\\|.*)\\n {0,3}(?:\\| *)?(:?-+:? *(?:\\| *:?-+:? *)*)(?:\\| *)?(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)"
 });
 block.gfm.table = edit(block.gfm.table).replace("hr", block.hr).replace("heading", " {0,3}#{1,6} ").replace("blockquote", " {0,3}>").replace("code", " {4}[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", block._tag).getRegex();
+block.gfm.paragraph = edit(block._paragraph).replace("hr", block.hr).replace("heading", " {0,3}#{1,6} ").replace("|lheading", "").replace("table", block.gfm.table).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", block._tag).getRegex();
 block.pedantic = merge({}, block.normal, {
   html: edit(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", block._comment).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
   def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
@@ -1027,13 +1038,13 @@ const inline = {
   url: noopTest,
   tag: "^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>",
   link: /^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,
-  reflink: /^!?\[(label)\]\[(?!\s*\])((?:\\[\[\]]?|[^\[\]\\])+)\]/,
-  nolink: /^!?\[(?!\s*\])((?:\[[^\[\]]*\]|\\[\[\]]|[^\[\]])*)\](?:\[\])?/,
+  reflink: /^!?\[(label)\]\[(ref)\]/,
+  nolink: /^!?\[(ref)\](?:\[\])?/,
   reflinkSearch: "reflink|nolink(?!\\()",
   emStrong: {
     lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
-    rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
-    rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/
+    rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[^*]+(?=[^*])|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
+    rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[^_]+(?=[^_])|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/
   },
   code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
   br: /^( {2,}|\\)\n(?!\s*$)/,
@@ -1059,7 +1070,8 @@ inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
 inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
 inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
 inline.link = edit(inline.link).replace("label", inline._label).replace("href", inline._href).replace("title", inline._title).getRegex();
-inline.reflink = edit(inline.reflink).replace("label", inline._label).getRegex();
+inline.reflink = edit(inline.reflink).replace("label", inline._label).replace("ref", block._label).getRegex();
+inline.nolink = edit(inline.nolink).replace("ref", block._label).getRegex();
 inline.reflinkSearch = edit(inline.reflinkSearch, "g").replace("reflink", inline.reflink).replace("nolink", inline.nolink).getRegex();
 inline.normal = merge({}, inline);
 inline.pedantic = merge({}, inline.normal, {
@@ -1153,7 +1165,7 @@ class Lexer {
     return lexer.inlineTokens(src);
   }
   lex(src) {
-    src = src.replace(/\r\n|\r/g, "\n").replace(/\t/g, "    ");
+    src = src.replace(/\r\n|\r/g, "\n");
     this.blockTokens(src, this.tokens);
     let next;
     while (next = this.inlineQueue.shift()) {
@@ -1163,7 +1175,11 @@ class Lexer {
   }
   blockTokens(src, tokens = []) {
     if (this.options.pedantic) {
-      src = src.replace(/^ +$/gm, "");
+      src = src.replace(/\t/g, "    ").replace(/^ +$/gm, "");
+    } else {
+      src = src.replace(/^( *)(\t+)/gm, (_, leading, tabs) => {
+        return leading + "    ".repeat(tabs.length);
+      });
     }
     let token, lastToken, cutSrc, lastParagraphClipped;
     while (src) {
@@ -1179,7 +1195,9 @@ class Lexer {
       }
       if (token = this.tokenizer.space(src)) {
         src = src.substring(token.raw.length);
-        if (token.type) {
+        if (token.raw.length === 1 && tokens.length > 0) {
+          tokens[tokens.length - 1].raw += "\n";
+        } else {
           tokens.push(token);
         }
         continue;
@@ -1470,16 +1488,21 @@ class Renderer {
     return '<pre><code class="' + this.options.langPrefix + escape(lang, true) + '">' + (escaped ? code : escape(code, true)) + "</code></pre>\n";
   }
   blockquote(quote) {
-    return "<blockquote>\n" + quote + "</blockquote>\n";
+    return `<blockquote>
+${quote}</blockquote>
+`;
   }
   html(html) {
     return html;
   }
   heading(text, level, raw, slugger) {
     if (this.options.headerIds) {
-      return "<h" + level + ' id="' + this.options.headerPrefix + slugger.slug(raw) + '">' + text + "</h" + level + ">\n";
+      const id = this.options.headerPrefix + slugger.slug(raw);
+      return `<h${level} id="${id}">${text}</h${level}>
+`;
     }
-    return "<h" + level + ">" + text + "</h" + level + ">\n";
+    return `<h${level}>${text}</h${level}>
+`;
   }
   hr() {
     return this.options.xhtml ? "<hr/>\n" : "<hr>\n";
@@ -1489,41 +1512,46 @@ class Renderer {
     return "<" + type + startatt + ">\n" + body + "</" + type + ">\n";
   }
   listitem(text) {
-    return "<li>" + text + "</li>\n";
+    return `<li>${text}</li>
+`;
   }
   checkbox(checked) {
     return "<input " + (checked ? 'checked="" ' : "") + 'disabled="" type="checkbox"' + (this.options.xhtml ? " /" : "") + "> ";
   }
   paragraph(text) {
-    return "<p>" + text + "</p>\n";
+    return `<p>${text}</p>
+`;
   }
   table(header, body) {
     if (body)
-      body = "<tbody>" + body + "</tbody>";
+      body = `<tbody>${body}</tbody>`;
     return "<table>\n<thead>\n" + header + "</thead>\n" + body + "</table>\n";
   }
   tablerow(content) {
-    return "<tr>\n" + content + "</tr>\n";
+    return `<tr>
+${content}</tr>
+`;
   }
   tablecell(content, flags) {
     const type = flags.header ? "th" : "td";
-    const tag = flags.align ? "<" + type + ' align="' + flags.align + '">' : "<" + type + ">";
-    return tag + content + "</" + type + ">\n";
+    const tag = flags.align ? `<${type} align="${flags.align}">` : `<${type}>`;
+    return tag + content + `</${type}>
+`;
   }
   strong(text) {
-    return "<strong>" + text + "</strong>";
+    return `<strong>${text}</strong>`;
   }
   em(text) {
-    return "<em>" + text + "</em>";
+    return `<em>${text}</em>`;
   }
   codespan(text) {
-    return "<code>" + text + "</code>";
+    return `<code>${text}</code>`;
   }
   br() {
     return this.options.xhtml ? "<br/>" : "<br>";
   }
   del(text) {
-    return "<del>" + text + "</del>";
+    return `<del>${text}</del>`;
   }
   link(href, title, text) {
     href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
@@ -1542,9 +1570,9 @@ class Renderer {
     if (href === null) {
       return text;
     }
-    let out = '<img src="' + href + '" alt="' + text + '"';
+    let out = `<img src="${href}" alt="${text}"`;
     if (title) {
-      out += ' title="' + title + '"';
+      out += ` title="${title}"`;
     }
     out += this.options.xhtml ? "/>" : ">";
     return out;
@@ -2657,6 +2685,30 @@ function marked(ctx, src) {
   }
   return markedInstance.parse(src);
 }
+function getCorrectUserAgent() {
+  return __async(this, null, function* () {
+    const uaRaw = navigator.userAgent;
+    const uaData = navigator.userAgentData;
+    if (!uaData || !uaData.getHighEntropyValues) {
+      return uaRaw;
+    }
+    let uaGot = null;
+    try {
+      uaGot = yield uaData.getHighEntropyValues(["platformVersion"]);
+    } catch (err) {
+      console.error(err);
+      return uaRaw;
+    }
+    if (uaData.platform !== "Windows") {
+      return uaRaw;
+    }
+    const majorPlatformVersion = Number(uaGot.platformVersion.split(".")[0]);
+    if (majorPlatformVersion >= 13) {
+      return uaRaw.replace(/Windows\W+NT\W+10.0/, "Windows NT 11.0");
+    }
+    return uaRaw;
+  });
+}
 function showLoading(parentElem) {
   if (parentElem instanceof Context)
     parentElem = parentElem.$root;
@@ -2950,7 +3002,8 @@ function Fetch(ctx, input, init, timeout) {
       } else {
         resp = yield timeoutPromise(timeout || ctx.conf.reqTimeout || 15e3, fetch(input, init));
       }
-      if (!resp.ok && resp.status !== 401)
+      const noAccessCodes = [401, 400];
+      if (!resp.ok && !noAccessCodes.includes(resp.status))
         throw new Error(`\u8BF7\u6C42\u54CD\u5E94 ${resp.status}`);
       let json = yield resp.json();
       const recall = (resolve, reject) => {
@@ -2972,7 +3025,7 @@ function Fetch(ctx, input, init, timeout) {
             }
           });
         });
-      } else if (json.data && json.data.need_login || resp.status === 401) {
+      } else if (json.data && json.data.need_login || noAccessCodes.includes(resp.status)) {
         json = yield new Promise((resolve, reject) => {
           ctx.trigger("checker-admin", {
             onSuccess: () => {
@@ -3065,7 +3118,8 @@ class Api {
         link: comment2.link,
         content: comment2.content,
         rid: comment2.rid,
-        page_key: comment2.page_key
+        page_key: comment2.page_key,
+        ua: yield getCorrectUserAgent()
       };
       if (comment2.page_title)
         params.page_title = comment2.page_title;
@@ -4085,30 +4139,20 @@ function Detect(userAgent) {
   }
   var osVersion = {
     Windows: function() {
-      return __async(this, null, function* () {
-        var v = u.replace(/^.*Windows NT ([\d.]+);.*$/, "$1");
-        if (v == 10) {
-          return yield nav.userAgentData.getHighEntropyValues(["platformVersion"]).then((ua) => {
-            const majorPlatformVersion = parseInt(ua.platformVersion.split(".")[0]);
-            if (majorPlatformVersion >= 13) {
-              return "11";
-            } else {
-              return "10";
-            }
-          });
-        }
-        var hash2 = {
-          6.4: "10",
-          6.3: "8.1",
-          6.2: "8",
-          6.1: "7",
-          "6.0": "Vista",
-          5.2: "XP",
-          5.1: "XP",
-          "5.0": "2000"
-        };
-        return hash2[v] || v;
-      });
+      var v = u.replace(/^.*Windows NT ([\d.]+);.*$/, "$1");
+      var hash2 = {
+        6.4: "10",
+        6.3: "8.1",
+        6.2: "8",
+        6.1: "7",
+        "6.0": "Vista",
+        5.2: "XP",
+        5.1: "XP",
+        "5.0": "2000",
+        "10.0": "10",
+        "11.0": "11"
+      };
+      return hash2[v] || v;
     },
     Android: function() {
       return u.replace(/^.*Android ([\d.]+);.*$/, "$1");
@@ -5500,1035 +5544,22 @@ class List extends ListLite {
     }
   }
 }
-var sidebar = "";
-var MD5 = function(d) {
-  var r = M(V(Y(X(d), 8 * d.length)));
-  return r.toLowerCase();
-};
-function M(d) {
-  for (var _, m = "0123456789ABCDEF", f = "", r = 0; r < d.length; r++)
-    _ = d.charCodeAt(r), f += m.charAt(_ >>> 4 & 15) + m.charAt(15 & _);
-  return f;
-}
-function X(d) {
-  for (var _ = Array(d.length >> 2), m = 0; m < _.length; m++)
-    _[m] = 0;
-  for (m = 0; m < 8 * d.length; m += 8)
-    _[m >> 5] |= (255 & d.charCodeAt(m / 8)) << m % 32;
-  return _;
-}
-function V(d) {
-  for (var _ = "", m = 0; m < 32 * d.length; m += 8)
-    _ += String.fromCharCode(d[m >> 5] >>> m % 32 & 255);
-  return _;
-}
-function Y(d, _) {
-  d[_ >> 5] |= 128 << _ % 32, d[14 + (_ + 64 >>> 9 << 4)] = _;
-  for (var m = 1732584193, f = -271733879, r = -1732584194, i = 271733878, n = 0; n < d.length; n += 16) {
-    var h = m, t = f, g = r, e = i;
-    f = md5_ii(f = md5_ii(f = md5_ii(f = md5_ii(f = md5_hh(f = md5_hh(f = md5_hh(f = md5_hh(f = md5_gg(f = md5_gg(f = md5_gg(f = md5_gg(f = md5_ff(f = md5_ff(f = md5_ff(f = md5_ff(f, r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 0], 7, -680876936), f, r, d[n + 1], 12, -389564586), m, f, d[n + 2], 17, 606105819), i, m, d[n + 3], 22, -1044525330), r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 4], 7, -176418897), f, r, d[n + 5], 12, 1200080426), m, f, d[n + 6], 17, -1473231341), i, m, d[n + 7], 22, -45705983), r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 8], 7, 1770035416), f, r, d[n + 9], 12, -1958414417), m, f, d[n + 10], 17, -42063), i, m, d[n + 11], 22, -1990404162), r = md5_ff(r, i = md5_ff(i, m = md5_ff(m, f, r, i, d[n + 12], 7, 1804603682), f, r, d[n + 13], 12, -40341101), m, f, d[n + 14], 17, -1502002290), i, m, d[n + 15], 22, 1236535329), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 1], 5, -165796510), f, r, d[n + 6], 9, -1069501632), m, f, d[n + 11], 14, 643717713), i, m, d[n + 0], 20, -373897302), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 5], 5, -701558691), f, r, d[n + 10], 9, 38016083), m, f, d[n + 15], 14, -660478335), i, m, d[n + 4], 20, -405537848), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 9], 5, 568446438), f, r, d[n + 14], 9, -1019803690), m, f, d[n + 3], 14, -187363961), i, m, d[n + 8], 20, 1163531501), r = md5_gg(r, i = md5_gg(i, m = md5_gg(m, f, r, i, d[n + 13], 5, -1444681467), f, r, d[n + 2], 9, -51403784), m, f, d[n + 7], 14, 1735328473), i, m, d[n + 12], 20, -1926607734), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 5], 4, -378558), f, r, d[n + 8], 11, -2022574463), m, f, d[n + 11], 16, 1839030562), i, m, d[n + 14], 23, -35309556), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 1], 4, -1530992060), f, r, d[n + 4], 11, 1272893353), m, f, d[n + 7], 16, -155497632), i, m, d[n + 10], 23, -1094730640), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 13], 4, 681279174), f, r, d[n + 0], 11, -358537222), m, f, d[n + 3], 16, -722521979), i, m, d[n + 6], 23, 76029189), r = md5_hh(r, i = md5_hh(i, m = md5_hh(m, f, r, i, d[n + 9], 4, -640364487), f, r, d[n + 12], 11, -421815835), m, f, d[n + 15], 16, 530742520), i, m, d[n + 2], 23, -995338651), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 0], 6, -198630844), f, r, d[n + 7], 10, 1126891415), m, f, d[n + 14], 15, -1416354905), i, m, d[n + 5], 21, -57434055), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 12], 6, 1700485571), f, r, d[n + 3], 10, -1894986606), m, f, d[n + 10], 15, -1051523), i, m, d[n + 1], 21, -2054922799), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 8], 6, 1873313359), f, r, d[n + 15], 10, -30611744), m, f, d[n + 6], 15, -1560198380), i, m, d[n + 13], 21, 1309151649), r = md5_ii(r, i = md5_ii(i, m = md5_ii(m, f, r, i, d[n + 4], 6, -145523070), f, r, d[n + 11], 10, -1120210379), m, f, d[n + 2], 15, 718787259), i, m, d[n + 9], 21, -343485551), m = safe_add(m, h), f = safe_add(f, t), r = safe_add(r, g), i = safe_add(i, e);
-  }
-  return Array(m, f, r, i);
-}
-function md5_cmn(d, _, m, f, r, i) {
-  return safe_add(bit_rol(safe_add(safe_add(_, d), safe_add(f, i)), r), m);
-}
-function md5_ff(d, _, m, f, r, i, n) {
-  return md5_cmn(_ & m | ~_ & f, d, _, r, i, n);
-}
-function md5_gg(d, _, m, f, r, i, n) {
-  return md5_cmn(_ & f | m & ~f, d, _, r, i, n);
-}
-function md5_hh(d, _, m, f, r, i, n) {
-  return md5_cmn(_ ^ m ^ f, d, _, r, i, n);
-}
-function md5_ii(d, _, m, f, r, i, n) {
-  return md5_cmn(m ^ (_ | ~f), d, _, r, i, n);
-}
-function safe_add(d, _) {
-  var m = (65535 & d) + (65535 & _);
-  return (d >> 16) + (_ >> 16) + (m >> 16) << 16 | 65535 & m;
-}
-function bit_rol(d, _) {
-  return d << _ | d >>> 32 - _;
-}
-var SidebarHTML = '<div class="atk-sidebar">\n  <div class="atk-sidebar-inner">\n    <div class="atk-sidebar-header">\n      <span class="atk-avatar">\n        <span class="atk-site-logo"></span>\n      </span>\n      <span class="atk-menu">\n        <span class="atk-item atk-active atk-sidebar-title">\u63A7\u5236\u4E2D\u5FC3</span>\n      </span>\n      <div class="atk-sidebar-close"><i class="atk-icon atk-icon-close"></i></div>\n    </div>\n    <div class="atk-sidebar-nav">\n      <div class="akt-curt-view-btn">\n        <div class="atk-icon"><span></span><span></span><span></span></div>\n        <div class="atk-text"></div>\n      </div>\n      <div class="atk-tabs"></div>\n      <div class="atk-tabs atk-views" style="display: none;"></div>\n    </div>\n    <div class="atk-sidebar-view-wrap"></div>\n  </div>\n</div>\n';
-class SidebarView extends Component {
-  constructor(ctx, $parent) {
-    super(ctx);
-    __publicField(this, "viewTabs", {});
-    __publicField(this, "viewActiveTab", "");
-    __publicField(this, "$parent");
-    this.$parent = $parent;
-    this.$el = createElement(`<div class="atk-sidebar-view"></div>`);
-  }
-  mount(siteName) {
-  }
-  switchTab(tab, siteName) {
-  }
-}
-__publicField(SidebarView, "viewName", "");
-__publicField(SidebarView, "viewTitle", "");
-__publicField(SidebarView, "viewAdminOnly", false);
-class MessageView extends SidebarView {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "viewTabs", {});
-    __publicField(this, "viewActiveTab", "");
-    __publicField(this, "list");
-  }
-  mount(siteName) {
-    if (this.ctx.user.data.isAdmin) {
-      this.viewTabs = {
-        admin_all: "\u5168\u90E8",
-        admin_pending: "\u5F85\u5BA1",
-        all: "\u4E2A\u4EBA"
-      };
-      this.viewActiveTab = "admin_all";
-    } else {
-      this.viewTabs = {
-        mentions: "\u63D0\u53CA",
-        all: "\u5168\u90E8",
-        mine: "\u6211\u7684",
-        pending: "\u5F85\u5BA1"
-      };
-      this.viewActiveTab = "mentions";
-    }
-    this.list = new ListLite(this.ctx);
-    this.list.flatMode = true;
-    this.list.unreadHighlight = true;
-    this.list.scrollListenerAt = this.$parent;
-    this.list.pageMode = "pagination";
-    this.list.noCommentText = '<div class="atk-sidebar-no-content">\u65E0\u5185\u5BB9</div>';
-    this.list.renderComment = (comment2) => {
-      comment2.setOpenURL(`${comment2.data.page_key}#atk-comment-${comment2.data.id}`);
-      comment2.onReplyBtnClick = () => {
-        if (this.ctx.conf.editorTravel === true) {
-          this.ctx.trigger("editor-reply", { data: comment2.data, $el: comment2.$el, scroll: false });
-        } else {
-          this.ctx.trigger("sidebar-hide");
-          this.ctx.trigger("editor-reply", { data: comment2.data, $el: comment2.$el, scroll: true });
-        }
-      };
-    };
-    this.list.paramsEditor = (params) => {
-      params.site_name = siteName;
-    };
-    this.$el.innerHTML = "";
-    this.$el.append(this.list.$el);
-    this.switchTab(this.viewActiveTab, siteName);
-  }
-  switchTab(tab, siteName) {
-    this.viewActiveTab = tab;
-    this.list.paramsEditor = (params) => {
-      params.type = tab;
-      params.site_name = siteName;
-    };
-    this.list.fetchComments(0);
-    return true;
-  }
-}
-__publicField(MessageView, "viewName", "comments");
-__publicField(MessageView, "viewTitle", "\u8BC4\u8BBA");
-var pageList = "";
-var itemTextEditor = "";
-class ItemTextEditor {
-  constructor(conf) {
-    __publicField(this, "conf");
-    __publicField(this, "$el");
-    __publicField(this, "$input");
-    __publicField(this, "$yesBtn");
-    __publicField(this, "$noBtn");
-    __publicField(this, "value", "");
-    __publicField(this, "allowSubmit", true);
-    this.conf = conf;
-    this.$el = createElement(`<div class="atk-item-text-editor-layer">
-      <div class="atk-edit-form">
-        <input class="atk-main-input" type="text" placeholder="\u8F93\u5165\u5185\u5BB9..." autocomplete="off" autofocus>
-      </div>
-      <div class="atk-actions">
-        <div class="atk-item atk-yes-btn">
-          <i class="atk-icon atk-icon-yes"></i>
-        </div>
-        <div class="atk-item atk-no-btn">
-          <i class="atk-icon atk-icon-no"></i>
-        </div>
-      </div>
-    </div>`);
-    this.$input = this.$el.querySelector(".atk-main-input");
-    this.$yesBtn = this.$el.querySelector(".atk-yes-btn");
-    this.$noBtn = this.$el.querySelector(".atk-no-btn");
-    this.$input.value = conf.initValue || "";
-    this.value = conf.initValue || "";
-    if (this.conf.placeholder)
-      this.$input.placeholder = this.conf.placeholder;
-    this.$input.oninput = () => this.onInput();
-    this.$input.onkeyup = (evt) => {
-      if (evt.key === "Enter" || evt.keyCode === 13) {
-        evt.preventDefault();
-        this.submit();
-      }
-    };
-    window.setTimeout(() => this.$input.focus(), 80);
-    this.$yesBtn.onclick = () => {
-      this.submit();
-    };
-    this.$noBtn.onclick = () => {
-      this.cancel();
-    };
-  }
-  appendTo(parentDOM) {
-    parentDOM.append(this.$el);
-    return this;
-  }
-  onInput() {
-    this.value = this.$input.value;
-    if (this.conf.validator) {
-      const ok = this.conf.validator(this.value);
-      this.setAllowSubmit(ok);
-      if (!ok) {
-        this.$input.classList.add("atk-invalid");
-      } else {
-        this.$input.classList.remove("atk-invalid");
-      }
-    }
-  }
-  setAllowSubmit(allow) {
-    if (this.allowSubmit === allow)
-      return;
-    this.allowSubmit = allow;
-    if (!allow) {
-      this.$yesBtn.classList.add(".atk-disabled");
-    } else {
-      this.$yesBtn.classList.remove(".atk-disabled");
-    }
-  }
-  submit() {
-    return __async(this, null, function* () {
-      if (!this.allowSubmit)
-        return;
-      if (this.conf.onYes) {
-        let isContinue;
-        if (this.conf.onYes instanceof (() => __async(this, null, function* () {
-        })).constructor) {
-          isContinue = yield this.conf.onYes(this.value);
-        } else {
-          isContinue = this.conf.onYes(this.value);
-        }
-        if (isContinue === void 0 || isContinue === true) {
-          this.closeEditor();
-        }
-      } else {
-        this.closeEditor();
-      }
-    });
-  }
-  cancel() {
-    return __async(this, null, function* () {
-      if (this.conf.onNo) {
-        let isContinue;
-        if (this.conf.onNo instanceof (() => __async(this, null, function* () {
-        })).constructor) {
-          isContinue = yield this.conf.onNo();
-        } else {
-          isContinue = this.conf.onNo();
-        }
-        if (isContinue === void 0 || isContinue === true) {
-          this.closeEditor();
-        }
-      } else {
-        this.closeEditor();
-      }
-    });
-  }
-  closeEditor() {
-    this.$el.remove();
-  }
-}
-class PageList extends Component {
-  constructor(ctx) {
-    super(ctx);
-    __publicField(this, "$editor");
-    __publicField(this, "$inputer");
-    __publicField(this, "pages", []);
-    this.$el = createElement(`<div class="atk-page-list"></div>`);
-  }
-  clearAll() {
-    this.pages = [];
-    this.$el.innerHTML = "";
-  }
-  importPages(pages) {
-    this.pages.push(...pages);
-    pages.forEach((page) => {
-      const $page = this.renderPage(page);
-      this.$el.append($page);
-    });
-  }
-  renderPage(page) {
-    const $page = createElement(`<div class="atk-page-item">
-        <div class="atk-page-main">
-          <div class="atk-title"></div>
-          <div class="atk-sub"></div>
-        </div>
-        <div class="atk-page-actions">
-          <div class="atk-item atk-edit-btn">
-            <i class="atk-icon atk-icon-edit"></i>
-          </div>
-        </div>
-      </div>`);
-    const $main = $page.querySelector(".atk-page-main");
-    const $title = $main.querySelector(".atk-title");
-    const $sub = $main.querySelector(".atk-sub");
-    const $editBtn = $page.querySelector(".atk-edit-btn");
-    $title.innerText = page.title;
-    $sub.innerText = page.url || page.key;
-    $editBtn.onclick = () => this.showEditor(page, $page);
-    return $page;
-  }
-  showEditor(page, $page) {
-    this.closeEditor();
-    this.$editor = createElement(`<div class="atk-page-edit-layer">
-      <div class="atk-page-main-actions">
-        <div class="atk-item atk-title-edit-btn">\u6807\u9898\u4FEE\u6539</div>
-        <div class="atk-item atk-key-edit-btn">KEY \u53D8\u66F4</div>
-        <div class="atk-item atk-admin-only-btn"></div>
-      </div>
-      <div class="atk-page-actions">
-        <div class="atk-item atk-sync-btn">
-          <i class="atk-icon atk-icon-sync"></i>
-        </div>
-        <div class="atk-item atk-del-btn">
-          <i class="atk-icon atk-icon-del"></i>
-        </div>
-        <div class="atk-item atk-close-btn">
-          <i class="atk-icon atk-icon-close"></i>
-        </div>
-      </div>
-    </div>`);
-    $page.prepend(this.$editor);
-    const $titleEditBtn = this.$editor.querySelector(".atk-title-edit-btn");
-    const $keyEditBtn = this.$editor.querySelector(".atk-key-edit-btn");
-    const $adminOnlyBtn = this.$editor.querySelector(".atk-admin-only-btn");
-    const $syncBtn = this.$editor.querySelector(".atk-sync-btn");
-    const $delBtn = this.$editor.querySelector(".atk-del-btn");
-    const $closeBtn = this.$editor.querySelector(".atk-close-btn");
-    const showLoading$1 = () => {
-      showLoading(this.$editor);
-    };
-    const hideLoading$1 = () => {
-      hideLoading(this.$editor);
-    };
-    const showError = (msg) => {
-      window.alert(msg);
-    };
-    $closeBtn.onclick = () => this.closeEditor();
-    const openTextEditor = (key) => {
-      const textEditor = new ItemTextEditor({
-        initValue: page[key] || "",
-        onYes: (val) => __async(this, null, function* () {
-          showLoading(textEditor.$el);
-          let p;
-          try {
-            p = yield new Api(this.ctx).pageEdit(__spreadProps(__spreadValues({}, page), { [key]: val }));
-          } catch (err) {
-            showError(`\u4FEE\u6539\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
-            console.error(err);
-            return false;
-          } finally {
-            hideLoading(textEditor.$el);
-          }
-          $page.replaceWith(this.renderPage(p));
-          return true;
-        })
-      });
-      textEditor.appendTo(this.$editor);
-    };
-    $titleEditBtn.onclick = () => openTextEditor("title");
-    $keyEditBtn.onclick = () => openTextEditor("key");
-    const adminOnlyActionBtn = new ActionBtn({
-      text: () => {
-        $adminOnlyBtn.classList.remove("atk-green", "atk-yellow");
-        $adminOnlyBtn.classList.add(!page.admin_only ? "atk-green" : "atk-yellow");
-        return !page.admin_only ? "\u6240\u6709\u4EBA\u53EF\u8BC4" : "\u7BA1\u7406\u5458\u53EF\u8BC4";
-      }
-    }).appendTo($adminOnlyBtn);
-    $adminOnlyBtn.onclick = () => __async(this, null, function* () {
-      showLoading$1();
-      let p;
-      try {
-        p = yield new Api(this.ctx).pageEdit(__spreadProps(__spreadValues({}, page), { admin_only: !page.admin_only }));
-      } catch (err) {
-        showError(`\u4FEE\u6539\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
-        console.log(err);
-        return;
-      } finally {
-        hideLoading$1();
-      }
-      page.admin_only = p.admin_only;
-      adminOnlyActionBtn.updateText();
-    });
-    $syncBtn.onclick = () => __async(this, null, function* () {
-      showLoading$1();
-      let p;
-      try {
-        p = yield new Api(this.ctx).pageFetch(page.id);
-      } catch (err) {
-        showError(`\u540C\u6B65\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
-        console.log(err);
-        return;
-      } finally {
-        hideLoading$1();
-      }
-      $page.replaceWith(this.renderPage(p));
-    });
-    $delBtn.onclick = () => {
-      const del = () => __async(this, null, function* () {
-        showLoading$1();
-        try {
-          yield new Api(this.ctx).pageDel(page.key, page.site_name);
-        } catch (err) {
-          console.log(err);
-          showError(`\u5220\u9664\u5931\u8D25 ${String(err)}`);
-          return;
-        } finally {
-          hideLoading$1();
-        }
-        $page.remove();
-      });
-      if (window.confirm(`\u786E\u8BA4\u5220\u9664\u9875\u9762 "${page.title || page.key}"\uFF1F\u5C06\u4F1A\u5220\u9664\u6240\u6709\u76F8\u5173\u6570\u636E`))
-        del();
-    };
-  }
-  closeEditor() {
-    if (!this.$editor)
-      return;
-    this.$editor.remove();
-  }
-}
-const PAGE_SIZE = 20;
-class PagesView extends SidebarView {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "viewTabs", {});
-    __publicField(this, "viewActiveTab", "");
-    __publicField(this, "pageList");
-    __publicField(this, "pagination");
-  }
-  mount(siteName) {
-    if (!this.pageList) {
-      this.pageList = new PageList(this.ctx);
-      this.$el.append(this.pageList.$el);
-    }
-    this.switchTab(this.viewActiveTab, siteName);
-  }
-  switchTab(tab, siteName) {
-    this.reqPages(siteName, 0);
-  }
-  reqPages(siteName, offset) {
-    return __async(this, null, function* () {
-      var _a;
-      this.pageList.clearAll();
-      (_a = this.$el.parentNode) == null ? void 0 : _a.scrollTo(0, 0);
-      showLoading(this.$el);
-      const data = yield new Api(this.ctx).pageGet(siteName, offset, PAGE_SIZE);
-      this.pageList.importPages(data.pages || []);
-      hideLoading(this.$el);
-      if (!this.pagination) {
-        this.pagination = new Pagination(data.total, {
-          pageSize: PAGE_SIZE,
-          onChange: (o) => {
-            this.reqPages(siteName, o);
-          }
-        });
-        this.$el.append(this.pagination.$el);
-      }
-      if (this.pagination && offset === 0)
-        this.pagination.update(offset, data.total);
-    });
-  }
-}
-__publicField(PagesView, "viewName", "pages");
-__publicField(PagesView, "viewTitle", "\u9875\u9762");
-__publicField(PagesView, "viewAdminOnly", true);
-var siteList = "";
-class SiteList extends Component {
-  constructor(ctx) {
-    super(ctx);
-    __publicField(this, "sites", []);
-    __publicField(this, "$header");
-    __publicField(this, "$headerTitle");
-    __publicField(this, "$headerActions");
-    __publicField(this, "$rowsWrap");
-    __publicField(this, "$editor");
-    __publicField(this, "activeSite", "");
-    __publicField(this, "$add");
-    this.$el = createElement(`<div class="atk-site-list">
-      <div class="atk-header">
-        <div class="atk-title"></div>
-        <div class="atk-actions">
-          <div class="atk-item atk-site-add-btn"><i class="atk-icon atk-icon-plus"></i></div>
-        </div>
-      </div>
-      <div class="atk-site-rows-wrap"></div>
-    </div>`);
-    this.$header = this.$el.querySelector(".atk-header");
-    this.$headerTitle = this.$header.querySelector(".atk-title");
-    this.$headerActions = this.$header.querySelector(".atk-actions");
-    this.$rowsWrap = this.$el.querySelector(".atk-site-rows-wrap");
-    this.$headerTitle.innerText = `\u5171 0 \u4E2A\u7AD9\u70B9`;
-    const $addBtn = this.$headerActions.querySelector(".atk-site-add-btn");
-    $addBtn.onclick = () => {
-      this.closeEditor();
-      this.showAdd();
-    };
-  }
-  loadSites(sites) {
-    this.sites = sites;
-    this.activeSite = "";
-    this.$rowsWrap.innerHTML = "";
-    this.$headerTitle.innerText = `\u5171 0 \u4E2A\u7AD9\u70B9`;
-    let $row;
-    for (let i = 0; i < sites.length; i++) {
-      const site = sites[i];
-      if (i % 4 === 0) {
-        $row = createElement('<div class="atk-site-row">');
-        this.$rowsWrap.append($row);
-      }
-      const $site = this.renderSite(site, $row);
-      $row.append($site);
-    }
-    this.$headerTitle.innerText = `\u5171 ${sites.length} \u4E2A\u7AD9\u70B9`;
-  }
-  renderSite(site, $row) {
-    const $site = createElement(`<div class="atk-site-item">
-        <div class="atk-site-logo"></div>
-        <div class="atk-site-name"></div>
-      </div>`);
-    const $siteLogo = $site.querySelector(".atk-site-logo");
-    const $siteName = $site.querySelector(".atk-site-name");
-    const setActive = () => {
-      $site.classList.add("atk-active");
-    };
-    $siteLogo.innerText = site.name.substr(0, 1);
-    $siteName.innerText = site.name;
-    $site.onclick = () => {
-      this.closeEditor();
-      this.closeAdd();
-      setActive();
-      this.showEditor(site, $site, $row);
-    };
-    if (this.activeSite === site.name) {
-      setActive();
-    }
-    return $site;
-  }
-  showEditor(site, $site, $row) {
-    this.activeSite = site.name;
-    this.$editor = createElement(`
-    <div class="atk-site-edit">
-    <div class="atk-header">
-      <div class="atk-site-info">
-        <span class="atk-site-name"></span>
-        <span class="atk-site-urls"></span>
-      </div>
-      <div class="atk-close-btn">
-        <i class="atk-icon atk-icon-close"></i>
-      </div>
-    </div>
-    <div class="atk-main">
-      <div class="atk-site-text-actions">
-        <div class="atk-item atk-rename-btn">\u91CD\u547D\u540D</div>
-        <div class="atk-item atk-edit-url-btn">\u4FEE\u6539 URL</div>
-        <!--<div class="atk-item atk-export-btn">\u5BFC\u51FA</div>
-        <div class="atk-item atk-import-btn">\u5BFC\u5165</div>-->
-      </div>
-      <div class="atk-site-btn-actions">
-        <div class="atk-item atk-del-btn">
-          <i class="atk-icon atk-icon-del"></i>
-        </div>
-      </div>
-    </div>
-    </div>`);
-    $row.before(this.$editor);
-    const $siteName = this.$editor.querySelector(".atk-site-name");
-    const $siteUrls = this.$editor.querySelector(".atk-site-urls");
-    const $closeBtn = this.$editor.querySelector(".atk-close-btn");
-    $closeBtn.onclick = () => this.closeEditor();
-    const update = (s) => {
-      var _a;
-      site = s;
-      $siteName.innerText = site.name;
-      $siteName.onclick = () => {
-        if (site.first_url)
-          window.open(site.first_url);
-      };
-      $siteUrls.innerHTML = "";
-      (_a = site.urls) == null ? void 0 : _a.forEach((u) => {
-        const $item = createElement('<span class="atk-url-item"></span>');
-        $siteUrls.append($item);
-        $item.innerText = (u || "").replace(/\/$/, "");
-        $item.onclick = () => {
-          window.open(u);
-        };
-      });
-    };
-    update(site);
-    const $main = this.$editor.querySelector(".atk-main");
-    const $actions = this.$editor.querySelector(".atk-site-text-actions");
-    const $renameBtn = $actions.querySelector(".atk-rename-btn");
-    const $editUrlBtn = $actions.querySelector(".atk-edit-url-btn");
-    const $delBtn = this.$editor.querySelector(".atk-del-btn");
-    const showLoading$1 = () => {
-      showLoading(this.$editor);
-    };
-    const hideLoading$1 = () => {
-      hideLoading(this.$editor);
-    };
-    const showError = (msg) => {
-      window.alert(msg);
-    };
-    const openTextEditor = (key) => {
-      let initValue = site[key] || "";
-      if (key === "urls")
-        initValue = site.urls_raw || "";
-      const textEditor = new ItemTextEditor({
-        initValue,
-        onYes: (val) => __async(this, null, function* () {
-          showLoading(textEditor.$el);
-          let s;
-          try {
-            s = yield new Api(this.ctx).siteEdit(__spreadProps(__spreadValues({}, site), { [key]: val }));
-          } catch (err) {
-            showError(`\u4FEE\u6539\u5931\u8D25\uFF1A${err.msg || "\u672A\u77E5\u9519\u8BEF"}`);
-            console.error(err);
-            return false;
-          } finally {
-            hideLoading(textEditor.$el);
-          }
-          $site.replaceWith(this.renderSite(s, $row));
-          update(s);
-          return true;
-        })
-      });
-      textEditor.appendTo($main);
-    };
-    $renameBtn.onclick = () => openTextEditor("name");
-    $editUrlBtn.onclick = () => openTextEditor("urls");
-    $delBtn.onclick = () => {
-      const del = () => __async(this, null, function* () {
-        showLoading$1();
-        try {
-          yield new Api(this.ctx).siteDel(site.id, true);
-        } catch (err) {
-          console.log(err);
-          showError(`\u5220\u9664\u5931\u8D25 ${String(err)}`);
-          return;
-        } finally {
-          hideLoading$1();
-        }
-        this.closeEditor();
-        $site.remove();
-        this.sites = this.sites.filter((s) => s.name !== site.name);
-      });
-      if (window.confirm(`\u786E\u8BA4\u5220\u9664\u7AD9\u70B9 "${site.name}"\uFF1F\u5C06\u4F1A\u5220\u9664\u6240\u6709\u76F8\u5173\u6570\u636E`))
-        del();
-    };
-  }
-  closeEditor() {
-    if (!this.$editor)
-      return;
-    this.$editor.remove();
-    this.$rowsWrap.querySelectorAll(".atk-site-item").forEach((e) => e.classList.remove("atk-active"));
-    this.activeSite = "";
-  }
-  showAdd() {
-    this.closeAdd();
-    this.$add = createElement(`
-    <div class="atk-site-add">
-    <div class="atk-header">
-      <div class="atk-title">\u65B0\u589E\u7AD9\u70B9</div>
-      <div class="atk-close-btn">
-        <i class="atk-icon atk-icon-close"></i>
-      </div>
-    </div>
-    <div class="atk-form">
-      <input type="text" name="AtkSiteName" placeholder="\u7AD9\u70B9\u540D\u79F0" autocomplete="off">
-      <input type="text" name="AtkSiteUrls" placeholder="\u7AD9\u70B9 URL\uFF08\u591A\u4E2A\u7528\u9017\u53F7\u9694\u5F00\uFF09" autocomplete="off">
-      <button class="atk-btn" name="AtkSubmit">\u521B\u5EFA</button>
-    </div>
-    </div>`);
-    this.$header.after(this.$add);
-    const $closeBtn = this.$add.querySelector(".atk-close-btn");
-    $closeBtn.onclick = () => this.closeAdd();
-    const $siteName = this.$add.querySelector('[name="AtkSiteName"]');
-    const $siteUrls = this.$add.querySelector('[name="AtkSiteUrls"]');
-    const $submitBtn = this.$add.querySelector('[name="AtkSubmit"]');
-    $submitBtn.onclick = () => __async(this, null, function* () {
-      const siteName = $siteName.value.trim();
-      const siteUrls = $siteUrls.value.trim();
-      if (siteName === "") {
-        $siteName.focus();
-        return;
-      }
-      showLoading(this.$add);
-      let s;
-      try {
-        s = yield new Api(this.ctx).siteAdd(siteName, siteUrls);
-      } catch (err) {
-        window.alert(`\u521B\u5EFA\u5931\u8D25\uFF1A${err.msg || ""}`);
-        console.error(err);
-        return;
-      } finally {
-        hideLoading(this.$add);
-      }
-      this.sites.push(s);
-      this.loadSites(this.sites);
-      this.closeAdd();
-    });
-    const keyDown = (evt) => {
-      if (evt.key === "Enter") {
-        $submitBtn.click();
-      }
-    };
-    $siteName.onkeyup = (evt) => keyDown(evt);
-    $siteUrls.onkeyup = (evt) => keyDown(evt);
-  }
-  closeAdd() {
-    var _a;
-    (_a = this.$add) == null ? void 0 : _a.remove();
-  }
-}
-class SitesView extends SidebarView {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "viewTabs", {});
-    __publicField(this, "viewActiveTab", "");
-    __publicField(this, "siteList");
-  }
-  mount(siteName) {
-    if (!this.siteList) {
-      this.siteList = new SiteList(this.ctx);
-      this.$el.append(this.siteList.$el);
-    }
-    this.reqSites();
-  }
-  switchTab(tab, siteName) {
-    this.reqSites();
-  }
-  reqSites() {
-    return __async(this, null, function* () {
-      const sites = yield new Api(this.ctx).siteGet();
-      this.siteList.loadSites(sites);
-    });
-  }
-}
-__publicField(SitesView, "viewName", "sites");
-__publicField(SitesView, "viewTitle", "\u7AD9\u70B9");
-__publicField(SitesView, "viewAdminOnly", true);
-class TransferView extends SidebarView {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "\xDF");
-    __publicField(this, "viewTabs", {
-      "import": "\u5BFC\u5165",
-      "export": "\u5BFC\u51FA"
-    });
-    __publicField(this, "viewActiveTab", "import");
-  }
-  mount(siteName) {
-    this.switchTab("import", siteName);
-  }
-  switchTab(tab, siteName) {
-    if (tab === "import") {
-      this.initImport();
-    } else if (tab === "export") {
-      this.initExport();
-      return false;
-    }
-    return true;
-  }
-  initImport() {
-    this.$el.innerHTML = `<div class="atk-log-wrap" style="display: none;">
-      <div class="atk-log-back-btn">\u8FD4\u56DE</div>
-      <div class="atk-log"></div>
-    </div>
-    <div class="atk-form">
-    <div class="atk-label">\u6570\u636E\u7C7B\u578B</div>
-    <select name="AtkDataType">
-      <option value="artrans">Artrans (\u6570\u636E\u884C\u56CA)</option>
-      <option value="artalk_v1">Artalk v1 (PHP \u65E7\u7248)</option>
-      <option value="typecho">Typecho</option>
-      <option value="wordpress">WordPress</option>
-      <option value="disqus">Disqus</option>
-      <option value="commento">Commento</option>
-      <option value="valine">Valine</option>
-      <option value="twikoo">Twikoo</option>
-    </select>
-    <div class="atk-label atk-data-file-label">\u6570\u636E\u6587\u4EF6</div>
-    <input type="file" name="AtkDataFile" accept="text/plain,.json">
-    <div class="atk-label">\u76EE\u6807\u7AD9\u70B9\u540D</div>
-    <input type="text" name="AtkSiteName" placeholder="\u8F93\u5165\u5185\u5BB9..." autocomplete="off">
-    <div class="atk-label">\u76EE\u6807\u7AD9\u70B9 URL</div>
-    <input type="text" name="AtkSiteURL" placeholder="\u8F93\u5165\u5185\u5BB9..." autocomplete="off">
-    <div class="atk-label">\u542F\u52A8\u53C2\u6570\uFF08\u53EF\u9009\uFF09</div>
-    <textarea name="AtkPayload"></textarea>
-    <span class="atk-desc">\u542F\u52A8\u53C2\u6570\u67E5\u9605\uFF1A\u201C<a href="https://artalk.js.org/guide/transfer.html" target="_blank">\u6587\u6863 \xB7 \u6570\u636E\u642C\u5BB6</a>\u201D</span>
-    <button class="atk-btn" name="AtkSubmit">\u5BFC\u5165</button>
-    </div>`;
-    const $form = this.$el.querySelector(".atk-form");
-    const $dataType = $form.querySelector('[name="AtkDataType"]');
-    const $dataFile = $form.querySelector('[name="AtkDataFile"]');
-    const $dataFileLabel = $form.querySelector(".atk-data-file-label");
-    const $siteName = $form.querySelector('[name="AtkSiteName"]');
-    const $siteURL = $form.querySelector('[name="AtkSiteURL"]');
-    const $payload = $form.querySelector('[name="AtkPayload"]');
-    const $submitBtn = $form.querySelector('[name="AtkSubmit"]');
-    const setError2 = (msg) => window.alert(msg);
-    $dataType.onchange = () => {
-      if (["typecho"].includes($dataType.value)) {
-        $dataFile.style.display = "none";
-        $dataFileLabel.style.display = "none";
-      } else {
-        $dataFile.style.display = "";
-        $dataFileLabel.style.display = "";
-      }
-    };
-    $submitBtn.onclick = () => {
-      var _a;
-      const dataType = $dataType.value.trim();
-      const siteName = $siteName.value.trim();
-      const siteURL = $siteURL.value.trim();
-      const payload = $payload.value.trim();
-      if (dataType === "") {
-        setError2("\u8BF7\u9009\u62E9\u6570\u636E\u7C7B\u578B");
-        return;
-      }
-      let rData = {};
-      if (payload) {
-        try {
-          rData = JSON.parse(payload);
-        } catch (err) {
-          setError2(`Payload JSON \u683C\u5F0F\u6709\u8BEF\uFF1A${String(err)}`);
-          return;
-        }
-        if (rData instanceof Object) {
-          setError2(`Payload \u9700\u4E3A JSON \u5BF9\u8C61`);
-          return;
-        }
-      }
-      if (siteName)
-        rData.t_name = siteName;
-      if (siteURL)
-        rData.t_url = siteURL;
-      const createSession = (dataStr) => {
-        const $logWrap = this.$el.querySelector(".atk-log-wrap");
-        const $log = $logWrap.querySelector(".atk-log");
-        const $backBtn = this.$el.querySelector(".atk-log-back-btn");
-        $logWrap.style.display = "";
-        $form.style.display = "none";
-        $backBtn.onclick = () => {
-          $logWrap.style.display = "none";
-          $form.style.display = "";
-        };
-        if (dataStr)
-          rData.json_data = dataStr;
-        const frameName = `f_${+new Date()}`;
-        const $frame = document.createElement("iframe");
-        $frame.className = "atk-iframe";
-        $frame.name = frameName;
-        $log.innerHTML = "";
-        $log.append($frame);
-        const formParams = {
-          type: dataType,
-          payload: JSON.stringify(rData),
-          token: this.ctx.user.data.token || ""
-        };
-        const $formTmp = document.createElement("form");
-        $formTmp.style.display = "none";
-        $formTmp.setAttribute("method", "post");
-        $formTmp.setAttribute("action", `${this.ctx.conf.server}/admin/import`);
-        $formTmp.setAttribute("target", frameName);
-        Object.entries(formParams).forEach(([key, val]) => {
-          const $inputTmp = document.createElement("input");
-          $inputTmp.setAttribute("type", "hidden");
-          $inputTmp.setAttribute("name", key);
-          $inputTmp.value = val;
-          $formTmp.appendChild($inputTmp);
-        });
-        $logWrap.append($formTmp);
-        $formTmp.submit();
-        $formTmp.remove();
-      };
-      const reader = new FileReader();
-      reader.onload = () => {
-        const data = String(reader.result);
-        createSession(data);
-      };
-      if ((_a = $dataFile.files) == null ? void 0 : _a.length) {
-        reader.readAsText($dataFile.files[0]);
-      } else {
-        createSession();
-      }
-    };
-  }
-  initExport() {
-    return __async(this, null, function* () {
-      showLoading(this.$el);
-      try {
-        const d = yield new Api(this.ctx).export();
-        this.download(`artrans-${this.getYmdHisFilename()}.json`, d);
-      } catch (err) {
-        console.log(err);
-        window.alert(`${String(err)}`);
-        return;
-      } finally {
-        hideLoading(this.$el);
-      }
-    });
-  }
-  download(filename, text) {
-    const el = document.createElement("a");
-    el.setAttribute("href", `data:text/json;charset=utf-8,${encodeURIComponent(text)}`);
-    el.setAttribute("download", filename);
-    el.style.display = "none";
-    document.body.appendChild(el);
-    el.click();
-    document.body.removeChild(el);
-  }
-  getYmdHisFilename() {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-    return `${year}${month}${day}-${hours}${padWithZeros(minutes, 2)}${padWithZeros(seconds, 2)}`;
-  }
-}
-__publicField(TransferView, "viewName", "transfer");
-__publicField(TransferView, "viewTitle", "\u8FC1\u79FB");
-__publicField(TransferView, "viewAdminOnly", true);
-class SiteListFloater {
-  constructor(ctx, conf) {
-    __publicField(this, "ctx");
-    __publicField(this, "conf");
-    __publicField(this, "$el");
-    __publicField(this, "sites", []);
-    __publicField(this, "$sites");
-    __publicField(this, "outsideChecker");
-    this.ctx = ctx;
-    this.conf = conf;
-    this.$el = createElement(`<div class="atk-site-list-floater" style="display: none;">
-      <div class="atk-sites"></div>
-    </div>`);
-    this.$sites = this.$el.querySelector(".atk-sites");
-  }
-  load(selectedSite) {
-    return __async(this, null, function* () {
-      this.$sites.innerHTML = "";
-      const renderSiteItem = (siteName, siteLogo, siteTarget, onclick) => {
-        const $site = createElement(`<div class="atk-site-item">
-          <div class="atk-site-logo"></div>
-          <div class="atk-site-name"></div>
-        </div>`);
-        $site.onclick = !onclick ? () => this.switch(siteTarget || siteName) : () => onclick();
-        $site.setAttribute("data-name", siteTarget || siteName);
-        const $siteLogo = $site.querySelector(".atk-site-logo");
-        const $siteName = $site.querySelector(".atk-site-name");
-        $siteLogo.innerText = siteLogo;
-        $siteName.innerText = siteName;
-        if (selectedSite === (siteTarget || siteName))
-          $site.classList.add("atk-active");
-        this.$sites.append($site);
-      };
-      renderSiteItem("\u6240\u6709\u7AD9\u70B9", "_", "__ATK_SITE_ALL");
-      const sites = yield new Api(this.ctx).siteGet();
-      sites.forEach((site) => {
-        renderSiteItem(site.name, site.name.substr(0, 1));
-      });
-      renderSiteItem("\u7AD9\u70B9\u7BA1\u7406", "+", "", () => {
-        this.conf.onClickSitesViewBtn();
-        this.hide();
-      });
-    });
-  }
-  switch(siteName) {
-    if (this.conf.onSwitchSite(siteName) === false) {
-      return;
-    }
-    this.$sites.querySelectorAll(".atk-site-item").forEach((e) => {
-      if (e.getAttribute("data-name") !== siteName) {
-        e.classList.remove("atk-active");
-      } else {
-        e.classList.add("atk-active");
-      }
-    });
-    this.hide();
-  }
-  show($trigger) {
-    this.$el.style.display = "";
-    if ($trigger) {
-      this.outsideChecker = (evt) => {
-        const isClickInside = $trigger.contains(evt.target) || this.$el.contains(evt.target);
-        if (!isClickInside) {
-          this.hide();
-        }
-      };
-      document.addEventListener("click", this.outsideChecker);
-    }
-  }
-  hide() {
-    this.$el.style.display = "none";
-    if (this.outsideChecker)
-      document.removeEventListener("click", this.outsideChecker);
-  }
-}
-const DEFAULT_VIEW = "comments";
-const REGISTER_VIEWS = [
-  MessageView,
-  PagesView,
-  SitesView,
-  TransferView
-];
-class Sidebar extends Component {
+var sidebarLayer = "";
+var SidebarHTML = '<div class="atk-sidebar-layer">\n  <div class="atk-sidebar-inner">\n    <div class="atk-sidebar-header">\n      <div class="atk-sidebar-close"><i class="atk-icon atk-icon-close"></i></div>\n    </div>\n    <div class="atk-sidebar-iframe-wrap"></div>\n  </div>\n</div>\n';
+class SidebarLayer extends Component {
   constructor(ctx) {
     super(ctx);
     __publicField(this, "layer");
     __publicField(this, "$header");
-    __publicField(this, "$headerMenu");
-    __publicField(this, "$title");
-    __publicField(this, "$avatar");
-    __publicField(this, "$siteLogo");
     __publicField(this, "$closeBtn");
-    __publicField(this, "$nav");
-    __publicField(this, "$curtViewBtn");
-    __publicField(this, "$curtViewBtnIcon");
-    __publicField(this, "$curtViewBtnText");
-    __publicField(this, "$navTabs");
-    __publicField(this, "$navViews");
-    __publicField(this, "$viewWrap");
-    __publicField(this, "siteSwitcher");
-    __publicField(this, "curtSite");
-    __publicField(this, "curtView", DEFAULT_VIEW);
-    __publicField(this, "curtTab");
-    __publicField(this, "viewInstances", {});
-    __publicField(this, "viewSwitcherShow", false);
+    __publicField(this, "$iframeWrap");
+    __publicField(this, "$iframe");
     __publicField(this, "firstShow", true);
+    __publicField(this, "loadingTimer", null);
     this.$el = createElement(SidebarHTML);
     this.$header = this.$el.querySelector(".atk-sidebar-header");
-    this.$headerMenu = this.$header.querySelector(".atk-menu");
-    this.$title = this.$header.querySelector(".atk-sidebar-title");
-    this.$avatar = this.$header.querySelector(".atk-avatar");
     this.$closeBtn = this.$header.querySelector(".atk-sidebar-close");
-    this.$nav = this.$el.querySelector(".atk-sidebar-nav");
-    this.$curtViewBtn = this.$nav.querySelector(".akt-curt-view-btn");
-    this.$curtViewBtnIcon = this.$curtViewBtn.querySelector(".atk-icon");
-    this.$curtViewBtnText = this.$curtViewBtn.querySelector(".atk-text");
-    this.$navTabs = this.$nav.querySelector(".atk-tabs");
-    this.$navViews = this.$nav.querySelector(".atk-views");
-    this.$viewWrap = this.$el.querySelector(".atk-sidebar-view-wrap");
-    this.initViewSwitcher();
+    this.$iframeWrap = this.$el.querySelector(".atk-sidebar-iframe-wrap");
     this.$closeBtn.onclick = () => {
       this.hide();
     };
@@ -6538,111 +5569,36 @@ class Sidebar extends Component {
       this.firstShow = true;
     });
   }
-  get isAdmin() {
-    return this.ctx.user.data.isAdmin;
-  }
-  get curtViewInstance() {
-    return this.curtView ? this.viewInstances[this.curtView] : void 0;
-  }
-  initViewSwitcher() {
-    this.$curtViewBtn.onclick = () => {
-      this.toggleViewSwitcher();
-    };
-    this.$navViews.innerHTML = "";
-    REGISTER_VIEWS.forEach((view) => {
-      const $item = createElement(`<div class="atk-tab-item"></div>`);
-      this.$navViews.append($item);
-      $item.setAttribute("data-name", view.viewName);
-      $item.innerText = view.viewTitle;
-      if (view.viewName === this.curtView) {
-        $item.classList.add("atk-active");
-        this.$curtViewBtnText.innerText = view.viewTitle;
-      }
-      $item.onclick = () => {
-        this.switchView(view.viewName);
-        this.toggleViewSwitcher();
-      };
-    });
-  }
-  toggleViewSwitcher() {
-    if (!this.viewSwitcherShow) {
-      this.$navViews.style.display = "";
-      this.$navTabs.style.display = "none";
-      this.$curtViewBtnIcon.classList.add("atk-arrow");
-    } else {
-      this.$navViews.style.display = "none";
-      this.$navTabs.style.display = "";
-      this.$curtViewBtnIcon.classList.remove("atk-arrow");
-    }
-    this.viewSwitcherShow = !this.viewSwitcherShow;
-  }
   show() {
     return __async(this, null, function* () {
       this.$el.style.transform = "";
-      this.layer = new Layer(this.ctx, "sidebar", this.$el);
-      this.layer.afterHide = () => {
-        if (this.ctx.conf.editorTravel === true) {
-          this.ctx.trigger("editor-travel-back");
-        }
-      };
+      if (this.layer == null) {
+        this.layer = new Layer(this.ctx, "sidebar", this.$el);
+        this.layer.afterHide = () => {
+          if (this.ctx.conf.editorTravel === true) {
+            this.ctx.trigger("editor-travel-back");
+          }
+        };
+      }
       this.layer.show();
-      this.$viewWrap.scrollTo(0, 0);
       setTimeout(() => {
         this.$el.style.transform = "translate(0, 0)";
       }, 20);
       if (this.firstShow) {
-        if (this.isAdmin) {
-          this.$title.innerText = "\u63A7\u5236\u4E2D\u5FC3";
-          this.$curtViewBtn.style.display = "";
-          if (!this.siteSwitcher) {
-            this.siteSwitcher = new SiteListFloater(this.ctx, {
-              onSwitchSite: (siteName) => {
-                this.switchSite(siteName);
-              },
-              onClickSitesViewBtn: () => {
-                this.switchView("sites");
-              }
-            });
-            this.$viewWrap.before(this.siteSwitcher.$el);
-            this.$avatar.onclick = (evt) => {
-              var _a;
-              if (!this.isAdmin)
-                return;
-              (_a = this.siteSwitcher) == null ? void 0 : _a.show(evt.target);
-            };
-          }
-          this.curtSite = this.conf.site;
-          showLoading(this.$el);
-          try {
-            yield this.siteSwitcher.load(this.curtSite);
-          } catch (err) {
-            const $err = createElement(`<span>\u52A0\u8F7D\u5931\u8D25\uFF1A${err.msg || "\u7F51\u7EDC\u9519\u8BEF"}<br/></span>`);
-            const $retryBtn = createElement('<span style="cursor:pointer;">\u70B9\u51FB\u91CD\u65B0\u83B7\u53D6</span>');
-            $err.appendChild($retryBtn);
-            $retryBtn.onclick = () => {
-              setError(this.$el, null);
-              this.show();
-            };
-            setError(this.$el, $err);
-            return;
-          } finally {
-            hideLoading(this.$el);
-          }
-          this.$avatar.innerHTML = "";
-          this.$siteLogo = createElement('<div class="atk-site-logo"></div>');
-          this.$siteLogo.innerText = (this.curtSite || "").substr(0, 1);
-          this.$avatar.append(this.$siteLogo);
-        } else {
-          this.$title.innerText = "\u901A\u77E5\u4E2D\u5FC3";
-          this.$curtViewBtn.style.display = "none";
-          this.curtSite = this.conf.site;
-          const $avatarImg = document.createElement("img");
-          $avatarImg.src = getGravatarURL(this.ctx, MD5(this.ctx.user.data.email.toLowerCase()));
-          this.$avatar.innerHTML = "";
-          this.$avatar.append($avatarImg);
-        }
-        this.switchView(DEFAULT_VIEW);
+        this.$iframeWrap.innerHTML = "";
+        this.$iframe = createElement("<iframe></iframe>");
+        const baseURL = `${this.conf.server.replace(/\/$/, "")}/../sidebar/`;
+        const userData = encodeURIComponent(JSON.stringify(this.ctx.user.data));
+        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}${this.conf.darkMode ? `&darkMode=1` : ``}`);
+        this.$iframeWrap.append(this.$iframe);
         this.firstShow = false;
+      } else {
+        if (this.conf.darkMode && !this.$iframe.src.match(/darkMode=1$/)) {
+          this.iframeLoad(`${this.$iframe.src}&darkMode=1`);
+        }
+        if (!this.conf.darkMode && this.$iframe.src.match(/darkMode=1$/)) {
+          this.iframeLoad(this.$iframe.src.replace(/&darkMode=1$/, ""));
+        }
       }
     });
   }
@@ -6651,57 +5607,39 @@ class Sidebar extends Component {
     this.$el.style.transform = "";
     (_a = this.layer) == null ? void 0 : _a.hide();
   }
-  switchView(viewName) {
-    let view = this.viewInstances[viewName];
-    if (!view) {
-      const View = REGISTER_VIEWS.find((o) => o.viewName === viewName);
-      view = new View(this.ctx, this.$viewWrap);
-      this.viewInstances[viewName] = view;
-    }
-    view.mount(this.curtSite);
-    this.curtView = viewName;
-    this.curtTab = view.viewActiveTab;
-    this.$curtViewBtnText.innerText = view.constructor.viewTitle;
-    this.$navViews.querySelectorAll(".atk-tab-item").forEach((e) => {
-      if (e.getAttribute("data-name") === viewName) {
-        e.classList.add("atk-active");
-      } else {
-        e.classList.remove("atk-active");
-      }
-    });
-    this.loadViewTabs(view);
-    this.$viewWrap.innerHTML = "";
-    this.$viewWrap.append(view.$el);
-    this.$viewWrap.classList.forEach((c) => {
-      if (c.startsWith("atk-view-name-"))
-        this.$viewWrap.classList.remove(c);
-    });
-    this.$viewWrap.classList.add(`atk-view-name-${view.constructor.viewName}`);
+  iframeLoad(src) {
+    if (!this.$iframe)
+      return;
+    this.$iframe.src = src;
+    showLoading(this.$iframeWrap);
+    this.$iframe.onload = () => {
+      hideLoading(this.$iframeWrap);
+    };
+    this.checkReqStatus(src);
   }
-  loadViewTabs(view) {
-    this.$navTabs.innerHTML = "";
-    Object.entries(view.viewTabs).forEach(([tabName, label]) => {
-      const $tab = createElement(`<div class="atk-tab-item"></div>`);
-      this.$navTabs.append($tab);
-      $tab.innerText = label;
-      if (view.viewActiveTab === tabName)
-        $tab.classList.add("atk-active");
-      $tab.onclick = () => {
-        if (view.switchTab(tabName, this.curtSite) === false) {
-          return;
+  checkReqStatus(url) {
+    return __async(this, null, function* () {
+      if (this.loadingTimer !== null)
+        window.clearTimeout(this.loadingTimer);
+      this.loadingTimer = window.setTimeout(() => __async(this, null, function* () {
+        try {
+          yield fetch(url);
+        } catch (err) {
+          console.log(err);
+          const $errAlert = createElement(`<div class="atk-err-alert">  <div class="atk-title">\u4FA7\u8FB9\u680F\u4F3C\u4E4E\u6253\u5F00\u5931\u8D25</div>  <div class="atk-text"><span id="AtkReload">\u91CD\u65B0\u52A0\u8F7D</span> / <span id="AtkCancel">\u53D6\u6D88</span></div></div>`);
+          const $reloadBtn = $errAlert.querySelector("#AtkReload");
+          const $cancelBtn = $errAlert.querySelector("#AtkCancel");
+          $reloadBtn.onclick = () => {
+            this.iframeLoad(url);
+            $errAlert.remove();
+          };
+          $cancelBtn.onclick = () => {
+            $errAlert.remove();
+          };
+          this.$iframeWrap.append($errAlert);
         }
-        this.$navTabs.querySelectorAll(".atk-active").forEach((e) => e.classList.remove("atk-active"));
-        $tab.classList.add("atk-active");
-        this.curtTab = tabName;
-      };
+      }), 2e3);
     });
-  }
-  switchSite(siteName) {
-    this.curtSite = siteName;
-    const curtView = this.curtViewInstance;
-    curtView == null ? void 0 : curtView.switchTab(this.curtTab, siteName);
-    if (this.$siteLogo)
-      this.$siteLogo.innerText = this.curtSite.substr(0, 1);
   }
 }
 const _Artalk = class {
@@ -6712,7 +5650,7 @@ const _Artalk = class {
     __publicField(this, "checkerLauncher");
     __publicField(this, "editor");
     __publicField(this, "list");
-    __publicField(this, "sidebar");
+    __publicField(this, "sidebarLayer");
     this.conf = __spreadValues(__spreadValues({}, _Artalk.defaults), customConf);
     this.conf.server = this.conf.server.replace(/\/$/, "");
     if (!this.conf.pageKey) {
@@ -6736,8 +5674,8 @@ const _Artalk = class {
     this.$root.appendChild(this.editor.$el);
     this.list = new List(this.ctx);
     this.$root.appendChild(this.list.$el);
-    this.sidebar = new Sidebar(this.ctx);
-    this.$root.appendChild(this.sidebar.$el);
+    this.sidebarLayer = new SidebarLayer(this.ctx);
+    this.$root.appendChild(this.sidebarLayer.$el);
     this.list.fetchComments(0);
     this.initEventBind();
   }

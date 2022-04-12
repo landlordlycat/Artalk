@@ -4640,6 +4640,14 @@ class Comment extends Component {
     delBtn.setClick(() => {
       this.adminDelete(delBtn);
     });
+    const pinnedBtn = new ActionBtn({
+      text: () => this.data.is_pinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876",
+      adminOnly: true
+    });
+    pinnedBtn.appendTo(this.$actions);
+    pinnedBtn.setClick(() => {
+      this.adminEdit("pinned", pendingBtn);
+    });
   }
   refreshUI() {
     const originalEl = this.$el;
@@ -4750,6 +4758,8 @@ class Comment extends Component {
       modify.is_collapsed = !modify.is_collapsed;
     } else if (type === "pending") {
       modify.is_pending = !modify.is_pending;
+    } else if (type === "pinned") {
+      modify.is_pinned = !modify.is_pinned;
     }
     new Api(this.ctx).commentEdit(modify).then((comment2) => {
       btnElem.setLoading(false);

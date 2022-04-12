@@ -4061,7 +4061,7 @@ class Editor extends Component {
   }
 }
 var list = "";
-var ListHTML = '<div class="atk-list">\n  <div class="atk-list-header">\n    <div class="atk-comment-count">\n      <span class="atk-comment-count-num">0</span>\n      \u6761\u8BC4\u8BBA\n    </div>\n    <div class="atk-right-action">\n      <span data-action="admin-close-comment" class="atk-hide" atk-only-admin-show>\u5173\u95ED\u8BC4\u8BBA</span>\n      <span data-action="open-sidebar" class="atk-hide atk-on">\n        <span class="atk-unread-badge" style="display: none;"></span>\n        <div class="atk-text">\u901A\u77E5\u4E2D\u5FC3</div>\n      </span>\n    </div>\n  </div>\n  <div class="atk-list-body"></div>\n  <div class="atk-list-footer">\n    <div class="atk-copyright"></div>\n  </div>\n</div>\n';
+var ListHTML = '<div class="atk-list">\n  <div class="atk-list-header">\n    <div class="atk-comment-count">\n      <div class="atk-text">\n        <span class="atk-comment-count-num">0</span>\n        \u6761\u8BC4\u8BBA\n      </div>\n    </div>\n    <div class="atk-right-action">\n      <span data-action="admin-close-comment" class="atk-hide" atk-only-admin-show>\u5173\u95ED\u8BC4\u8BBA</span>\n      <span data-action="open-sidebar" class="atk-hide atk-on">\n        <span class="atk-unread-badge" style="display: none;"></span>\n        <div class="atk-text">\u901A\u77E5\u4E2D\u5FC3</div>\n      </span>\n    </div>\n  </div>\n  <div class="atk-list-body"></div>\n  <div class="atk-list-footer">\n    <div class="atk-copyright"></div>\n  </div>\n</div>\n';
 var comment = "";
 var win = window || {};
 var nav = navigator || {};
@@ -5415,9 +5415,9 @@ class ListLite extends Component {
   }
   versionCheck(versionData) {
     const needVersion = (versionData == null ? void 0 : versionData.fe_min_version) || "0.0.0";
-    const needUpdate = versionCompare(needVersion, "2.1.5") === 1;
+    const needUpdate = versionCompare(needVersion, "2.1.6") === 1;
     if (needUpdate) {
-      const errEl = createElement(`<div>\u524D\u7AEF Artalk \u7248\u672C\u5DF2\u8FC7\u65F6\uFF0C\u8BF7\u66F4\u65B0\u4EE5\u83B7\u5F97\u5B8C\u6574\u4F53\u9A8C<br/>\u82E5\u60A8\u662F\u7AD9\u70B9\u7BA1\u7406\u5458\uFF0C\u8BF7\u524D\u5F80 \u201C<a href="https://artalk.js.org/" target="_blank">\u5B98\u65B9\u6587\u6863</a>\u201D \u83B7\u53D6\u5E2E\u52A9<br/><br/><span style="color: var(--at-color-meta);">\u524D\u7AEF\u7248\u672C ${"2.1.5"}\uFF0C\u9700\u6C42\u7248\u672C >= ${needVersion}</span><br/><br/></div>`);
+      const errEl = createElement(`<div>\u524D\u7AEF Artalk \u7248\u672C\u5DF2\u8FC7\u65F6\uFF0C\u8BF7\u66F4\u65B0\u4EE5\u83B7\u5F97\u5B8C\u6574\u4F53\u9A8C<br/>\u82E5\u60A8\u662F\u7AD9\u70B9\u7BA1\u7406\u5458\uFF0C\u8BF7\u524D\u5F80 \u201C<a href="https://artalk.js.org/" target="_blank">\u5B98\u65B9\u6587\u6863</a>\u201D \u83B7\u53D6\u5E2E\u52A9<br/><br/><span style="color: var(--at-color-meta);">\u524D\u7AEF\u7248\u672C ${"2.1.6"}\uFF0C\u9700\u6C42\u7248\u672C >= ${needVersion}</span><br/><br/></div>`);
       const ignoreBtn = createElement('<span style="cursor:pointer;">\u5FFD\u7565</span>');
       ignoreBtn.onclick = () => {
         setError(this.ctx, null);
@@ -5438,6 +5438,8 @@ class List extends ListLite {
     __publicField(this, "$closeCommentBtn");
     __publicField(this, "$openSidebarBtn");
     __publicField(this, "$unreadBadge");
+    __publicField(this, "$commentCount");
+    __publicField(this, "$dropdownWrap");
     el.querySelector(".atk-list-body").append(this.$el);
     this.$el = el;
     let flatMode = false;
@@ -5452,7 +5454,9 @@ class List extends ListLite {
     this.pageSize = ((_b = this.conf.pagination) == null ? void 0 : _b.pageSize) || 20;
     this.repositionAt = this.$el;
     this.initListActionBtn();
-    this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.1.5"}">Artalk</a>`;
+    this.$commentCount = this.$el.querySelector(".atk-comment-count");
+    this.initDropdown();
+    this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.1.6"}">Artalk</a>`;
     this.ctx.on("list-reload", () => this.fetchComments(0));
     this.ctx.on("list-refresh-ui", () => this.refreshUI());
     this.ctx.on("list-import", (data) => this.importComments(data));
@@ -5554,6 +5558,67 @@ class List extends ListLite {
     } else {
       this.$unreadBadge.style.display = "none";
     }
+  }
+  initDropdown() {
+    this.$dropdownWrap = this.$commentCount;
+    this.$commentCount.classList.add("atk-dropdown-wrap");
+    this.$commentsWrap.append(createElement(`<span class="atk-arrow-down-icon"></span>`));
+    const reloadUseParamsEditor = (func) => {
+      this.paramsEditor = (p) => {
+        func(p);
+      };
+      this.fetchComments(0);
+    };
+    const dropdownList = [
+      ["\u6700\u65B0", () => {
+        reloadUseParamsEditor((p) => {
+          p.sort_by = "date_desc";
+        });
+      }],
+      ["\u6700\u70ED", () => {
+        reloadUseParamsEditor((p) => {
+          p.sort_by = "vote";
+        });
+      }],
+      ["\u6700\u65E9", () => {
+        reloadUseParamsEditor((p) => {
+          p.sort_by = "date_asc";
+        });
+      }],
+      ["\u4F5C\u8005", () => {
+        reloadUseParamsEditor((p) => {
+          p.view_only_admin = true;
+        });
+      }]
+    ];
+    let curtActive = 0;
+    const onItemClick = (i, $item, name, action) => {
+      action();
+      curtActive = i;
+      $dropdown.querySelectorAll(".active").forEach((e) => {
+        e.classList.remove("active");
+      });
+      $item.classList.add("active");
+      $dropdown.style.display = "none";
+      setTimeout(() => {
+        $dropdown.style.display = "";
+      }, 80);
+    };
+    const $dropdown = createElement(`<ul class="atk-dropdown atk-fade-in"></ul>`);
+    dropdownList.forEach((item, i) => {
+      const name = item[0];
+      const action = item[1];
+      const $item = createElement(`<li class="atk-dropdown-item"><span></span></li>`);
+      const $link = $item.querySelector("span");
+      $link.innerText = name;
+      $link.onclick = () => {
+        onItemClick(i, $item, name, action);
+      };
+      $dropdown.append($item);
+      if (i === curtActive)
+        $item.classList.add("active");
+    });
+    this.$dropdownWrap.append($dropdown);
   }
 }
 var sidebarLayer = "";

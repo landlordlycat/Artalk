@@ -5576,7 +5576,7 @@ class List extends ListLite {
   initDropdown() {
     this.$dropdownWrap = this.$commentCount;
     this.$commentCount.classList.add("atk-dropdown-wrap");
-    this.$commentsWrap.append(createElement(`<span class="atk-arrow-down-icon"></span>`));
+    this.$dropdownWrap.append(createElement(`<span class="atk-arrow-down-icon"></span>`));
     const reloadUseParamsEditor = (func) => {
       this.paramsEditor = (p) => {
         func(p);

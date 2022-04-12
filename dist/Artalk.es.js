@@ -102,6 +102,7 @@ const defaults$3 = {
   vote: true,
   voteDown: false,
   uaBadge: true,
+  pvEl: "#ArtalkPV",
   flatMode: "auto",
   maxNesting: 3,
   gravatar: {
@@ -3288,6 +3289,17 @@ class Api {
     }
     return POST(this.ctx, `${this.baseURL}/mark-read`, params);
   }
+  pv() {
+    return __async(this, null, function* () {
+      const params = {
+        site_name: this.ctx.conf.site || "",
+        page_key: this.ctx.conf.pageKey || "",
+        page_title: this.ctx.conf.pageTitle || ""
+      };
+      const p = yield POST(this.ctx, `${this.baseURL}/pv`, params);
+      return p.pv;
+    });
+  }
   captchaGet() {
     return __async(this, null, function* () {
       const data = yield GET(this.ctx, `${this.baseURL}/captcha/refresh`);
@@ -5677,6 +5689,7 @@ const _Artalk = class {
     this.$root.appendChild(this.sidebarLayer.$el);
     this.list.fetchComments(0);
     this.initEventBind();
+    this.initPV();
   }
   initEventBind() {
     window.addEventListener("hashchange", () => {
@@ -5722,6 +5735,17 @@ const _Artalk = class {
   setDarkMode(darkMode) {
     this.ctx.conf.darkMode = darkMode;
     this.initDarkMode();
+  }
+  initPV() {
+    return __async(this, null, function* () {
+      if (!this.conf.pvEl || !document.querySelector(this.conf.pvEl))
+        return;
+      const $pv = document.querySelector(this.conf.pvEl);
+      const pvNum = yield new Api(this.ctx).pv();
+      if (Number.isNaN(Number(pvNum)))
+        return;
+      $pv.innerText = String(pvNum);
+    });
   }
   on(name, handler) {
     this.ctx.on(name, handler, "external");

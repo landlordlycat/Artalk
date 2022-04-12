@@ -5701,6 +5701,9 @@ const _Artalk = class {
       const { $wrap: $layerWrap } = GetLayerWrap(this.ctx);
       if ($layerWrap)
         $layerWrap.querySelectorAll(`[atk-only-admin-show]`).forEach((item) => items.push(item));
+      const $sidebarEl = document.querySelector(".atk-sidebar");
+      if ($sidebarEl)
+        $sidebarEl.querySelectorAll(`[atk-only-admin-show]`).forEach((item) => items.push(item));
       items.forEach(($item) => {
         if (this.ctx.user.data.isAdmin)
           $item.classList.remove("atk-hide");

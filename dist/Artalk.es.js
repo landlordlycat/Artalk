@@ -5615,7 +5615,6 @@ class SidebarLayer extends Component {
     this.$iframe.onload = () => {
       hideLoading(this.$iframeWrap);
     };
-    this.checkReqStatus(src);
   }
   checkReqStatus(url) {
     return __async(this, null, function* () {

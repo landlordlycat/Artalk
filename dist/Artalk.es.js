@@ -4527,6 +4527,10 @@ class Comment extends Component {
     } else {
       $badge.remove();
     }
+    if (this.data.is_pinned) {
+      const $pinnedBadge = createElement(`<span class="atk-item atk-pinned-badge">\u7F6E\u9876</span>`);
+      $nick.insertAdjacentElement("afterend", $pinnedBadge);
+    }
     const $date = this.$el.querySelector(".atk-date");
     $date.innerText = this.getDateFormatted();
     $date.setAttribute("data-atk-comment-date", String(+new Date(this.data.date)));

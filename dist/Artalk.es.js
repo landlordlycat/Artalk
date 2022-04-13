@@ -118,6 +118,7 @@ const defaults$3 = {
     content: 300,
     children: 400
   },
+  imgUpload: true,
   reqTimeout: 15e3,
   versionCheck: true
 };
@@ -3300,6 +3301,25 @@ class Api {
       return p.pv;
     });
   }
+  imgUpload(file) {
+    return __async(this, null, function* () {
+      const params = {
+        name: this.ctx.user.data.nick,
+        email: this.ctx.user.data.email,
+        page_key: this.ctx.conf.pageKey
+      };
+      if (this.ctx.conf.site)
+        params.site_name = this.ctx.conf.site;
+      const form = ToFormData(params);
+      form.set("file", file);
+      const init = {
+        method: "POST",
+        body: form
+      };
+      const json = yield Fetch(this.ctx, `${this.baseURL}/img-upload`, init);
+      return json.data || {};
+    });
+  }
   captchaGet() {
     return __async(this, null, function* () {
       const data = yield GET(this.ctx, `${this.baseURL}/captcha/refresh`);
@@ -3723,6 +3743,7 @@ class Editor extends Component {
     __publicField(this, "$plugWrap");
     __publicField(this, "$bottom");
     __publicField(this, "$plugBtnWrap");
+    __publicField(this, "$imgUploadBtn");
     __publicField(this, "$submitBtn");
     __publicField(this, "$notifyWrap");
     __publicField(this, "replyComment", null);
@@ -3733,6 +3754,7 @@ class Editor extends Component {
       abortFunc: null
     });
     __publicField(this, "openedPlugName", null);
+    __publicField(this, "allowImgExts", ["png", "jpg", "jpeg", "gif", "bmp", "svg", "webp"]);
     this.$el = createElement(EditorHTML);
     this.$header = this.$el.querySelector(".atk-header");
     this.$textareaWrap = this.$el.querySelector(".atk-textarea-wrap");
@@ -3756,6 +3778,7 @@ class Editor extends Component {
     this.ctx.on("editor-notify", (f) => this.showNotify(f.msg, f.type));
     this.ctx.on("editor-travel", ($el) => this.travel($el));
     this.ctx.on("editor-travel-back", () => this.travelBack());
+    this.ctx.on("conf-updated", () => this.refreshUploadBtn());
   }
   get user() {
     return this.ctx.user;
@@ -3854,7 +3877,7 @@ class Editor extends Component {
     this.openedPlugName = null;
     this.$plugBtnWrap.innerHTML = "";
     this.LOADABLE_PLUG_LIST.forEach((PlugObj) => {
-      const btnElem = createElement(`<span class="atk-plug-btn">${PlugObj.BtnHTML}</span>`);
+      const btnElem = createElement(`<span class="atk-plug-btn" data-plug-name="${PlugObj.Name}">${PlugObj.BtnHTML}</span>`);
       this.$plugBtnWrap.appendChild(btnElem);
       btnElem.addEventListener("click", () => {
         let plug = this.plugList[PlugObj.Name];
@@ -3890,11 +3913,80 @@ class Editor extends Component {
         btnElem.classList.add("active");
       });
     });
+    this.initImgUploadBtn();
   }
   closePlug() {
     this.$plugWrap.innerHTML = "";
     this.$plugWrap.style.display = "none";
     this.openedPlugName = null;
+  }
+  initImgUploadBtn() {
+    this.$imgUploadBtn = createElement(`<span class="atk-plug-btn">\u56FE\u7247</span>`);
+    this.$plugBtnWrap.querySelector('[data-plug-name="preview"]').before(this.$imgUploadBtn);
+    this.$imgUploadBtn.onclick = () => {
+      const $input = document.createElement("input");
+      $input.type = "file";
+      $input.accept = this.allowImgExts.map((o) => `.${o}`).join(",");
+      $input.onchange = () => {
+        (() => __async(this, null, function* () {
+          if (!$input.files || $input.files.length === 0)
+            return;
+          const file = $input.files[0];
+          this.uploadImg(file);
+        }))();
+      };
+      $input.click();
+    };
+    this.$textarea.addEventListener("dragover", (evt) => {
+      evt.stopPropagation();
+      evt.preventDefault();
+    });
+    this.$textarea.addEventListener("drop", (evt) => {
+      var _a;
+      if ((_a = evt.dataTransfer) == null ? void 0 : _a.files) {
+        evt.preventDefault();
+        for (let i = 0; i < evt.dataTransfer.files.length; i++) {
+          const file = evt.dataTransfer.files[i];
+          this.uploadImg(file);
+        }
+      }
+    });
+  }
+  refreshUploadBtn() {
+    if (!this.$imgUploadBtn)
+      return;
+    if (!this.ctx.conf.imgUpload) {
+      this.$imgUploadBtn.setAttribute("atk-only-admin-show", "");
+      this.ctx.trigger("check-admin-show-el");
+    }
+  }
+  uploadImg(file) {
+    return __async(this, null, function* () {
+      const fileExt = /[^.]+$/.exec(file.name);
+      if (!fileExt || !this.allowImgExts.includes(fileExt[0]))
+        return;
+      const uploadPlaceholderTxt = `
+![](Uploading ${file.name}...)`;
+      this.insertContent(uploadPlaceholderTxt);
+      let resp;
+      try {
+        resp = yield new Api(this.ctx).imgUpload(file);
+      } catch (err) {
+        console.error(err);
+        this.showNotify(`\u56FE\u7247\u4E0A\u4F20\u5931\u8D25\uFF0C${err.msg}`, "e");
+      }
+      if (!!resp && resp.img_url) {
+        let imgURL = resp.img_url;
+        if (imgURL.startsWith(".") || imgURL.startsWith("/") && !imgURL.startsWith("//")) {
+          imgURL = `${this.ctx.conf.server.replace(/\/api\/?$/, "")}/${imgURL.replace(/^\//, "")}`;
+        }
+        this.$textarea.value = this.$textarea.value.replace(uploadPlaceholderTxt, `
+![](${imgURL})`);
+      } else {
+        this.$textarea.value = this.$textarea.value.replace(uploadPlaceholderTxt, "");
+      }
+      this.saveContent();
+    });
   }
   insertContent(val) {
     if (document.selection) {
@@ -5158,11 +5250,15 @@ class ListLite extends Component {
     this.data = data;
     if (this.ctx.conf.versionCheck && this.versionCheck(data.api_version))
       return;
+    if (data.conf && typeof data.conf.img_upload === "boolean") {
+      this.ctx.conf.imgUpload = data.conf.img_upload;
+    }
     this.importComments(data.comments);
     this.refreshPagination(offset, this.flatMode ? data.total : data.total_roots);
     this.refreshUI();
     this.ctx.trigger("unread-update", { notifies: data.unread || [] });
     this.ctx.trigger("comments-loaded");
+    this.ctx.trigger("conf-updated");
     if (this.onAfterLoad)
       this.onAfterLoad(data);
   }
@@ -5436,6 +5532,7 @@ class ListLite extends Component {
       ignoreBtn.onclick = () => {
         setError(this.ctx, null);
         this.ctx.conf.versionCheck = false;
+        this.ctx.trigger("conf-updated");
         this.fetchComments(0);
       };
       errEl.append(ignoreBtn);
@@ -5816,6 +5913,7 @@ const _Artalk = class {
   }
   setDarkMode(darkMode) {
     this.ctx.conf.darkMode = darkMode;
+    this.ctx.trigger("conf-updated");
     this.initDarkMode();
   }
   initPV() {

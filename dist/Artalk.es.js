@@ -103,6 +103,7 @@ const defaults$3 = {
   vote: true,
   voteDown: false,
   uaBadge: true,
+  listSort: true,
   pvEl: "#ArtalkPV",
   flatMode: "auto",
   maxNesting: 3,
@@ -5595,7 +5596,9 @@ class List extends ListLite {
     this.repositionAt = this.$el;
     this.initListActionBtn();
     this.$commentCount = this.$el.querySelector(".atk-comment-count");
-    this.initDropdown();
+    if (this.ctx.conf.listSort) {
+      this.initDropdown();
+    }
     this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.1.8"}">Artalk</a>`;
     this.ctx.on("list-reload", () => this.fetchComments(0));
     this.ctx.on("list-refresh-ui", () => this.refreshUI());

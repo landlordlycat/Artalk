@@ -2711,6 +2711,18 @@ function getCorrectUserAgent() {
     return uaRaw;
   });
 }
+function isValidURL(urlRaw) {
+  let url;
+  try {
+    url = new URL(urlRaw);
+  } catch (_) {
+    return false;
+  }
+  return url.protocol === "http:" || url.protocol === "https:";
+}
+function getURLBasedOnApi(ctx, path) {
+  return `${ctx.conf.server.replace(/\/api\/?$/, "")}/${path.replace(/^\//, "")}`;
+}
 function showLoading(parentElem) {
   if (parentElem instanceof Context)
     parentElem = parentElem.$root;
@@ -3977,9 +3989,8 @@ class Editor extends Component {
       }
       if (!!resp && resp.img_url) {
         let imgURL = resp.img_url;
-        if (imgURL.startsWith(".") || imgURL.startsWith("/") && !imgURL.startsWith("//")) {
-          imgURL = `${this.ctx.conf.server.replace(/\/api\/?$/, "")}/${imgURL.replace(/^\//, "")}`;
-        }
+        if (!isValidURL(imgURL))
+          imgURL = getURLBasedOnApi(this.ctx, imgURL);
         this.$textarea.value = this.$textarea.value.replace(uploadPlaceholderTxt, `
 ![](${imgURL})`);
       } else {
@@ -5775,9 +5786,10 @@ class SidebarLayer extends Component {
       if (this.firstShow) {
         this.$iframeWrap.innerHTML = "";
         this.$iframe = createElement("<iframe></iframe>");
-        const baseURL = `${this.conf.server.replace(/\/$/, "")}/../sidebar/`;
+        const baseURL = getURLBasedOnApi(this.ctx, "sidebar/");
         const userData = encodeURIComponent(JSON.stringify(this.ctx.user.data));
-        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}${this.conf.darkMode ? `&darkMode=1` : ``}`);
+        const location = window.location;
+        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}&referer=${encodeURIComponent(`${location.protocol}//${location.host}${location.pathname}`)}${this.conf.darkMode ? `&darkMode=1` : ``}`);
         this.$iframeWrap.append(this.$iframe);
         this.firstShow = false;
       } else {

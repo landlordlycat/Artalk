@@ -68,6 +68,7 @@ class Context {
     __publicField(this, "conf");
     __publicField(this, "user");
     __publicField(this, "eventList", []);
+    __publicField(this, "markedInstance");
     this.cid = +new Date();
     this.$root = rootEl;
     this.conf = conf;
@@ -2655,37 +2656,36 @@ function versionCompare(a, b) {
   }
   return 0;
 }
-let markedInstance;
+function initMarked(ctx) {
+  const renderer = new marked$1.Renderer();
+  const linkRenderer = renderer.link;
+  renderer.link = (href, title, text) => {
+    const localLink = href == null ? void 0 : href.startsWith(`${window.location.protocol}//${window.location.hostname}`);
+    const html = linkRenderer.call(renderer, href, title, text);
+    return html.replace(/^<a /, `<a target="_blank" ${!localLink ? `rel="noreferrer noopener nofollow"` : ""} `);
+  };
+  const nMarked = marked$1;
+  marked$1.setOptions({
+    renderer,
+    highlight: (code) => hanabi(code),
+    pedantic: false,
+    gfm: true,
+    breaks: true,
+    smartLists: true,
+    smartypants: true,
+    xhtml: false,
+    sanitize: true,
+    sanitizer: (html) => insane_1(html, __spreadProps(__spreadValues({}, insane_1.defaults), {
+      allowedAttributes: __spreadProps(__spreadValues({}, insane_1.defaults.allowedAttributes), {
+        img: ["src", "atk-emoticon"]
+      })
+    })),
+    silent: true
+  });
+  ctx.markedInstance = nMarked;
+}
 function marked(ctx, src) {
-  if (!markedInstance) {
-    const renderer = new marked$1.Renderer();
-    const linkRenderer = renderer.link;
-    renderer.link = (href, title, text) => {
-      const localLink = href == null ? void 0 : href.startsWith(`${window.location.protocol}//${window.location.hostname}`);
-      const html = linkRenderer.call(renderer, href, title, text);
-      return html.replace(/^<a /, `<a target="_blank" ${!localLink ? `rel="noreferrer noopener nofollow"` : ""} `);
-    };
-    const nMarked = marked$1;
-    marked$1.setOptions({
-      renderer,
-      highlight: (code) => hanabi(code),
-      pedantic: false,
-      gfm: true,
-      breaks: true,
-      smartLists: true,
-      smartypants: true,
-      xhtml: false,
-      sanitize: true,
-      sanitizer: (html) => insane_1(html, __spreadProps(__spreadValues({}, insane_1.defaults), {
-        allowedAttributes: __spreadProps(__spreadValues({}, insane_1.defaults.allowedAttributes), {
-          img: ["src", "atk-emoticon"]
-        })
-      })),
-      silent: true
-    });
-    markedInstance = nMarked;
-  }
-  return markedInstance.parse(src);
+  return ctx.markedInstance.parse(src);
 }
 function getCorrectUserAgent() {
   return __async(this, null, function* () {
@@ -5857,6 +5857,7 @@ const _Artalk = class {
     this.$root.innerHTML = "";
     this.initDarkMode();
     this.checkerLauncher = new CheckerLauncher(this.ctx);
+    initMarked(this.ctx);
     this.editor = new Editor(this.ctx);
     this.$root.appendChild(this.editor.$el);
     this.list = new List(this.ctx);
@@ -5866,6 +5867,11 @@ const _Artalk = class {
     this.list.fetchComments(0);
     this.initEventBind();
     this.initPV();
+    _Artalk.Plugins.forEach((plugin) => {
+      if (typeof plugin === "function") {
+        plugin(this.ctx);
+      }
+    });
   }
   initEventBind() {
     window.addEventListener("hashchange", () => {
@@ -5936,7 +5942,11 @@ const _Artalk = class {
   trigger(name, payload) {
     this.ctx.trigger(name, payload, "external");
   }
+  static Use(plugin) {
+    this.Plugins.push(plugin);
+  }
 };
 let Artalk = _Artalk;
 __publicField(Artalk, "defaults", defaults$3);
+__publicField(Artalk, "Plugins", []);
 export { Artalk as default };

@@ -3925,14 +3925,14 @@ class Editor extends Component {
         btnElem.classList.add("active");
       });
     });
-    this.initImgUploadBtn();
+    this.initImgUpload();
   }
   closePlug() {
     this.$plugWrap.innerHTML = "";
     this.$plugWrap.style.display = "none";
     this.openedPlugName = null;
   }
-  initImgUploadBtn() {
+  initImgUpload() {
     this.$imgUploadBtn = createElement(`<span class="atk-plug-btn">\u56FE\u7247</span>`);
     this.$plugBtnWrap.querySelector('[data-plug-name="preview"]').before(this.$imgUploadBtn);
     this.$imgUploadBtn.onclick = () => {
@@ -3949,18 +3949,32 @@ class Editor extends Component {
       };
       $input.click();
     };
+    const uploadFromFileList = (files) => {
+      if (!files)
+        return;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        this.uploadImg(file);
+      }
+    };
     this.$textarea.addEventListener("dragover", (evt) => {
       evt.stopPropagation();
       evt.preventDefault();
     });
     this.$textarea.addEventListener("drop", (evt) => {
       var _a;
-      if ((_a = evt.dataTransfer) == null ? void 0 : _a.files) {
+      const files = (_a = evt.dataTransfer) == null ? void 0 : _a.files;
+      if (files == null ? void 0 : files.length) {
         evt.preventDefault();
-        for (let i = 0; i < evt.dataTransfer.files.length; i++) {
-          const file = evt.dataTransfer.files[i];
-          this.uploadImg(file);
-        }
+        uploadFromFileList(files);
+      }
+    });
+    this.$textarea.addEventListener("paste", (evt) => {
+      var _a;
+      const files = (_a = evt.clipboardData) == null ? void 0 : _a.files;
+      if (files == null ? void 0 : files.length) {
+        evt.preventDefault();
+        uploadFromFileList(files);
       }
     });
   }

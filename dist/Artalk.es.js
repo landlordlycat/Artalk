@@ -3977,6 +3977,10 @@ class Editor extends Component {
       const fileExt = /[^.]+$/.exec(file.name);
       if (!fileExt || !this.allowImgExts.includes(fileExt[0]))
         return;
+      if (!this.ctx.user.checkHasBasicUserInfo()) {
+        this.showNotify("\u586B\u5165\u4F60\u7684\u540D\u5B57\u90AE\u7BB1\u624D\u80FD\u4E0A\u4F20\u54E6", "w");
+        return;
+      }
       let insertPrefix = "\n";
       if (this.$textarea.value.trim() === "")
         insertPrefix = "";

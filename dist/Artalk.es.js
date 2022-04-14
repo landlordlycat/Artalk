@@ -3977,8 +3977,10 @@ class Editor extends Component {
       const fileExt = /[^.]+$/.exec(file.name);
       if (!fileExt || !this.allowImgExts.includes(fileExt[0]))
         return;
-      const uploadPlaceholderTxt = `
-![](Uploading ${file.name}...)`;
+      let insertPrefix = "\n";
+      if (this.$textarea.value.trim() === "")
+        insertPrefix = "";
+      const uploadPlaceholderTxt = `${insertPrefix}![](Uploading ${file.name}...)`;
       this.insertContent(uploadPlaceholderTxt);
       let resp;
       try {
@@ -3991,12 +3993,10 @@ class Editor extends Component {
         let imgURL = resp.img_url;
         if (!isValidURL(imgURL))
           imgURL = getURLBasedOnApi(this.ctx, imgURL);
-        this.$textarea.value = this.$textarea.value.replace(uploadPlaceholderTxt, `
-![](${imgURL})`);
+        this.setContent(this.$textarea.value.replace(uploadPlaceholderTxt, `${insertPrefix}![](${imgURL})`));
       } else {
-        this.$textarea.value = this.$textarea.value.replace(uploadPlaceholderTxt, "");
+        this.setContent(this.$textarea.value.replace(uploadPlaceholderTxt, ""));
       }
-      this.saveContent();
     });
   }
   insertContent(val) {
@@ -4030,7 +4030,7 @@ class Editor extends Component {
     this.setContent("");
     this.cancelReply();
   }
-  getContent() {
+  getFinalContent() {
     let content = this.getContentOriginal();
     if (this.plugList && this.plugList.emoticons) {
       const emoticonsPlug2 = this.plugList.emoticons;
@@ -4042,7 +4042,7 @@ class Editor extends Component {
     return this.$textarea.value || "";
   }
   getContentMarked() {
-    return marked(this.ctx, this.getContent());
+    return marked(this.ctx, this.getFinalContent());
   }
   initBottomPart() {
     this.initReply();
@@ -4091,7 +4091,7 @@ class Editor extends Component {
   }
   submit() {
     return __async(this, null, function* () {
-      if (this.getContent().trim() === "") {
+      if (this.getFinalContent().trim() === "") {
         this.$textarea.focus();
         return;
       }
@@ -4099,7 +4099,7 @@ class Editor extends Component {
       showLoading(this.$el);
       try {
         const nComment = yield new Api(this.ctx).add({
-          content: this.getContent(),
+          content: this.getFinalContent(),
           nick: this.user.data.nick,
           email: this.user.data.email,
           link: this.user.data.link,

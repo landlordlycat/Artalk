@@ -3084,14 +3084,6 @@ function POST(ctx, url, data) {
     return json.data || {};
   });
 }
-function GET(ctx, url, data) {
-  return __async(this, null, function* () {
-    const json = yield Fetch(ctx, url + (data ? `?${new URLSearchParams(data)}` : ""), {
-      method: "GET"
-    });
-    return json.data || {};
-  });
-}
 function ToFormData(object) {
   const formData = new FormData();
   Object.keys(object).forEach((key) => formData.append(key, String(object[key])));
@@ -3208,7 +3200,7 @@ class Api {
   }
   loginStatus() {
     return __async(this, null, function* () {
-      const data = yield GET(this.ctx, `${this.baseURL}/login-status`);
+      const data = yield POST(this.ctx, `${this.baseURL}/login-status`);
       return data || { is_login: false };
     });
   }
@@ -3351,19 +3343,19 @@ class Api {
   }
   captchaGet() {
     return __async(this, null, function* () {
-      const data = yield GET(this.ctx, `${this.baseURL}/captcha/refresh`);
+      const data = yield POST(this.ctx, `${this.baseURL}/captcha/refresh`);
       return data.img_data || "";
     });
   }
   captchaCheck(value) {
     return __async(this, null, function* () {
-      const data = yield GET(this.ctx, `${this.baseURL}/captcha/check`, { value });
+      const data = yield POST(this.ctx, `${this.baseURL}/captcha/check`, { value });
       return data.img_data || "";
     });
   }
   captchaStatus() {
     return __async(this, null, function* () {
-      const data = yield GET(this.ctx, `${this.baseURL}/captcha/status`);
+      const data = yield POST(this.ctx, `${this.baseURL}/captcha/status`);
       return data || { is_pass: false };
     });
   }

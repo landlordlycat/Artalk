@@ -2724,7 +2724,7 @@ function isValidURL(urlRaw) {
 function getURLBasedOnApi(ctx, path) {
   return `${ctx.conf.server.replace(/\/api\/?$/, "")}/${path.replace(/^\//, "")}`;
 }
-function showLoading(parentElem) {
+function showLoading(parentElem, conf) {
   if (parentElem instanceof Context)
     parentElem = parentElem.$root;
   let $loading = parentElem.querySelector(".atk-loading");
@@ -2734,6 +2734,8 @@ function showLoading(parentElem) {
         <svg viewBox="25 25 50 50"><circle cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"></circle></svg>
       </div>
     </div>`);
+    if (conf == null ? void 0 : conf.transparentBg)
+      $loading.style.background = "transparent";
     parentElem.appendChild($loading);
   }
   $loading.style.display = "";
@@ -2900,11 +2902,7 @@ const _Layer = class extends Component {
       if (this.maskClickHideEnable)
         this.hide();
     };
-    this.bodyStyleOrgOverflow = document.body.style.overflow;
-    this.bodyStyleOrgPaddingRight = document.body.style.paddingRight;
-    document.body.style.overflow = "hidden";
-    const bpr = parseInt(window.getComputedStyle(document.body, null).getPropertyValue("padding-right"), 10);
-    document.body.style.paddingRight = `${getScrollBarWidth() + bpr || 0}px`;
+    this.pageBodyScrollBarHide();
   }
   hide() {
     if (this.afterHide)
@@ -2913,8 +2911,7 @@ const _Layer = class extends Component {
     this.$el.style.display = "none";
     this.newActionTimer(() => {
       this.$wrap.style.display = "none";
-      document.body.style.overflow = this.bodyStyleOrgOverflow;
-      document.body.style.paddingRight = this.bodyStyleOrgPaddingRight;
+      this.pageBodyScrollBarShow();
       this.checkCleanLayer();
     }, 450);
     this.newActionTimer(() => {
@@ -2924,6 +2921,17 @@ const _Layer = class extends Component {
   }
   setMaskClickHide(enable) {
     this.maskClickHideEnable = enable;
+  }
+  pageBodyScrollBarHide() {
+    this.bodyStyleOrgOverflow = document.body.style.overflow;
+    this.bodyStyleOrgPaddingRight = document.body.style.paddingRight;
+    document.body.style.overflow = "hidden";
+    const bpr = parseInt(window.getComputedStyle(document.body, null).getPropertyValue("padding-right"), 10);
+    document.body.style.paddingRight = `${getScrollBarWidth() + bpr || 0}px`;
+  }
+  pageBodyScrollBarShow() {
+    document.body.style.overflow = this.bodyStyleOrgOverflow;
+    document.body.style.paddingRight = this.bodyStyleOrgPaddingRight;
   }
   newActionTimer(func, delay) {
     const act = () => {
@@ -2942,6 +2950,7 @@ const _Layer = class extends Component {
   disposeNow() {
     document.body.style.overflow = "";
     this.$el.remove();
+    this.pageBodyScrollBarShow();
     this.checkCleanLayer();
   }
   dispose() {
@@ -3032,6 +3041,7 @@ function Fetch(ctx, input, init, timeout) {
         json = yield new Promise((resolve, reject) => {
           ctx.trigger("checker-captcha", {
             imgData: json.data.img_data,
+            iframe: json.data.iframe,
             onSuccess: () => {
               recall(resolve, reject);
             },
@@ -3196,6 +3206,12 @@ class Api {
       }
     };
   }
+  loginStatus() {
+    return __async(this, null, function* () {
+      const data = yield GET(this.ctx, `${this.baseURL}/login-status`);
+      return data || { is_login: false };
+    });
+  }
   pageGet(siteName, offset, limit) {
     return __async(this, null, function* () {
       const params = {
@@ -3345,13 +3361,64 @@ class Api {
       return data.img_data || "";
     });
   }
+  captchaStatus() {
+    return __async(this, null, function* () {
+      const data = yield GET(this.ctx, `${this.baseURL}/captcha/status`);
+      return data || { is_pass: false };
+    });
+  }
 }
 const CaptchaChecker = {
-  request(that, inputVal) {
+  request(that, ctx, inputVal) {
     return new Api(that.ctx).captchaCheck(inputVal);
   },
-  body(that) {
-    const elem = createElement(`<span><img class="atk-captcha-img" src="${that.submitCaptchaImgData || ""}" alt="\u9A8C\u8BC1\u7801">\u6572\u5165\u9A8C\u8BC1\u7801\u7EE7\u7EED\uFF1A</span>`);
+  body(that, ctx) {
+    if (that.captchaConf.iframe) {
+      const $iframeWrap = createElement(`<div class="atk-checker-iframe-wrap"></div>`);
+      const $iframe = createElement(`<iframe class="atk-fade-in"></iframe>`);
+      $iframe.style.display = "none";
+      showLoading($iframeWrap, { transparentBg: true });
+      $iframe.src = `${that.ctx.conf.server}/captcha/get`;
+      $iframe.onload = () => {
+        $iframe.style.display = "";
+        hideLoading($iframeWrap);
+      };
+      $iframeWrap.append($iframe);
+      const $closeBtn = createElement(`<div class="atk-close-btn"><i class="atk-icon atk-icon-close"></i></div>`);
+      $iframeWrap.append($closeBtn);
+      ctx.hideInteractInput();
+      let stop = false;
+      const sleep = (ms) => new Promise((resolve) => {
+        window.setTimeout(() => {
+          resolve(null);
+        }, ms);
+      });
+      (function queryStatus() {
+        return __async(this, null, function* () {
+          yield sleep(1e3);
+          if (stop)
+            return;
+          let isPass = false;
+          try {
+            const resp = yield new Api(that.ctx).captchaStatus();
+            isPass = resp.is_pass;
+          } catch (e) {
+            isPass = false;
+          }
+          if (isPass) {
+            ctx.triggerSuccess();
+          } else {
+            queryStatus();
+          }
+        });
+      })();
+      $closeBtn.onclick = () => {
+        stop = true;
+        ctx.cancel();
+      };
+      return $iframeWrap;
+    }
+    const elem = createElement(`<span><img class="atk-captcha-img" src="${that.captchaConf.imgData || ""}" alt="\u9A8C\u8BC1\u7801">\u6572\u5165\u9A8C\u8BC1\u7801\u7EE7\u7EED\uFF1A</span>`);
     elem.querySelector(".atk-captcha-img").onclick = () => {
       const imgEl = elem.querySelector(".atk-captcha-img");
       new Api(that.ctx).captchaGet().then((imgData) => {
@@ -3362,16 +3429,16 @@ const CaptchaChecker = {
     };
     return elem;
   },
-  onSuccess(that, data, inputVal, formEl) {
-    that.submitCaptchaVal = inputVal;
+  onSuccess(that, ctx, data, inputVal, formEl) {
+    that.captchaConf.val = inputVal;
   },
-  onError(that, err, inputVal, formEl) {
+  onError(that, ctx, err, inputVal, formEl) {
     formEl.querySelector(".atk-captcha-img").click();
   }
 };
 const AdminChecker = {
   inputType: "password",
-  request(that, inputVal) {
+  request(that, ctx, inputVal) {
     const data = {
       name: that.ctx.user.data.nick,
       email: that.ctx.user.data.email,
@@ -3379,33 +3446,33 @@ const AdminChecker = {
     };
     return new Api(that.ctx).login(data.name, data.email, data.password);
   },
-  body() {
+  body(that, ctx) {
     return createElement("<span>\u6572\u5165\u5BC6\u7801\u6765\u9A8C\u8BC1\u7BA1\u7406\u5458\u8EAB\u4EFD\uFF1A</span>");
   },
-  onSuccess(that, userToken, inputVal, formEl) {
+  onSuccess(that, ctx, userToken, inputVal, formEl) {
     that.ctx.user.data.isAdmin = true;
     that.ctx.user.data.token = userToken;
     that.ctx.user.save();
     that.ctx.trigger("user-changed", that.ctx.user.data);
     that.ctx.trigger("list-reload");
   },
-  onError(that, err, inputVal, formEl) {
+  onError(that, ctx, err, inputVal, formEl) {
   }
 };
 class CheckerLauncher {
   constructor(ctx) {
     __publicField(this, "ctx");
     __publicField(this, "launched", []);
-    __publicField(this, "submitCaptchaVal");
-    __publicField(this, "submitCaptchaImgData");
+    __publicField(this, "captchaConf", {});
     this.ctx = ctx;
     this.initEventBind();
   }
   initEventBind() {
     this.ctx.on("checker-captcha", (conf) => {
-      if (conf.imgData) {
-        this.submitCaptchaImgData = conf.imgData;
-      }
+      if (conf.imgData)
+        this.captchaConf.imgData = conf.imgData;
+      if (conf.iframe)
+        this.captchaConf.iframe = conf.iframe;
       this.fire(CaptchaChecker, conf);
     });
     this.ctx.on("checker-admin", (conf) => {
@@ -3419,12 +3486,31 @@ class CheckerLauncher {
     const layer = new Layer(this.ctx, `checker-${new Date().getTime()}`);
     layer.setMaskClickHide(false);
     layer.show();
+    let hideInteractInput = false;
+    const checkerCtx = {
+      getLayer: () => layer,
+      hideInteractInput: () => {
+        hideInteractInput = true;
+      },
+      triggerSuccess: () => {
+        this.close(checker, layer);
+        if (checker.onSuccess)
+          checker.onSuccess(this, checkerCtx, "", "", formEl);
+        if (payload.onSuccess)
+          payload.onSuccess("", dialog.$el);
+      },
+      cancel: () => {
+        this.close(checker, layer);
+        if (payload.onCancel)
+          payload.onCancel();
+      }
+    };
     const formEl = createElement();
-    formEl.appendChild(checker.body(this));
-    const input = createElement(`<input id="check" type="${checker.inputType || "text"}" autocomplete="off" required placeholder="">`);
-    formEl.appendChild(input);
-    setTimeout(() => input.focus(), 80);
-    input.onkeyup = (evt) => {
+    formEl.appendChild(checker.body(this, checkerCtx));
+    const $input = createElement(`<input id="check" type="${checker.inputType || "text"}" autocomplete="off" required placeholder="">`);
+    formEl.appendChild($input);
+    setTimeout(() => $input.focus(), 80);
+    $input.onkeyup = (evt) => {
       if (evt.key === "Enter" || evt.keyCode === 13) {
         evt.preventDefault();
         layer.getEl().querySelector('button[data-action="confirm"]').click();
@@ -3433,7 +3519,7 @@ class CheckerLauncher {
     let btnTextOrg;
     const dialog = new Dialog(formEl);
     dialog.setYes((btnEl) => {
-      const inputVal = input.value.trim();
+      const inputVal = $input.value.trim();
       if (!btnTextOrg)
         btnTextOrg = btnEl.innerText;
       const btnTextSet = (btnText) => {
@@ -3445,18 +3531,18 @@ class CheckerLauncher {
         btnEl.classList.remove("error");
       };
       btnEl.innerText = "\u52A0\u8F7D\u4E2D...";
-      checker.request(this, inputVal).then((data) => {
-        this.done(checker, layer);
+      checker.request(this, checkerCtx, inputVal).then((data) => {
+        this.close(checker, layer);
         if (checker.onSuccess)
-          checker.onSuccess(this, data, inputVal, formEl);
+          checker.onSuccess(this, checkerCtx, data, inputVal, formEl);
         if (payload.onSuccess)
           payload.onSuccess(inputVal, dialog.$el);
       }).catch((err) => {
         btnTextSet(String(err.msg || String(err)));
         if (checker.onError)
-          checker.onError(this, err, inputVal, formEl);
+          checker.onError(this, checkerCtx, err, inputVal, formEl);
         const tf = setTimeout(() => btnTextRestore(), 3e3);
-        input.onfocus = () => {
+        $input.onfocus = () => {
           btnTextRestore();
           clearTimeout(tf);
         };
@@ -3464,16 +3550,20 @@ class CheckerLauncher {
       return false;
     });
     dialog.setNo(() => {
-      this.done(checker, layer);
+      this.close(checker, layer);
       if (payload.onCancel)
         payload.onCancel();
       return false;
     });
+    if (hideInteractInput) {
+      $input.style.display = "none";
+      dialog.$el.querySelector(".atk-layer-dialog-actions").style.display = "none";
+    }
     layer.getEl().append(dialog.$el);
     if (payload.onMount)
       payload.onMount(dialog.$el);
   }
-  done(checker, layer) {
+  close(checker, layer) {
     layer.disposeNow();
     this.launched = this.launched.filter((c) => c !== checker);
   }
@@ -5193,6 +5283,7 @@ class ReadMoreBtn {
       this.hide();
   }
 }
+const backendMinVersion = "2.1.2";
 class ListLite extends Component {
   constructor(ctx) {
     super(ctx);
@@ -5274,11 +5365,15 @@ class ListLite extends Component {
     });
   }
   onLoad(data, offset) {
+    var _a, _b;
     if (this.pageMode === "pagination") {
       this.clearAllComments();
     }
     this.data = data;
-    if (this.ctx.conf.versionCheck && this.versionCheck(data.api_version))
+    const feMinVersion = ((_a = data.api_version) == null ? void 0 : _a.fe_min_version) || "0.0.0";
+    if (this.ctx.conf.versionCheck && this.versionCheck("\u524D\u7AEF", feMinVersion, "2.1.9"))
+      return;
+    if (this.ctx.conf.versionCheck && this.versionCheck("\u540E\u7AEF", backendMinVersion, (_b = data.api_version) == null ? void 0 : _b.version))
       return;
     if (data.conf && typeof data.conf.img_upload === "boolean") {
       this.ctx.conf.imgUpload = data.conf.img_upload;
@@ -5553,20 +5648,19 @@ class ListLite extends Component {
       });
     }
   }
-  versionCheck(versionData) {
-    const needVersion = (versionData == null ? void 0 : versionData.fe_min_version) || "0.0.0";
-    const needUpdate = versionCompare(needVersion, "2.1.9") === 1;
+  versionCheck(name, needVersion, curtVersion) {
+    const needUpdate = versionCompare(needVersion, curtVersion) === 1;
     if (needUpdate) {
-      const errEl = createElement(`<div>\u524D\u7AEF Artalk \u7248\u672C\u5DF2\u8FC7\u65F6\uFF0C\u8BF7\u66F4\u65B0\u4EE5\u83B7\u5F97\u5B8C\u6574\u4F53\u9A8C<br/>\u82E5\u60A8\u662F\u7AD9\u70B9\u7BA1\u7406\u5458\uFF0C\u8BF7\u524D\u5F80 \u201C<a href="https://artalk.js.org/" target="_blank">\u5B98\u65B9\u6587\u6863</a>\u201D \u83B7\u53D6\u5E2E\u52A9<br/><br/><span style="color: var(--at-color-meta);">\u524D\u7AEF\u7248\u672C ${"2.1.9"}\uFF0C\u9700\u6C42\u7248\u672C >= ${needVersion}</span><br/><br/></div>`);
+      const errEl = createElement(`<div>Artalk ${name}\u7248\u672C\u5DF2\u8FC7\u65F6\uFF0C\u8BF7\u66F4\u65B0\u4EE5\u83B7\u5F97\u5B8C\u6574\u4F53\u9A8C<br/>\u5982\u679C\u4F60\u662F\u7BA1\u7406\u5458\uFF0C\u8BF7\u524D\u5F80 \u201C<a href="https://artalk.js.org/" target="_blank">\u5B98\u65B9\u6587\u6863</a>\u201D \u83B7\u5F97\u5E2E\u52A9<br/><br/><span style="color: var(--at-color-meta);">\u5F53\u524D${name}\u7248\u672C ${curtVersion}\uFF0C\u9700\u6C42\u7248\u672C >= ${needVersion}</span><br/><br/></div>`);
       const ignoreBtn = createElement('<span style="cursor:pointer;">\u5FFD\u7565</span>');
       ignoreBtn.onclick = () => {
-        setError(this.ctx, null);
+        setError(this.$el.parentElement, null);
         this.ctx.conf.versionCheck = false;
         this.ctx.trigger("conf-updated");
         this.fetchComments(0);
       };
       errEl.append(ignoreBtn);
-      setError(this.ctx, errEl, '<span class="atk-warn-title">Artalk Warn</span>');
+      setError(this.$el.parentElement, errEl, '<span class="atk-warn-title">Artalk Warn</span>');
     }
     return needUpdate;
   }
@@ -5805,6 +5899,25 @@ class SidebarLayer extends Component {
         this.$el.style.transform = "translate(0, 0)";
       }, 20);
       if (this.firstShow) {
+        if (this.ctx.user.data.isAdmin) {
+          const resp = yield new Api(this.ctx).loginStatus();
+          if (!resp.is_login) {
+            yield new Promise((resolve, reject) => {
+              this.ctx.trigger("checker-admin", {
+                onSuccess: () => {
+                  resolve(null);
+                  setTimeout(() => {
+                    this.show();
+                  }, 500);
+                },
+                onCancel: () => {
+                  var _a;
+                  (_a = this.layer) == null ? void 0 : _a.hide();
+                }
+              });
+            });
+          }
+        }
         this.$iframeWrap.innerHTML = "";
         this.$iframe = createElement("<iframe></iframe>");
         const baseURL = getURLBasedOnApi(this.ctx, "sidebar/");

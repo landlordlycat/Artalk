@@ -5283,7 +5283,7 @@ class ReadMoreBtn {
       this.hide();
   }
 }
-const backendMinVersion = "2.1.2";
+const backendMinVersion = "2.1.1";
 class ListLite extends Component {
   constructor(ctx) {
     super(ctx);

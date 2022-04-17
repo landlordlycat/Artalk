@@ -4881,7 +4881,7 @@ class Comment extends Component {
     });
   }
   getIsRoot() {
-    return this.parent === null;
+    return this.data.rid === 0;
   }
   getChildren() {
     return this.children;

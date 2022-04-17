@@ -5915,7 +5915,7 @@ class SidebarLayer extends Component {
         const baseURL = getURLBasedOnApi(this.ctx, "sidebar/");
         const userData = encodeURIComponent(JSON.stringify(this.ctx.user.data));
         const location = window.location;
-        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}&referer=${encodeURIComponent(`${location.protocol}//${location.host}${location.pathname}`)}${this.conf.darkMode ? `&darkMode=1` : ``}`);
+        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}&time=${+new Date()}&referer=${encodeURIComponent(`${location.protocol}//${location.host}${location.pathname}`)}${this.conf.darkMode ? `&darkMode=1` : ``}`);
         this.$iframeWrap.append(this.$iframe);
         this.firstShow = false;
       } else {

@@ -4253,6 +4253,7 @@ class Editor extends Component {
     const $travelPlace = createElement("<div></div>");
     $afterEl.after($travelPlace);
     $travelPlace.replaceWith(this.$el);
+    this.$el.classList.add("atk-fade-in");
   }
   travelBack() {
     var _a;

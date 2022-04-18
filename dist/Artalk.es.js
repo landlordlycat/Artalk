@@ -2939,8 +2939,6 @@ const _Layer = class extends Component {
     __publicField(this, "$wrap");
     __publicField(this, "$mask");
     __publicField(this, "maskClickHideEnable", true);
-    __publicField(this, "bodyStyleOrgOverflow", "");
-    __publicField(this, "bodyStyleOrgPaddingRight", "");
     __publicField(this, "afterHide");
     this.name = name;
     const { $wrap, $mask } = GetLayerWrap(ctx);
@@ -2985,9 +2983,9 @@ const _Layer = class extends Component {
       this.afterHide();
     this.$wrap.classList.add("atk-fade-out");
     this.$el.style.display = "none";
+    this.pageBodyScrollBarShow();
     this.newActionTimer(() => {
       this.$wrap.style.display = "none";
-      this.pageBodyScrollBarShow();
       this.checkCleanLayer();
     }, 450);
     this.newActionTimer(() => {
@@ -2999,15 +2997,13 @@ const _Layer = class extends Component {
     this.maskClickHideEnable = enable;
   }
   pageBodyScrollBarHide() {
-    this.bodyStyleOrgOverflow = document.body.style.overflow;
-    this.bodyStyleOrgPaddingRight = document.body.style.paddingRight;
     document.body.style.overflow = "hidden";
     const bpr = parseInt(window.getComputedStyle(document.body, null).getPropertyValue("padding-right"), 10);
     document.body.style.paddingRight = `${getScrollBarWidth() + bpr || 0}px`;
   }
   pageBodyScrollBarShow() {
-    document.body.style.overflow = this.bodyStyleOrgOverflow;
-    document.body.style.paddingRight = this.bodyStyleOrgPaddingRight;
+    document.body.style.overflow = _Layer.BodyOrgOverflow;
+    document.body.style.paddingRight = _Layer.BodyOrgPaddingRight;
   }
   newActionTimer(func, delay) {
     const act = () => {
@@ -3024,7 +3020,6 @@ const _Layer = class extends Component {
     });
   }
   disposeNow() {
-    document.body.style.overflow = "";
     this.$el.remove();
     this.pageBodyScrollBarShow();
     this.checkCleanLayer();
@@ -3041,6 +3036,8 @@ const _Layer = class extends Component {
   }
 };
 let Layer = _Layer;
+__publicField(Layer, "BodyOrgOverflow");
+__publicField(Layer, "BodyOrgPaddingRight");
 __publicField(Layer, "actionTimers", []);
 function GetLayerWrap(ctx) {
   let $wrap = document.querySelector(`.atk-layer-wrap#ctx-${ctx.cid}`);
@@ -3276,8 +3273,11 @@ class Api {
   }
   loginStatus() {
     return __async(this, null, function* () {
-      const data = yield POST(this.ctx, `${this.baseURL}/login-status`);
-      return data || { is_login: false };
+      const data = yield POST(this.ctx, `${this.baseURL}/login-status`, {
+        name: this.ctx.user.data.nick,
+        email: this.ctx.user.data.email
+      });
+      return data || { is_login: false, is_admin: false };
     });
   }
   pageGet(siteName, offset, limit) {
@@ -5969,26 +5969,25 @@ class SidebarLayer extends Component {
       setTimeout(() => {
         this.$el.style.transform = "translate(0, 0)";
       }, 20);
-      if (this.firstShow) {
-        if (this.ctx.user.data.isAdmin) {
-          const resp = yield new Api(this.ctx).loginStatus();
-          if (!resp.is_login) {
-            yield new Promise((resolve, reject) => {
-              this.ctx.trigger("checker-admin", {
-                onSuccess: () => {
-                  resolve(null);
-                  setTimeout(() => {
-                    this.show();
-                  }, 500);
-                },
-                onCancel: () => {
-                  var _a;
-                  (_a = this.layer) == null ? void 0 : _a.hide();
-                }
-              });
-            });
-          }
+      (() => __async(this, null, function* () {
+        var _a;
+        const resp = yield new Api(this.ctx).loginStatus();
+        if (resp.is_admin && !resp.is_login) {
+          (_a = this.layer) == null ? void 0 : _a.hide();
+          this.firstShow = true;
+          this.ctx.trigger("checker-admin", {
+            onSuccess: () => {
+              setTimeout(() => {
+                this.show();
+              }, 500);
+            },
+            onCancel: () => {
+            }
+          });
         }
+      }))();
+      this.ctx.trigger("unread-update", { notifies: [] });
+      if (this.firstShow) {
         this.$iframeWrap.innerHTML = "";
         this.$iframe = createElement("<iframe></iframe>");
         const baseURL = getURLBasedOnApi(this.ctx, "sidebar/");
@@ -6071,6 +6070,7 @@ const _Artalk = class {
     this.ctx = new Context(this.$root, this.conf);
     this.$root.classList.add("artalk");
     this.$root.innerHTML = "";
+    this.initLayer();
     this.initDarkMode();
     this.checkerLauncher = new CheckerLauncher(this.ctx);
     initMarked(this.ctx);
@@ -6116,6 +6116,10 @@ const _Artalk = class {
   }
   reload() {
     this.list.fetchComments(0);
+  }
+  initLayer() {
+    Layer.BodyOrgOverflow = document.body.style.overflow;
+    Layer.BodyOrgPaddingRight = document.body.style.paddingRight;
   }
   initDarkMode() {
     const darkModeClassName = "atk-dark-mode";

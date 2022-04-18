@@ -3917,6 +3917,7 @@ class Editor extends Component {
     __publicField(this, "$bottom");
     __publicField(this, "$plugBtnWrap");
     __publicField(this, "$imgUploadBtn");
+    __publicField(this, "$imgUploadInput");
     __publicField(this, "$submitBtn");
     __publicField(this, "$notifyWrap");
     __publicField(this, "replyComment", null);
@@ -4096,10 +4097,13 @@ class Editor extends Component {
   initImgUpload() {
     this.$imgUploadBtn = createElement(`<span class="atk-plug-btn">\u56FE\u7247</span>`);
     this.$plugBtnWrap.querySelector('[data-plug-name="preview"]').before(this.$imgUploadBtn);
+    this.$imgUploadInput = document.createElement("input");
+    this.$imgUploadInput.type = "file";
+    this.$imgUploadInput.style.display = "none";
+    this.$imgUploadInput.accept = this.allowImgExts.map((o) => `.${o}`).join(",");
+    this.$imgUploadBtn.after(this.$imgUploadInput);
     this.$imgUploadBtn.onclick = () => {
-      const $input = document.createElement("input");
-      $input.type = "file";
-      $input.accept = this.allowImgExts.map((o) => `.${o}`).join(",");
+      const $input = this.$imgUploadInput;
       $input.onchange = () => {
         (() => __async(this, null, function* () {
           if (!$input.files || $input.files.length === 0)

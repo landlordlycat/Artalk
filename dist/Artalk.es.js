@@ -3311,13 +3311,15 @@ class Api {
     };
     return POST(this.ctx, `${this.baseURL}/admin/page-del`, params);
   }
-  pageFetch(id) {
+  pageFetch(id, siteName) {
     return __async(this, null, function* () {
-      const params = {
-        id
-      };
+      const params = {};
+      if (id)
+        params.id = id;
+      if (siteName)
+        params.site_name = siteName;
       const d = yield POST(this.ctx, `${this.baseURL}/admin/page-fetch`, params);
-      return d.page;
+      return d;
     });
   }
   siteGet() {

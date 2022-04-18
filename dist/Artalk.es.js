@@ -5423,7 +5423,7 @@ class ListLite extends Component {
       try {
         listData = yield new Api(this.ctx).get(offset, this.pageSize, this.flatMode, this.paramsEditor);
       } catch (e) {
-        this.onError(e.msg || String(e), offset);
+        this.onError(e.msg || String(e), offset, e.data);
         throw e;
       } finally {
         hideLoading$1();
@@ -5527,7 +5527,7 @@ class ListLite extends Component {
       this.$el.append(this.pagination.$el);
     }
   }
-  onError(msg, offset) {
+  onError(msg, offset, errData) {
     var _a;
     msg = String(msg);
     console.error(msg);
@@ -5540,10 +5540,20 @@ class ListLite extends Component {
     $retryBtn.onclick = () => this.fetchComments(0);
     $err.appendChild($retryBtn);
     const adminBtn = createElement('<span atk-only-admin-show> | <span style="cursor:pointer;">\u6253\u5F00\u63A7\u5236\u53F0</span></span>');
-    adminBtn.onclick = () => this.ctx.trigger("sidebar-show");
+    $err.appendChild(adminBtn);
     if (!this.ctx.user.data.isAdmin)
       adminBtn.classList.add("atk-hide");
-    $err.appendChild(adminBtn);
+    let sidebarView = "";
+    if (errData == null ? void 0 : errData.err_no_site) {
+      const viewLoadParam = {
+        create_name: this.ctx.conf.site,
+        create_urls: `${window.location.protocol}//${window.location.host}`
+      };
+      sidebarView = `sites|${JSON.stringify(viewLoadParam)}`;
+    }
+    adminBtn.onclick = () => this.ctx.trigger("sidebar-show", {
+      view: sidebarView
+    });
     setError(this.$el, $err);
   }
   refreshUI() {
@@ -5952,13 +5962,13 @@ class SidebarLayer extends Component {
     this.$closeBtn.onclick = () => {
       this.hide();
     };
-    this.ctx.on("sidebar-show", () => this.show());
+    this.ctx.on("sidebar-show", (conf) => this.show(conf || {}));
     this.ctx.on("sidebar-hide", () => this.hide());
     this.ctx.on("user-changed", () => {
       this.firstShow = true;
     });
   }
-  show() {
+  show(conf) {
     return __async(this, null, function* () {
       this.$el.style.transform = "";
       if (this.layer == null) {
@@ -5982,7 +5992,7 @@ class SidebarLayer extends Component {
           this.ctx.trigger("checker-admin", {
             onSuccess: () => {
               setTimeout(() => {
-                this.show();
+                this.show(conf);
               }, 500);
             },
             onCancel: () => {
@@ -5995,17 +6005,26 @@ class SidebarLayer extends Component {
         this.$iframeWrap.innerHTML = "";
         this.$iframe = createElement("<iframe></iframe>");
         const baseURL = getURLBasedOnApi(this.ctx, "sidebar/");
-        const userData = encodeURIComponent(JSON.stringify(this.ctx.user.data));
-        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}&time=${+new Date()}${this.conf.darkMode ? `&darkMode=1` : ``}`);
+        const query = {
+          pageKey: this.conf.pageKey,
+          site: this.conf.site || "",
+          user: JSON.stringify(this.ctx.user.data),
+          time: +new Date()
+        };
+        if (conf.view)
+          query.view = conf.view;
+        if (this.conf.darkMode)
+          query.darkMode = "1";
+        const urlParams = new URLSearchParams(query);
+        this.iframeLoad(`${baseURL}?${urlParams.toString()}`);
         this.$iframeWrap.append(this.$iframe);
         this.firstShow = false;
       } else {
-        if (this.conf.darkMode && !this.$iframe.src.match(/darkMode=1$/)) {
+        const isIframeSrcDarkMode = this.$iframe.src.includes("darkMode=1");
+        if (this.conf.darkMode && !isIframeSrcDarkMode)
           this.iframeLoad(`${this.$iframe.src}&darkMode=1`);
-        }
-        if (!this.conf.darkMode && this.$iframe.src.match(/darkMode=1$/)) {
-          this.iframeLoad(this.$iframe.src.replace(/&darkMode=1$/, ""));
-        }
+        if (!this.conf.darkMode && isIframeSrcDarkMode)
+          this.iframeLoad(this.$iframe.src.replace("&darkMode=1", ""));
       }
     });
   }

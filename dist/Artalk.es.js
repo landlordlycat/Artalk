@@ -6167,12 +6167,12 @@ const _Artalk = class {
   }
   initPV() {
     return __async(this, null, function* () {
-      if (!this.conf.pvEl || !document.querySelector(this.conf.pvEl))
-        return;
-      const $pv = document.querySelector(this.conf.pvEl);
       const pvNum = yield new Api(this.ctx).pv();
       if (Number.isNaN(Number(pvNum)))
         return;
+      if (!this.conf.pvEl || !document.querySelector(this.conf.pvEl))
+        return;
+      const $pv = document.querySelector(this.conf.pvEl);
       $pv.innerText = String(pvNum);
     });
   }

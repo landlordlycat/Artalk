@@ -1,6 +1,4 @@
 var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
@@ -16,7 +14,6 @@ var __spreadValues = (a, b) => {
     }
   return a;
 };
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
@@ -2665,28 +2662,107 @@ function initMarked(ctx) {
     const html = linkRenderer.call(renderer, href, title, text);
     return html.replace(/^<a /, `<a target="_blank" ${!localLink ? `rel="noreferrer noopener nofollow"` : ""} `);
   };
+  renderer.code = (block2, lang) => {
+    const realLang = !lang ? "plaintext" : lang;
+    let colorized = block2;
+    if (window.hljs) {
+      if (realLang && window.hljs.getLanguage(realLang)) {
+        colorized = window.hljs.highlight(realLang, block2).value;
+      }
+    } else {
+      colorized = hanabi(block2);
+    }
+    return `<pre rel="${realLang}">
+<code class="hljs language-${realLang}">${colorized.replace(/&amp;/g, "&")}</code>
+</pre>`;
+  };
   const nMarked = marked$1;
   marked$1.setOptions({
     renderer,
-    highlight: (code) => hanabi(code),
     pedantic: false,
     gfm: true,
     breaks: true,
     smartLists: true,
     smartypants: true,
     xhtml: false,
-    sanitize: true,
-    sanitizer: (html) => insane_1(html, __spreadProps(__spreadValues({}, insane_1.defaults), {
-      allowedAttributes: __spreadProps(__spreadValues({}, insane_1.defaults.allowedAttributes), {
-        img: ["src", "atk-emoticon"]
-      })
-    })),
+    sanitize: false,
     silent: true
   });
   ctx.markedInstance = nMarked;
 }
 function marked(ctx, src) {
-  return ctx.markedInstance.parse(src);
+  return insane_1(ctx.markedInstance.parse(src), {
+    allowedClasses: {},
+    allowedSchemes: ["http", "https", "mailto"],
+    allowedTags: [
+      "a",
+      "abbr",
+      "article",
+      "b",
+      "blockquote",
+      "br",
+      "caption",
+      "code",
+      "del",
+      "details",
+      "div",
+      "em",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "hr",
+      "i",
+      "img",
+      "ins",
+      "kbd",
+      "li",
+      "main",
+      "mark",
+      "ol",
+      "p",
+      "pre",
+      "section",
+      "span",
+      "strike",
+      "strong",
+      "sub",
+      "summary",
+      "sup",
+      "table",
+      "tbody",
+      "td",
+      "th",
+      "thead",
+      "tr",
+      "u",
+      "ul"
+    ],
+    allowedAttributes: {
+      "*": ["title", "accesskey"],
+      a: ["href", "name", "target", "aria-label"],
+      img: ["src", "alt", "title", "atk-emoticon", "aria-label"],
+      code: ["class"],
+      span: ["class", "style"]
+    },
+    filter: (node) => {
+      const allowed = [
+        ["code", /^hljs\W+language-(.*)$/],
+        ["span", /^(hljs-.*)$/]
+      ];
+      allowed.forEach(([tag, reg]) => {
+        if (node.tag === tag && !!node.attrs.class && !reg.test(node.attrs.class)) {
+          delete node.attrs.class;
+        }
+      });
+      if (node.tag === "span" && !!node.attrs.style && !/^color:(\W+)?#[0-9a-f]{3,6};?$/i.test(node.attrs.style)) {
+        delete node.attrs.style;
+      }
+      return true;
+    }
+  });
 }
 function getCorrectUserAgent() {
   return __async(this, null, function* () {

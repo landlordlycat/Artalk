@@ -3448,7 +3448,7 @@ const CaptchaChecker = {
       const $iframe = createElement(`<iframe class="atk-fade-in"></iframe>`);
       $iframe.style.display = "none";
       showLoading($iframeWrap, { transparentBg: true });
-      $iframe.src = `${that.ctx.conf.server}/captcha/get`;
+      $iframe.src = `${that.ctx.conf.server}/captcha/get?t=${+new Date()}`;
       $iframe.onload = () => {
         $iframe.style.display = "";
         hideLoading($iframeWrap);
@@ -4288,7 +4288,7 @@ class Editor extends Component {
           site_name: this.replyComment === null ? this.ctx.conf.site : this.replyComment.site_name
         });
         if (this.replyComment !== null && this.replyComment.page_key !== this.ctx.conf.pageKey) {
-          window.open(`${this.replyComment.page_key}#atk-comment-${nComment.id}`);
+          window.open(`${this.replyComment.page_url}#atk-comment-${nComment.id}`);
         }
         this.ctx.trigger("list-insert", nComment);
         this.clearEditor();
@@ -5993,8 +5993,7 @@ class SidebarLayer extends Component {
         this.$iframe = createElement("<iframe></iframe>");
         const baseURL = getURLBasedOnApi(this.ctx, "sidebar/");
         const userData = encodeURIComponent(JSON.stringify(this.ctx.user.data));
-        const location = window.location;
-        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}&time=${+new Date()}&referer=${encodeURIComponent(`${location.protocol}//${location.host}${location.pathname}`)}${this.conf.darkMode ? `&darkMode=1` : ``}`);
+        this.iframeLoad(`${baseURL}?pageKey=${encodeURIComponent(this.conf.pageKey)}&site=${encodeURIComponent(this.conf.site || "")}&user=${userData}&time=${+new Date()}${this.conf.darkMode ? `&darkMode=1` : ``}`);
         this.$iframeWrap.append(this.$iframe);
         this.firstShow = false;
       } else {

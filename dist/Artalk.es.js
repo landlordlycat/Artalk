@@ -2808,7 +2808,10 @@ function isValidURL(urlRaw) {
   return url.protocol === "http:" || url.protocol === "https:";
 }
 function getURLBasedOnApi(ctx, path) {
-  return `${ctx.conf.server.replace(/\/api\/?$/, "")}/${path.replace(/^\//, "")}`;
+  return getURLBasedOn(ctx.conf.server, path);
+}
+function getURLBasedOn(baseURL, path) {
+  return `${baseURL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
 function showLoading(parentElem, conf) {
   if (parentElem instanceof Context)
@@ -3191,7 +3194,7 @@ class Api {
     __publicField(this, "ctx");
     __publicField(this, "baseURL");
     this.ctx = ctx;
-    this.baseURL = ctx.conf.server;
+    this.baseURL = `${ctx.conf.server}/api`;
   }
   get(offset, pageSize, flatMode, paramsEditor) {
     const params = {
@@ -3460,7 +3463,7 @@ const CaptchaChecker = {
       const $iframe = createElement(`<iframe class="atk-fade-in"></iframe>`);
       $iframe.style.display = "none";
       showLoading($iframeWrap, { transparentBg: true });
-      $iframe.src = `${that.ctx.conf.server}/captcha/get?t=${+new Date()}`;
+      $iframe.src = `${that.ctx.conf.server}/api/captcha/get?t=${+new Date()}`;
       $iframe.onload = () => {
         $iframe.style.display = "";
         hideLoading($iframeWrap);
@@ -5992,7 +5995,7 @@ class SidebarLayer extends Component {
       if (this.firstShow) {
         this.$iframeWrap.innerHTML = "";
         this.$iframe = createElement("<iframe></iframe>");
-        const baseURL = getURLBasedOnApi(this.ctx, "sidebar/");
+        const baseURL = getURLBasedOnApi(this.ctx, "/sidebar/");
         const query = {
           pageKey: this.conf.pageKey,
           site: this.conf.site || "",
@@ -6067,7 +6070,7 @@ const _Artalk = class {
     this.conf = __spreadValues(__spreadValues({}, _Artalk.defaults), customConf);
     this.conf.server = this.conf.server.replace(/\/$/, "");
     if (!this.conf.pageKey) {
-      this.conf.pageKey = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+      this.conf.pageKey = `${window.location.pathname}`;
     }
     try {
       const $root = document.querySelector(this.conf.el);

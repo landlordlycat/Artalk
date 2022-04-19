@@ -3664,16 +3664,28 @@ class EmoticonsPlug extends EditorPlug {
     __publicField(this, "emoticons", []);
     __publicField(this, "$grpWrap");
     __publicField(this, "$grpSwitcher");
+    __publicField(this, "loadingTask", null);
+    __publicField(this, "isListLoaded", false);
+    __publicField(this, "isImgLoaded", false);
     this.editor = editor2;
     this.$el = createElement(`<div class="atk-editor-plug-emoticons"></div>`);
-    this.init();
   }
-  init() {
+  loadEmoticonsData() {
     return __async(this, null, function* () {
-      showLoading(this.$el);
-      this.emoticons = yield this.handleData(this.ctx.conf.emoticons);
-      hideLoading(this.$el);
-      this.initEmoticonsList();
+      if (this.isListLoaded)
+        return;
+      if (this.loadingTask !== null) {
+        yield this.loadingTask;
+        return;
+      }
+      this.loadingTask = (() => __async(this, null, function* () {
+        showLoading(this.$el);
+        this.emoticons = yield this.handleData(this.ctx.conf.emoticons);
+        hideLoading(this.$el);
+        this.loadingTask = null;
+        this.isListLoaded = true;
+      }))();
+      yield this.loadingTask;
     });
   }
   handleData(data) {
@@ -3853,9 +3865,16 @@ class EmoticonsPlug extends EditorPlug {
   changeListHeight() {
   }
   onShow() {
-    setTimeout(() => {
-      this.changeListHeight();
-    }, 30);
+    (() => __async(this, null, function* () {
+      yield this.loadEmoticonsData();
+      if (!this.isImgLoaded) {
+        this.initEmoticonsList();
+        this.isImgLoaded = true;
+      }
+      setTimeout(() => {
+        this.changeListHeight();
+      }, 30);
+    }))();
   }
   onHide() {
     this.$el.parentElement.style.height = "";
@@ -4059,6 +4078,13 @@ class Editor extends Component {
     this.LOADABLE_PLUG_LIST.forEach((PlugObj) => {
       const btnElem = createElement(`<span class="atk-plug-btn" data-plug-name="${PlugObj.Name}">${PlugObj.BtnHTML}</span>`);
       this.$plugBtnWrap.appendChild(btnElem);
+      if (PlugObj.Name === "emoticons") {
+        const emoPlug = new PlugObj(this);
+        this.plugList[PlugObj.Name] = emoPlug;
+        window.setTimeout(() => {
+          emoPlug.loadEmoticonsData();
+        }, 1e3);
+      }
       btnElem.addEventListener("click", () => {
         let plug = this.plugList[PlugObj.Name];
         if (!plug) {
@@ -4351,6 +4377,8 @@ class Editor extends Component {
     (_a = this.ctx.$root.querySelector(".atk-editor-travel-placeholder")) == null ? void 0 : _a.replaceWith(this.$el);
     if (this.replyComment !== null)
       this.cancelReply();
+  }
+  initRemoteEmoticons() {
   }
 }
 var list = "";

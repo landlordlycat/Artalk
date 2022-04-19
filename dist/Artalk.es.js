@@ -66,6 +66,7 @@ class Context {
     __publicField(this, "user");
     __publicField(this, "eventList", []);
     __publicField(this, "markedInstance");
+    __publicField(this, "markedReplacers", []);
     this.cid = +new Date();
     this.$root = rootEl;
     this.conf = conf;
@@ -2656,10 +2657,10 @@ function versionCompare(a, b) {
 }
 function initMarked(ctx) {
   const renderer = new marked$1.Renderer();
-  const linkRenderer = renderer.link;
+  const orgLinkRenderer = renderer.link;
   renderer.link = (href, title, text) => {
     const localLink = href == null ? void 0 : href.startsWith(`${window.location.protocol}//${window.location.hostname}`);
-    const html = linkRenderer.call(renderer, href, title, text);
+    const html = orgLinkRenderer.call(renderer, href, title, text);
     return html.replace(/^<a /, `<a target="_blank" ${!localLink ? `rel="noreferrer noopener nofollow"` : ""} `);
   };
   renderer.code = (block2, lang) => {
@@ -2691,7 +2692,7 @@ function initMarked(ctx) {
   ctx.markedInstance = nMarked;
 }
 function marked(ctx, src) {
-  return insane_1(ctx.markedInstance.parse(src), {
+  let dest = insane_1(ctx.markedInstance.parse(src), {
     allowedClasses: {},
     allowedSchemes: ["http", "https", "mailto"],
     allowedTags: [
@@ -2742,7 +2743,7 @@ function marked(ctx, src) {
     ],
     allowedAttributes: {
       "*": ["title", "accesskey"],
-      a: ["href", "name", "target", "aria-label"],
+      a: ["href", "name", "target", "aria-label", "rel"],
       img: ["src", "alt", "title", "atk-emoticon", "aria-label"],
       code: ["class"],
       span: ["class", "style"]
@@ -2763,6 +2764,11 @@ function marked(ctx, src) {
       return true;
     }
   });
+  ctx.markedReplacers.forEach((replacer) => {
+    if (typeof replacer === "function")
+      dest = replacer(dest);
+  });
+  return dest;
 }
 function getCorrectUserAgent() {
   return __async(this, null, function* () {
@@ -3734,7 +3740,6 @@ class EmoticonsPlug extends EditorPlug {
         }
       });
       data = data.filter((item) => typeof item === "object" && !Array.isArray(item) && !!item && !!item.name);
-      console.log(data);
       this.solveNullKey(data);
       this.solveSameKey(data);
       return data;
@@ -4239,7 +4244,9 @@ class Editor extends Component {
     if (!!this.plugList && !!this.plugList.preview) {
       this.plugList.preview.updateContent();
     }
-    this.adjustTextareaHeight();
+    window.setTimeout(() => {
+      this.adjustTextareaHeight();
+    }, 80);
   }
   clearEditor() {
     this.setContent("");

@@ -2767,10 +2767,10 @@ function marked(ctx, src) {
 function getCorrectUserAgent() {
   return __async(this, null, function* () {
     const uaRaw = navigator.userAgent;
-    const uaData = navigator.userAgentData;
-    if (!uaData || !uaData.getHighEntropyValues) {
+    if (!navigator.userAgentData || !navigator.userAgentData.getHighEntropyValues) {
       return uaRaw;
     }
+    const uaData = navigator.userAgentData;
     let uaGot = null;
     try {
       uaGot = yield uaData.getHighEntropyValues(["platformVersion"]);
@@ -2778,12 +2778,16 @@ function getCorrectUserAgent() {
       console.error(err);
       return uaRaw;
     }
-    if (uaData.platform !== "Windows") {
-      return uaRaw;
-    }
     const majorPlatformVersion = Number(uaGot.platformVersion.split(".")[0]);
-    if (majorPlatformVersion >= 13) {
-      return uaRaw.replace(/Windows\W+NT\W+10.0/, "Windows NT 11.0");
+    if (uaData.platform === "Windows") {
+      if (majorPlatformVersion >= 13) {
+        return uaRaw.replace(/Windows NT 10.0/, "Windows NT 11.0");
+      }
+    }
+    if (uaData.platform === "macOS") {
+      if (majorPlatformVersion >= 11) {
+        return uaRaw.replace(/(Mac OS X \d+_\d+_\d+|Mac OS X)/, `Mac OS X ${uaGot.platformVersion.replace(/\./g, "_")}`);
+      }
     }
     return uaRaw;
   });
@@ -4352,248 +4356,195 @@ class Editor extends Component {
 var list = "";
 var ListHTML = '<div class="atk-list">\n  <div class="atk-list-header">\n    <div class="atk-comment-count">\n      <div class="atk-text">\n        <span class="atk-comment-count-num">0</span>\n        \u6761\u8BC4\u8BBA\n      </div>\n    </div>\n    <div class="atk-right-action">\n      <span data-action="admin-close-comment" class="atk-hide" atk-only-admin-show>\u5173\u95ED\u8BC4\u8BBA</span>\n      <span data-action="open-sidebar" class="atk-hide atk-on">\n        <span class="atk-unread-badge" style="display: none;"></span>\n        <div class="atk-text">\u901A\u77E5\u4E2D\u5FC3</div>\n      </span>\n    </div>\n  </div>\n  <div class="atk-list-body"></div>\n  <div class="atk-list-footer">\n    <div class="atk-copyright"></div>\n  </div>\n</div>\n';
 var comment = "";
-var win = window || {};
-var nav = navigator || {};
+const win = window || {};
+const nav = navigator || {};
 function Detect(userAgent) {
-  var u = userAgent || nav.userAgent;
-  var _this = this;
-  var match = {
-    Trident: u.indexOf("Trident") > -1 || u.indexOf("NET CLR") > -1,
-    Presto: u.indexOf("Presto") > -1,
-    WebKit: u.indexOf("AppleWebKit") > -1,
-    Gecko: u.indexOf("Gecko/") > -1,
-    Safari: u.indexOf("Safari") > -1,
-    Chrome: u.indexOf("Chrome") > -1 || u.indexOf("CriOS") > -1,
-    IE: u.indexOf("MSIE") > -1 || u.indexOf("Trident") > -1,
-    Edge: u.indexOf("Edge") > -1,
-    Firefox: u.indexOf("Firefox") > -1 || u.indexOf("FxiOS") > -1,
-    "Firefox Focus": u.indexOf("Focus") > -1,
-    Chromium: u.indexOf("Chromium") > -1,
-    Opera: u.indexOf("Opera") > -1 || u.indexOf("OPR") > -1,
-    Vivaldi: u.indexOf("Vivaldi") > -1,
-    Yandex: u.indexOf("YaBrowser") > -1,
-    Kindle: u.indexOf("Kindle") > -1 || u.indexOf("Silk/") > -1,
-    360: u.indexOf("360EE") > -1 || u.indexOf("360SE") > -1,
-    UC: u.indexOf("UC") > -1 || u.indexOf(" UBrowser") > -1,
-    QQBrowser: u.indexOf("QQBrowser") > -1,
-    QQ: u.indexOf("QQ/") > -1,
-    Baidu: u.indexOf("Baidu") > -1 || u.indexOf("BIDUBrowser") > -1,
-    Maxthon: u.indexOf("Maxthon") > -1,
-    Sogou: u.indexOf("MetaSr") > -1 || u.indexOf("Sogou") > -1,
-    LBBROWSER: u.indexOf("LBBROWSER") > -1,
-    "2345Explorer": u.indexOf("2345Explorer") > -1,
-    TheWorld: u.indexOf("TheWorld") > -1,
-    XiaoMi: u.indexOf("MiuiBrowser") > -1,
-    Quark: u.indexOf("Quark") > -1,
-    Qiyu: u.indexOf("Qiyu") > -1,
-    Wechat: u.indexOf("MicroMessenger") > -1,
-    Taobao: u.indexOf("AliApp(TB") > -1,
-    Alipay: u.indexOf("AliApp(AP") > -1,
-    Weibo: u.indexOf("Weibo") > -1,
-    Douban: u.indexOf("com.douban.frodo") > -1,
-    Suning: u.indexOf("SNEBUY-APP") > -1,
-    iQiYi: u.indexOf("IqiyiApp") > -1,
-    Windows: u.indexOf("Windows") > -1,
-    Linux: u.indexOf("Linux") > -1 || u.indexOf("X11") > -1,
-    "Mac OS": u.indexOf("Macintosh") > -1,
-    Android: u.indexOf("Android") > -1 || u.indexOf("Adr") > -1,
-    Ubuntu: u.indexOf("Ubuntu") > -1,
-    FreeBSD: u.indexOf("FreeBSD") > -1,
-    Debian: u.indexOf("Debian") > -1,
-    "Windows Phone": u.indexOf("IEMobile") > -1 || u.indexOf("Windows Phone") > -1,
-    BlackBerry: u.indexOf("BlackBerry") > -1 || u.indexOf("RIM") > -1,
-    MeeGo: u.indexOf("MeeGo") > -1,
-    Symbian: u.indexOf("Symbian") > -1,
-    iOS: u.indexOf("like Mac OS X") > -1,
-    "Chrome OS": u.indexOf("CrOS") > -1,
-    WebOS: u.indexOf("hpwOS") > -1,
-    Mobile: u.indexOf("Mobi") > -1 || u.indexOf("iPh") > -1 || u.indexOf("480") > -1,
-    Tablet: u.indexOf("Tablet") > -1 || u.indexOf("Pad") > -1 || u.indexOf("Nexus 7") > -1
+  const u = String(userAgent || nav.userAgent);
+  const dest = {
+    os: "",
+    osVersion: "",
+    engine: "",
+    browser: "",
+    device: "",
+    language: "",
+    version: ""
   };
-  if (match.Mobile) {
-    match.Mobile = !(u.indexOf("iPad") > -1);
+  const engineMatch = {
+    Trident: u.includes("Trident") || u.includes("NET CLR"),
+    Presto: u.includes("Presto"),
+    WebKit: u.includes("AppleWebKit"),
+    Gecko: u.includes("Gecko/")
+  };
+  const browserMatch = {
+    Safari: u.includes("Safari"),
+    Chrome: u.includes("Chrome") || u.includes("CriOS"),
+    IE: u.includes("MSIE") || u.includes("Trident"),
+    Edge: u.includes("Edge") || u.includes("Edg"),
+    Firefox: u.includes("Firefox") || u.includes("FxiOS"),
+    "Firefox Focus": u.includes("Focus"),
+    Chromium: u.includes("Chromium"),
+    Opera: u.includes("Opera") || u.includes("OPR"),
+    Vivaldi: u.includes("Vivaldi"),
+    Yandex: u.includes("YaBrowser"),
+    Kindle: u.includes("Kindle") || u.includes("Silk/"),
+    360: u.includes("360EE") || u.includes("360SE"),
+    UC: u.includes("UC") || u.includes(" UBrowser"),
+    QQBrowser: u.includes("QQBrowser"),
+    QQ: u.includes("QQ/"),
+    Baidu: u.includes("Baidu") || u.includes("BIDUBrowser"),
+    Maxthon: u.includes("Maxthon"),
+    Sogou: u.includes("MetaSr") || u.includes("Sogou"),
+    LBBROWSER: u.includes("LBBROWSER"),
+    "2345Explorer": u.includes("2345Explorer"),
+    TheWorld: u.includes("TheWorld"),
+    MIUI: u.includes("MiuiBrowser"),
+    Quark: u.includes("Quark"),
+    Qiyu: u.includes("Qiyu"),
+    Wechat: u.includes("MicroMessenger"),
+    Taobao: u.includes("AliApp(TB"),
+    Alipay: u.includes("AliApp(AP"),
+    Weibo: u.includes("Weibo"),
+    Douban: u.includes("com.douban.frodo"),
+    Suning: u.includes("SNEBUY-APP"),
+    iQiYi: u.includes("IqiyiApp")
+  };
+  const osMatch = {
+    Windows: u.includes("Windows"),
+    Linux: u.includes("Linux") || u.includes("X11"),
+    "macOS": u.includes("Macintosh"),
+    Android: u.includes("Android") || u.includes("Adr"),
+    Ubuntu: u.includes("Ubuntu"),
+    FreeBSD: u.includes("FreeBSD"),
+    Debian: u.includes("Debian"),
+    "Windows Phone": u.includes("IEMobile") || u.includes("Windows Phone"),
+    BlackBerry: u.includes("BlackBerry") || u.includes("RIM"),
+    MeeGo: u.includes("MeeGo"),
+    Symbian: u.includes("Symbian"),
+    iOS: u.includes("like Mac OS X"),
+    "Chrome OS": u.includes("CrOS"),
+    WebOS: u.includes("hpwOS")
+  };
+  const deviceMatch = {
+    Mobile: u.includes("Mobi") || u.includes("iPh") || u.includes("480"),
+    Tablet: u.includes("Tablet") || u.includes("Pad") || u.includes("Nexus 7")
+  };
+  if (deviceMatch.Mobile) {
+    deviceMatch.Mobile = !u.includes("iPad");
+  } else if (browserMatch.Chrome && u.includes("Edg")) {
+    browserMatch.Chrome = false;
+    browserMatch.Edge = true;
   } else if (win.showModalDialog && win.chrome) {
-    match["360"] = true;
+    browserMatch.Chrome = false;
+    browserMatch["360"] = true;
   }
-  var hash = {
-    engine: ["WebKit", "Trident", "Gecko", "Presto"],
-    browser: ["Safari", "Chrome", "Edge", "IE", "Firefox", "Firefox Focus", "Chromium", "Opera", "Vivaldi", "Yandex", "Kindle", "360", "UC", "QQBrowser", "QQ", "Baidu", "Maxthon", "Sogou", "LBBROWSER", "2345Explorer", "TheWorld", "XiaoMi", "Quark", "Qiyu", "Wechat", "Taobao", "Alipay", "Weibo", "Douban", "Suning", "iQiYi"],
-    os: ["Windows", "Linux", "Mac OS", "Android", "Ubuntu", "FreeBSD", "Debian", "iOS", "Windows Phone", "BlackBerry", "MeeGo", "Symbian", "Chrome OS", "WebOS"],
-    device: ["Mobile", "Tablet"]
-  };
-  _this.device = "PC";
-  _this.language = function() {
-    var g = nav.browserLanguage || nav.language;
-    var arr = g.split("-");
-    if (arr[1]) {
+  dest.device = "PC";
+  dest.language = (() => {
+    const g = nav.browserLanguage || nav.language;
+    const arr = g.split("-");
+    if (arr[1])
       arr[1] = arr[1].toUpperCase();
-    }
     return arr.join("_");
-  }();
-  for (var s in hash) {
-    for (var i = 0; i < hash[s].length; i++) {
-      var value = hash[s][i];
-      if (match[value]) {
-        _this[s] = value;
-      }
-    }
-  }
-  var osVersion = {
-    Windows: function() {
-      var v = u.replace(/^.*Windows NT ([\d.]+);.*$/, "$1");
-      var hash2 = {
-        6.4: "10",
-        6.3: "8.1",
-        6.2: "8",
-        6.1: "7",
+  })();
+  const hash = {
+    engine: engineMatch,
+    browser: browserMatch,
+    os: osMatch,
+    device: deviceMatch
+  };
+  Object.entries(hash).forEach(([type, match]) => {
+    Object.entries(match).forEach(([name, result]) => {
+      if (result === true)
+        dest[type] = name;
+    });
+  });
+  const osVersion = {
+    Windows: () => {
+      const v = u.replace(/^.*Windows NT ([\d.]+);.*$/, "$1");
+      const wvHash = {
+        "6.4": "10",
+        "6.3": "8.1",
+        "6.2": "8",
+        "6.1": "7",
         "6.0": "Vista",
-        5.2: "XP",
-        5.1: "XP",
+        "5.2": "XP",
+        "5.1": "XP",
         "5.0": "2000",
         "10.0": "10",
         "11.0": "11"
       };
-      return hash2[v] || v;
+      return wvHash[v] || v;
     },
-    Android: function() {
-      return u.replace(/^.*Android ([\d.]+);.*$/, "$1");
-    },
-    iOS: function() {
-      return u.replace(/^.*OS ([\d_]+) like.*$/, "$1").replace(/_/g, ".");
-    },
-    Debian: function() {
-      return u.replace(/^.*Debian\/([\d.]+).*$/, "$1");
-    },
-    "Windows Phone": function() {
-      return u.replace(/^.*Windows Phone( OS)? ([\d.]+);.*$/, "$2");
-    },
-    "Mac OS": function() {
-      return u.replace(/^.*Mac OS X ([\d_]+).*$/, "$1").replace(/_/g, ".");
-    },
-    WebOS: function() {
-      return u.replace(/^.*hpwOS\/([\d.]+);.*$/, "$1");
-    }
+    Android: () => u.replace(/^.*Android ([\d.]+);.*$/, "$1"),
+    iOS: () => u.replace(/^.*OS ([\d_]+) like.*$/, "$1").replace(/_/g, "."),
+    Debian: () => u.replace(/^.*Debian\/([\d.]+).*$/, "$1"),
+    "Windows Phone": () => u.replace(/^.*Windows Phone( OS)? ([\d.]+);.*$/, "$2"),
+    "macOS": () => u.replace(/^.*Mac OS X ([\d_]+).*$/, "$1").replace(/_/g, "."),
+    WebOS: () => u.replace(/^.*hpwOS\/([\d.]+);.*$/, "$1")
   };
-  _this.osVersion = "";
-  if (osVersion[_this.os]) {
-    _this.osVersion = osVersion[_this.os]();
-    if (_this.osVersion === u) {
-      _this.osVersion = "";
+  dest.osVersion = "";
+  if (osVersion[dest.os]) {
+    dest.osVersion = osVersion[dest.os]();
+    if (dest.osVersion === u) {
+      dest.osVersion = "";
     }
   }
-  var version = {
-    Safari: function() {
-      return u.replace(/^.*Version\/([\d.]+).*$/, "$1");
-    },
-    Chrome: function() {
-      return u.replace(/^.*Chrome\/([\d.]+).*$/, "$1").replace(/^.*CriOS\/([\d.]+).*$/, "$1");
-    },
-    IE: function() {
-      return u.replace(/^.*MSIE ([\d.]+).*$/, "$1").replace(/^.*rv:([\d.]+).*$/, "$1");
-    },
-    Edge: function() {
-      return u.replace(/^.*Edge\/([\d.]+).*$/, "$1");
-    },
-    Firefox: function() {
-      return u.replace(/^.*Firefox\/([\d.]+).*$/, "$1").replace(/^.*FxiOS\/([\d.]+).*$/, "$1");
-    },
-    "Firefox Focus": function() {
-      return u.replace(/^.*Focus\/([\d.]+).*$/, "$1");
-    },
-    Chromium: function() {
-      return u.replace(/^.*Chromium\/([\d.]+).*$/, "$1");
-    },
-    Opera: function() {
-      return u.replace(/^.*Opera\/([\d.]+).*$/, "$1").replace(/^.*OPR\/([\d.]+).*$/, "$1");
-    },
-    Vivaldi: function() {
-      return u.replace(/^.*Vivaldi\/([\d.]+).*$/, "$1");
-    },
-    Yandex: function() {
-      return u.replace(/^.*YaBrowser\/([\d.]+).*$/, "$1");
-    },
-    Kindle: function() {
-      return u.replace(/^.*Version\/([\d.]+).*$/, "$1");
-    },
-    Maxthon: function() {
-      return u.replace(/^.*Maxthon\/([\d.]+).*$/, "$1");
-    },
-    QQBrowser: function() {
-      return u.replace(/^.*QQBrowser\/([\d.]+).*$/, "$1");
-    },
-    QQ: function() {
-      return u.replace(/^.*QQ\/([\d.]+).*$/, "$1");
-    },
-    Baidu: function() {
-      return u.replace(/^.*BIDUBrowser[\s/]([\d.]+).*$/, "$1");
-    },
-    UC: function() {
-      return u.replace(/^.*UC?Browser\/([\d.]+).*$/, "$1");
-    },
-    Sogou: function() {
-      return u.replace(/^.*SE ([\d.X]+).*$/, "$1").replace(/^.*SogouMobileBrowser\/([\d.]+).*$/, "$1");
-    },
-    "2345Explorer": function() {
-      return u.replace(/^.*2345Explorer\/([\d.]+).*$/, "$1");
-    },
-    TheWorld: function() {
-      return u.replace(/^.*TheWorld ([\d.]+).*$/, "$1");
-    },
-    XiaoMi: function() {
-      return u.replace(/^.*MiuiBrowser\/([\d.]+).*$/, "$1");
-    },
-    Quark: function() {
-      return u.replace(/^.*Quark\/([\d.]+).*$/, "$1");
-    },
-    Qiyu: function() {
-      return u.replace(/^.*Qiyu\/([\d.]+).*$/, "$1");
-    },
-    Wechat: function() {
-      return u.replace(/^.*MicroMessenger\/([\d.]+).*$/, "$1");
-    },
-    Taobao: function() {
-      return u.replace(/^.*AliApp\(TB\/([\d.]+).*$/, "$1");
-    },
-    Alipay: function() {
-      return u.replace(/^.*AliApp\(AP\/([\d.]+).*$/, "$1");
-    },
-    Weibo: function() {
-      return u.replace(/^.*weibo__([\d.]+).*$/, "$1");
-    },
-    Douban: function() {
-      return u.replace(/^.*com.douban.frodo\/([\d.]+).*$/, "$1");
-    },
-    Suning: function() {
-      return u.replace(/^.*SNEBUY-APP([\d.]+).*$/, "$1");
-    },
-    iQiYi: function() {
-      return u.replace(/^.*IqiyiVersion\/([\d.]+).*$/, "$1");
-    }
+  const version = {
+    Safari: () => u.replace(/^.*Version\/([\d.]+).*$/, "$1"),
+    Chrome: () => u.replace(/^.*Chrome\/([\d.]+).*$/, "$1").replace(/^.*CriOS\/([\d.]+).*$/, "$1"),
+    IE: () => u.replace(/^.*MSIE ([\d.]+).*$/, "$1").replace(/^.*rv:([\d.]+).*$/, "$1"),
+    Edge: () => u.replace(/^.*(Edge|Edg|Edg[A-Z]{1})\/([\d.]+).*$/, "$2"),
+    Firefox: () => u.replace(/^.*Firefox\/([\d.]+).*$/, "$1").replace(/^.*FxiOS\/([\d.]+).*$/, "$1"),
+    "Firefox Focus": () => u.replace(/^.*Focus\/([\d.]+).*$/, "$1"),
+    Chromium: () => u.replace(/^.*Chromium\/([\d.]+).*$/, "$1"),
+    Opera: () => u.replace(/^.*Opera\/([\d.]+).*$/, "$1").replace(/^.*OPR\/([\d.]+).*$/, "$1"),
+    Vivaldi: () => u.replace(/^.*Vivaldi\/([\d.]+).*$/, "$1"),
+    Yandex: () => u.replace(/^.*YaBrowser\/([\d.]+).*$/, "$1"),
+    Kindle: () => u.replace(/^.*Version\/([\d.]+).*$/, "$1"),
+    Maxthon: () => u.replace(/^.*Maxthon\/([\d.]+).*$/, "$1"),
+    QQBrowser: () => u.replace(/^.*QQBrowser\/([\d.]+).*$/, "$1"),
+    QQ: () => u.replace(/^.*QQ\/([\d.]+).*$/, "$1"),
+    Baidu: () => u.replace(/^.*BIDUBrowser[\s/]([\d.]+).*$/, "$1"),
+    UC: () => u.replace(/^.*UC?Browser\/([\d.]+).*$/, "$1"),
+    Sogou: () => u.replace(/^.*SE ([\d.X]+).*$/, "$1").replace(/^.*SogouMobileBrowser\/([\d.]+).*$/, "$1"),
+    "2345Explorer": () => u.replace(/^.*2345Explorer\/([\d.]+).*$/, "$1"),
+    TheWorld: () => u.replace(/^.*TheWorld ([\d.]+).*$/, "$1"),
+    MIUI: () => u.replace(/^.*MiuiBrowser\/([\d.]+).*$/, "$1"),
+    Quark: () => u.replace(/^.*Quark\/([\d.]+).*$/, "$1"),
+    Qiyu: () => u.replace(/^.*Qiyu\/([\d.]+).*$/, "$1"),
+    Wechat: () => u.replace(/^.*MicroMessenger\/([\d.]+).*$/, "$1"),
+    Taobao: () => u.replace(/^.*AliApp\(TB\/([\d.]+).*$/, "$1"),
+    Alipay: () => u.replace(/^.*AliApp\(AP\/([\d.]+).*$/, "$1"),
+    Weibo: () => u.replace(/^.*weibo__([\d.]+).*$/, "$1"),
+    Douban: () => u.replace(/^.*com.douban.frodo\/([\d.]+).*$/, "$1"),
+    Suning: () => u.replace(/^.*SNEBUY-APP([\d.]+).*$/, "$1"),
+    iQiYi: () => u.replace(/^.*IqiyiVersion\/([\d.]+).*$/, "$1")
   };
-  _this.version = "";
-  if (version[_this.browser]) {
-    _this.version = version[_this.browser]();
-    if (_this.version === u) {
-      _this.version = "";
+  dest.version = "";
+  if (version[dest.browser]) {
+    dest.version = version[dest.browser]();
+    if (dest.version === u) {
+      dest.version = "";
     }
   }
-  if (_this.version.indexOf(".")) {
-    _this.version = _this.version.substring(0, _this.version.indexOf("."));
+  if (dest.version.indexOf(".")) {
+    dest.version = dest.version.substring(0, dest.version.indexOf("."));
   }
-  if (_this.browser === "Edge") {
-    _this.engine = "EdgeHTML";
-  } else if (_this.browser === "Chrome" && parseInt(_this.version) > 27) {
-    _this.engine = "Blink";
-  } else if (_this.browser === "Opera" && parseInt(_this.version) > 12) {
-    _this.engine = "Blink";
-  } else if (_this.browser === "Yandex") {
-    _this.engine = "Blink";
-  } else if (_this.browser === void 0) {
-    _this.browser = "Unknow App";
+  if (dest.os === "iOS" && u.includes("iPad")) {
+    dest.os = "iPadOS";
+  } else if (dest.browser === "Edge" && !u.includes("Edg")) {
+    dest.engine = "EdgeHTML";
+  } else if (dest.browser === "MIUI") {
+    dest.os = "Android";
+  } else if (dest.browser === "Chrome" && Number(dest.version) > 27) {
+    dest.engine = "Blink";
+  } else if (dest.browser === "Opera" && Number(dest.version) > 12) {
+    dest.engine = "Blink";
+  } else if (dest.browser === "Yandex") {
+    dest.engine = "Blink";
+  } else if (dest.browser === void 0) {
+    dest.browser = "Unknow App";
   }
-}
-function detectFactory(u) {
-  return new Detect(u);
+  return dest;
 }
 var CommentHTML = '<div class="atk-comment-wrap">\n  <div class="atk-comment">\n    <div class="atk-avatar"></div>\n    <div class="atk-main">\n      <div class="atk-header">\n        <span class="atk-item atk-nick"></span>\n        <span class="atk-item atk-badge"></span>\n        <span class="atk-item atk-date"></span>\n      </div>\n      <div class="atk-body">\n        <div class="atk-content"></div>\n      </div>\n      <div class="atk-footer">\n        <div class="atk-actions"></div>\n      </div>\n    </div>\n  </div>\n</div>\n';
 class ActionBtn {
@@ -5019,11 +4970,11 @@ class Comment extends Component {
     return timeAgo(new Date(this.data.date));
   }
   getUserUaBrowser() {
-    const info = detectFactory(this.data.ua);
+    const info = Detect(this.data.ua);
     return `${info.browser} ${info.version}`;
   }
   getUserUaOS() {
-    const info = detectFactory(this.data.ua);
+    const info = Detect(this.data.ua);
     return `${info.os} ${info.osVersion}`;
   }
   playFadeInAnim() {

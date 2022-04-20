@@ -6075,14 +6075,18 @@ const _Artalk = class {
     if (!this.conf.pageTitle) {
       this.conf.pageTitle = `${document.title}`;
     }
-    try {
-      const $root = document.querySelector(this.conf.el);
-      if (!$root)
-        throw Error(`Sorry, target element "${this.conf.el}" was not found.`);
-      this.$root = $root;
-    } catch (e) {
-      console.error(e);
-      throw new Error("Please check your Artalk `el` config.");
+    if (!!this.conf.el && this.conf.el instanceof HTMLElement) {
+      this.$root = this.conf.el;
+    } else {
+      try {
+        const $root = document.querySelector(this.conf.el);
+        if (!$root)
+          throw Error(`Sorry, target element "${this.conf.el}" was not found.`);
+        this.$root = $root;
+      } catch (e) {
+        console.error(e);
+        throw new Error("Please check your Artalk `el` config.");
+      }
     }
     this.ctx = new Context(this.$root, this.conf);
     this.$root.classList.add("artalk");

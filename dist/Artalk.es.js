@@ -6068,7 +6068,7 @@ const _Artalk = class {
     __publicField(this, "list");
     __publicField(this, "sidebarLayer");
     this.conf = __spreadValues(__spreadValues({}, _Artalk.defaults), customConf);
-    this.conf.server = this.conf.server.replace(/\/$/, "");
+    this.conf.server = this.conf.server.replace(/\/$/, "").replace(/\/api\/?$/, "");
     if (!this.conf.pageKey) {
       this.conf.pageKey = `${window.location.pathname}`;
     }

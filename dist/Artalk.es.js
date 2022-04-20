@@ -6072,6 +6072,9 @@ const _Artalk = class {
     if (!this.conf.pageKey) {
       this.conf.pageKey = `${window.location.pathname}`;
     }
+    if (!this.conf.pageTitle) {
+      this.conf.pageTitle = `${document.title}`;
+    }
     try {
       const $root = document.querySelector(this.conf.el);
       if (!$root)

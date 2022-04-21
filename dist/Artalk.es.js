@@ -5375,6 +5375,8 @@ class ListLite extends Component {
       <div class="atk-list-comments-wrap"></div>
     </div>`);
     this.$commentsWrap = this.$el.querySelector(".atk-list-comments-wrap");
+    if (ctx.conf.noComment)
+      this.noCommentText = ctx.conf.noComment;
     window.setInterval(() => {
       this.$el.querySelectorAll("[data-atk-comment-date]").forEach((el) => {
         const date = el.getAttribute("data-atk-comment-date");

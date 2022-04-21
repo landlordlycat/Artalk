@@ -1123,7 +1123,7 @@ function mangle(text) {
 class Lexer {
   constructor(options) {
     this.tokens = [];
-    this.tokens.links = Object.create(null);
+    this.tokens.links = /* @__PURE__ */ Object.create(null);
     this.options = options || defaults$2;
     this.options.tokenizer = this.options.tokenizer || new Tokenizer();
     this.tokenizer = this.options.tokenizer;

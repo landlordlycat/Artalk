@@ -5178,7 +5178,7 @@ class Pagination {
     this.$el = createElement(`<div class="atk-pagination-wrap">
         <div class="atk-pagination">
           <div class="atk-btn atk-btn-prev">Prev</div>
-          <input type="text" class="atk-input" />
+          <input type="text" class="atk-input" aria-label="Enter the number of page" />
           <div class="atk-btn atk-btn-next">Next</div>
         </div>
       </div>`);

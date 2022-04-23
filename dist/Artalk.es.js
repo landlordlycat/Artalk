@@ -3452,6 +3452,14 @@ class Api {
       return data || { is_pass: false };
     });
   }
+  cacheFlushAll() {
+    const params = { flush_all: true };
+    return POST(this.ctx, `${this.baseURL}/admin/cache-flush`, params);
+  }
+  cacheWarmUp() {
+    const params = {};
+    return POST(this.ctx, `${this.baseURL}/admin/cache-warm`, params);
+  }
 }
 const CaptchaChecker = {
   request(that, ctx, inputVal) {

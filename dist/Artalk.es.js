@@ -5389,7 +5389,7 @@ class ReadMoreBtn {
       this.hide();
   }
 }
-const backendMinVersion = "2.1.2";
+const backendMinVersion = "2.1.4";
 class ListLite extends Component {
   constructor(ctx) {
     super(ctx);
@@ -5479,7 +5479,7 @@ class ListLite extends Component {
     }
     this.data = data;
     const feMinVersion = ((_a = data.api_version) == null ? void 0 : _a.fe_min_version) || "0.0.0";
-    if (this.ctx.conf.versionCheck && this.versionCheck("\u524D\u7AEF", feMinVersion, "2.2.7"))
+    if (this.ctx.conf.versionCheck && this.versionCheck("\u524D\u7AEF", feMinVersion, "2.2.8"))
       return;
     if (this.ctx.conf.versionCheck && this.versionCheck("\u540E\u7AEF", backendMinVersion, (_b = data.api_version) == null ? void 0 : _b.version))
       return;
@@ -5811,7 +5811,7 @@ class List extends ListLite {
     if (this.ctx.conf.listSort) {
       this.initDropdown();
     }
-    this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.2.7"}">Artalk</a>`;
+    this.$el.querySelector(".atk-copyright").innerHTML = `Powered By <a href="https://artalk.js.org" target="_blank" title="Artalk v${"2.2.8"}">Artalk</a>`;
     this.ctx.on("list-reload", () => this.fetchComments(0));
     this.ctx.on("list-refresh-ui", () => this.refreshUI());
     this.ctx.on("list-import", (data) => this.importComments(data));

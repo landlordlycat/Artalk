@@ -120,7 +120,8 @@ const defaults$3 = {
   },
   imgUpload: true,
   reqTimeout: 15e3,
-  versionCheck: true
+  versionCheck: true,
+  useBackendConf: false
 };
 class Component {
   constructor(ctx) {
@@ -2813,6 +2814,24 @@ function getURLBasedOnApi(ctx, path) {
 function getURLBasedOn(baseURL, path) {
   return `${baseURL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
+function mergeDeep(target, source) {
+  const isObject = (obj) => obj && typeof obj === "object";
+  if (!isObject(target) || !isObject(source)) {
+    return source;
+  }
+  Object.keys(source).forEach((key) => {
+    const targetValue = target[key];
+    const sourceValue = source[key];
+    if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
+      target[key] = targetValue.concat(sourceValue);
+    } else if (isObject(targetValue) && isObject(sourceValue)) {
+      target[key] = mergeDeep(__spreadValues({}, targetValue), sourceValue);
+    } else {
+      target[key] = sourceValue;
+    }
+  });
+  return target;
+}
 function showLoading(parentElem, conf) {
   if (parentElem instanceof Context)
     parentElem = parentElem.$root;
@@ -3432,6 +3451,19 @@ class Api {
       };
       const json = yield Fetch(this.ctx, `${this.baseURL}/img-upload`, init);
       return json.data || {};
+    });
+  }
+  conf() {
+    return __async(this, null, function* () {
+      const data = yield POST(this.ctx, `${this.baseURL}/conf`);
+      const conf = data.frontend_conf || {};
+      if (conf.emoticons && typeof conf.emoticons === "string") {
+        conf.emoticons = conf.emoticons.trim();
+        if (conf.emoticons.startsWith("[") || conf.emoticons.startsWith("{")) {
+          conf.emoticons = JSON.parse(conf.emoticons);
+        }
+      }
+      return conf;
     });
   }
   captchaGet() {
@@ -6077,7 +6109,7 @@ const _Artalk = class {
     __publicField(this, "editor");
     __publicField(this, "list");
     __publicField(this, "sidebarLayer");
-    this.conf = __spreadValues(__spreadValues({}, _Artalk.defaults), customConf);
+    this.conf = mergeDeep(_Artalk.defaults, customConf);
     this.conf.server = this.conf.server.replace(/\/$/, "").replace(/\/api\/?$/, "");
     if (!this.conf.pageKey) {
       this.conf.pageKey = `${window.location.pathname}`;
@@ -6101,6 +6133,16 @@ const _Artalk = class {
     this.ctx = new Context(this.$root, this.conf);
     this.$root.classList.add("artalk");
     this.$root.innerHTML = "";
+    if (this.conf.useBackendConf) {
+      return (() => __async(this, null, function* () {
+        yield this.loadConfRemote();
+        this.initCore();
+        return this;
+      }))();
+    }
+    this.initCore();
+  }
+  initCore() {
     this.initLayer();
     this.initDarkMode();
     this.checkerLauncher = new CheckerLauncher(this.ctx);
@@ -6118,6 +6160,19 @@ const _Artalk = class {
       if (typeof plugin === "function") {
         plugin(this.ctx);
       }
+    });
+  }
+  loadConfRemote() {
+    return __async(this, null, function* () {
+      showLoading(this.$root);
+      let backendConf = {};
+      try {
+        backendConf = yield new Api(this.ctx).conf();
+      } catch (err) {
+        console.error("\u914D\u7F6E\u8FDC\u7A0B\u83B7\u53D6\u5931\u8D25", err);
+      }
+      this.ctx.conf = mergeDeep(this.ctx.conf, backendConf);
+      hideLoading(this.$root);
     });
   }
   initEventBind() {

@@ -4045,15 +4045,26 @@ class Editor extends Component {
       const inputEl = this.getInputEl(field);
       if (inputEl && inputEl instanceof HTMLInputElement) {
         inputEl.value = this.user.data[field] || "";
-        inputEl.addEventListener("input", () => this.onHeaderInputChanged(field, inputEl));
+        inputEl.addEventListener("input", () => this.onHeaderInput(field, inputEl));
       }
     });
+    const $linkInput = this.getInputEl("link");
+    if ($linkInput) {
+      $linkInput.addEventListener("change", () => {
+        const link = $linkInput.value.trim();
+        if (!!link && !/^(http|https):\/\//.test(link)) {
+          $linkInput.value = `https://${link}`;
+          this.user.data.link = $linkInput.value;
+          this.saveUser();
+        }
+      });
+    }
   }
   getInputEl(field) {
     const inputEl = this.$header.querySelector(`[name="${field}"]`);
     return inputEl;
   }
-  onHeaderInputChanged(field, inputEl) {
+  onHeaderInput(field, inputEl) {
     this.user.data[field] = inputEl.value.trim();
     if (field === "nick" || field === "email") {
       this.user.data.token = "";

@@ -104,7 +104,8 @@ const defaults$3 = {
   listSort: true,
   pvEl: "#ArtalkPV",
   flatMode: "auto",
-  maxNesting: 3,
+  nestMax: 3,
+  nestShowAt: false,
   gravatar: {
     default: "mp",
     mirror: "https://sdn.geekzu.org/avatar/"
@@ -4770,6 +4771,7 @@ class Comment extends Component {
     __publicField(this, "children", []);
     __publicField(this, "replyTo");
     __publicField(this, "$replyTo");
+    __publicField(this, "$replyAt");
     __publicField(this, "afterRender");
     __publicField(this, "unread", false);
     __publicField(this, "openable", false);
@@ -4777,7 +4779,7 @@ class Comment extends Component {
     __publicField(this, "openEvt");
     __publicField(this, "onReplyBtnClick");
     __publicField(this, "onDelete");
-    this.maxNestingNum = ctx.conf.maxNesting || 3;
+    this.maxNestingNum = ctx.conf.nestMax || 3;
     this.data = __spreadValues({}, data);
     this.data.date = this.data.date.replace(/-/g, "/");
     this.parent = null;
@@ -4797,6 +4799,7 @@ class Comment extends Component {
     this.renderAvatar();
     this.renderHeader();
     this.renderContent();
+    this.renderReplyAt();
     this.renderReplyTo();
     this.renderPending();
     this.renderActionBtn();
@@ -4900,6 +4903,21 @@ class Comment extends Component {
         contentShowBtn.innerHTML = "\u67E5\u770B\u5185\u5BB9";
       }
     });
+  }
+  renderReplyAt() {
+    if (!this.conf.nestShowAt || this.$replyAt || this.replyTo || !this.parent)
+      return;
+    this.$replyAt = createElement(`<span class="atk-reply-at"><span class="atk-nick"></span>: </span>`);
+    this.$replyAt.querySelector(".atk-nick").innerText = `@${this.parent.data.nick}`;
+    this.$replyAt.onclick = () => {
+      window.location.hash = `#atk-comment-${this.parent.data.id}`;
+    };
+    const $firstParaTag = this.$content.querySelector("p:first-child");
+    if ($firstParaTag) {
+      $firstParaTag.prepend(this.$replyAt);
+    } else {
+      this.$content.prepend(this.$replyAt);
+    }
   }
   renderReplyTo() {
     if (!this.replyTo)
@@ -5640,6 +5658,7 @@ class ListLite extends Component {
       const children = srcData.filter((o) => o.rid === parentC.data.id);
       children.forEach((childData) => {
         const childC = this.createComment(childData);
+        childC.parent = parentC;
         childC.render();
         parentC.putChild(childC);
         loadChildren(childC);
@@ -5683,13 +5702,15 @@ class ListLite extends Component {
   insertComment(commentData) {
     if (!this.flatMode) {
       const comment2 = this.createComment(commentData);
-      comment2.render();
       if (commentData.rid === 0) {
+        comment2.render();
         this.$commentsWrap.prepend(comment2.getEl());
         this.comments.unshift(comment2);
       } else {
         const parent = this.findComment(commentData.rid);
         if (parent) {
+          comment2.parent = parent;
+          comment2.render();
           parent.putChild(comment2);
           comment2.getParents().forEach((p) => {
             if (p.$children)

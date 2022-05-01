@@ -4759,6 +4759,7 @@ class Comment extends Component {
     __publicField(this, "$main");
     __publicField(this, "$header");
     __publicField(this, "$headerNick");
+    __publicField(this, "$headerBadge");
     __publicField(this, "$body");
     __publicField(this, "$content");
     __publicField(this, "$children");
@@ -4852,13 +4853,14 @@ class Comment extends Component {
     } else {
       this.$headerNick.innerText = this.data.nick;
     }
-    const $badge = this.$el.querySelector(".atk-badge");
+    this.$headerBadge = this.$el.querySelector(".atk-badge");
     if (this.data.badge_name) {
-      $badge.innerText = this.data.badge_name;
+      this.$headerBadge.innerText = this.data.badge_name;
       if (this.data.badge_color)
-        $badge.style.backgroundColor = this.data.badge_color;
+        this.$headerBadge.style.backgroundColor = this.data.badge_color;
     } else {
-      $badge.remove();
+      this.$headerBadge.remove();
+      this.$headerBadge = void 0;
     }
     if (this.data.is_pinned) {
       const $pinnedBadge = createElement(`<span class="atk-item atk-pinned-badge">\u7F6E\u9876</span>`);
@@ -4917,7 +4919,8 @@ class Comment extends Component {
     this.$replyAt.onclick = () => {
       this.goToReplyComment();
     };
-    this.$headerNick.insertAdjacentElement("afterend", this.$replyAt);
+    const $after = this.$headerBadge || this.$headerNick;
+    $after.insertAdjacentElement("afterend", this.$replyAt);
   }
   renderReplyTo() {
     if (!this.flatMode)
@@ -6211,6 +6214,9 @@ const _Artalk = class {
     }
     if (!this.conf.pageTitle) {
       this.conf.pageTitle = `${document.title}`;
+    }
+    if (this.conf.nestMax && this.conf.nestMax <= 1) {
+      this.conf.flatMode = true;
     }
     if (!!this.conf.el && this.conf.el instanceof HTMLElement) {
       this.$root = this.conf.el;

@@ -104,7 +104,7 @@ const defaults$3 = {
   listSort: true,
   pvEl: "#ArtalkPV",
   flatMode: "auto",
-  nestMax: 3,
+  nestMax: 2,
   gravatar: {
     default: "mp",
     mirror: "https://sdn.geekzu.org/avatar/"

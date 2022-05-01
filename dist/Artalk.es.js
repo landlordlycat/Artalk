@@ -105,7 +105,6 @@ const defaults$3 = {
   pvEl: "#ArtalkPV",
   flatMode: "auto",
   nestMax: 3,
-  nestShowAt: false,
   gravatar: {
     default: "mp",
     mirror: "https://sdn.geekzu.org/avatar/"
@@ -4759,6 +4758,7 @@ class Comment extends Component {
     __publicField(this, "data");
     __publicField(this, "$main");
     __publicField(this, "$header");
+    __publicField(this, "$headerNick");
     __publicField(this, "$body");
     __publicField(this, "$content");
     __publicField(this, "$children");
@@ -4766,9 +4766,10 @@ class Comment extends Component {
     __publicField(this, "voteBtnUp");
     __publicField(this, "voteBtnDown");
     __publicField(this, "parent");
-    __publicField(this, "nestedNum");
-    __publicField(this, "maxNestingNum");
+    __publicField(this, "nestCurt");
+    __publicField(this, "nestMax");
     __publicField(this, "children", []);
+    __publicField(this, "flatMode", false);
     __publicField(this, "replyTo");
     __publicField(this, "$replyTo");
     __publicField(this, "$replyAt");
@@ -4779,11 +4780,11 @@ class Comment extends Component {
     __publicField(this, "openEvt");
     __publicField(this, "onReplyBtnClick");
     __publicField(this, "onDelete");
-    this.maxNestingNum = ctx.conf.nestMax || 3;
+    this.nestMax = ctx.conf.nestMax || 3;
     this.data = __spreadValues({}, data);
     this.data.date = this.data.date.replace(/-/g, "/");
     this.parent = null;
-    this.nestedNum = 1;
+    this.nestCurt = 1;
   }
   render() {
     this.$el = createElement(CommentHTML);
@@ -4842,14 +4843,14 @@ class Comment extends Component {
     }
   }
   renderHeader() {
-    const $nick = this.$el.querySelector(".atk-nick");
+    this.$headerNick = this.$el.querySelector(".atk-nick");
     if (this.data.link) {
       const $nickA = createElement('<a target="_blank" rel="noreferrer noopener nofollow"></a>');
       $nickA.innerText = this.data.nick;
       $nickA.href = this.data.link;
-      $nick.append($nickA);
+      this.$headerNick.append($nickA);
     } else {
-      $nick.innerText = this.data.nick;
+      this.$headerNick.innerText = this.data.nick;
     }
     const $badge = this.$el.querySelector(".atk-badge");
     if (this.data.badge_name) {
@@ -4861,7 +4862,7 @@ class Comment extends Component {
     }
     if (this.data.is_pinned) {
       const $pinnedBadge = createElement(`<span class="atk-item atk-pinned-badge">\u7F6E\u9876</span>`);
-      $nick.insertAdjacentElement("afterend", $pinnedBadge);
+      this.$headerNick.insertAdjacentElement("afterend", $pinnedBadge);
     }
     const $date = this.$el.querySelector(".atk-date");
     $date.innerText = this.getDateFormatted();
@@ -4905,21 +4906,22 @@ class Comment extends Component {
     });
   }
   renderReplyAt() {
-    if (!this.conf.nestShowAt || this.$replyAt || this.replyTo || !this.parent)
+    if (this.flatMode || this.data.rid === 0)
       return;
-    this.$replyAt = createElement(`<span class="atk-reply-at"><span class="atk-nick"></span>: </span>`);
-    this.$replyAt.querySelector(".atk-nick").innerText = `@${this.parent.data.nick}`;
+    if (this.$replyAt)
+      return;
+    if (!this.replyTo)
+      return;
+    this.$replyAt = createElement(`<span class="atk-item atk-reply-at"><span class="atk-arrow"></span><span class="atk-nick"></span></span>`);
+    this.$replyAt.querySelector(".atk-nick").innerText = `${this.replyTo.nick}`;
     this.$replyAt.onclick = () => {
-      window.location.hash = `#atk-comment-${this.parent.data.id}`;
+      this.goToReplyComment();
     };
-    const $firstParaTag = this.$content.querySelector("p:first-child");
-    if ($firstParaTag) {
-      $firstParaTag.prepend(this.$replyAt);
-    } else {
-      this.$content.prepend(this.$replyAt);
-    }
+    this.$headerNick.insertAdjacentElement("afterend", this.$replyAt);
   }
   renderReplyTo() {
+    if (!this.flatMode)
+      return;
     if (!this.replyTo)
       return;
     this.$replyTo = createElement(`
@@ -4927,12 +4929,23 @@ class Comment extends Component {
         <div class="atk-meta">\u56DE\u590D <span class="atk-nick"></span>:</div>
         <div class="atk-content"></div>
       </div>`);
-    this.$replyTo.querySelector(".atk-nick").innerText = `@${this.replyTo.nick}`;
+    const $nick = this.$replyTo.querySelector(".atk-nick");
+    $nick.innerText = `@${this.replyTo.nick}`;
+    $nick.onclick = () => {
+      this.goToReplyComment();
+    };
     let replyContent = marked(this.ctx, this.replyTo.content);
     if (this.replyTo.is_collapsed)
       replyContent = "[\u5DF2\u6298\u53E0]";
     this.$replyTo.querySelector(".atk-content").innerHTML = replyContent;
     this.$body.prepend(this.$replyTo);
+  }
+  goToReplyComment() {
+    const origHash = window.location.hash;
+    const modifyHash = `#atk-comment-${this.data.rid}`;
+    window.location.hash = modifyHash;
+    if (modifyHash === origHash)
+      window.dispatchEvent(new Event("hashchange"));
   }
   renderPending() {
     if (!this.data.is_pending)
@@ -5028,19 +5041,23 @@ class Comment extends Component {
   getChildren() {
     return this.children;
   }
-  putChild(childC) {
+  putChild(childC, insertMode = "append") {
     childC.parent = this;
-    childC.nestedNum = this.nestedNum + 1;
+    childC.nestCurt = this.nestCurt + 1;
     this.children.push(childC);
-    this.getChildrenEl().appendChild(childC.getEl());
+    const $children = this.getChildrenEl();
+    if (insertMode === "append")
+      $children.append(childC.getEl());
+    else if (insertMode === "prepend")
+      $children.prepend(childC.getEl());
     childC.playFadeInAnim();
     childC.checkHeightLimitArea("content");
   }
   getChildrenEl() {
-    if (this.$children === null) {
-      if (this.nestedNum < this.maxNestingNum) {
+    if (!this.$children) {
+      if (this.nestCurt < this.nestMax) {
         this.$children = createElement('<div class="atk-comment-children"></div>');
-        this.$main.appendChild(this.$children);
+        this.$main.append(this.$children);
       } else if (this.parent) {
         this.$children = this.parent.getChildrenEl();
       }
@@ -5418,16 +5435,68 @@ class ReadMoreBtn {
       this.hide();
   }
 }
+function makeNestCommentNodeList(srcData, sortBy = "DATE_DESC", nestMax = 2) {
+  const nodeList = [];
+  const roots = srcData.filter((o) => o.rid === 0);
+  roots.forEach((root) => {
+    const rootNode = {
+      id: root.id,
+      comment: root,
+      children: [],
+      level: 1
+    };
+    rootNode.parent = rootNode;
+    nodeList.push(rootNode);
+    (function loadChildren(parentNode) {
+      const children = srcData.filter((o) => o.rid === parentNode.id);
+      if (children.length === 0)
+        return;
+      if (parentNode.level >= nestMax)
+        parentNode = parentNode.parent;
+      children.forEach((child) => {
+        const childNode = {
+          id: child.id,
+          comment: child,
+          children: [],
+          parent: parentNode,
+          level: parentNode.level + 1
+        };
+        parentNode.children.push(childNode);
+        loadChildren(childNode);
+      });
+    })(rootNode);
+  });
+  const sortFunc = (a, b) => {
+    let v = a.id - b.id;
+    if (sortBy === "DATE_ASC")
+      v = +new Date(a.comment.date) - +new Date(b.comment.date);
+    else if (sortBy === "DATE_DESC")
+      v = +new Date(b.comment.date) - +new Date(a.comment.date);
+    else if (sortBy === "SRC_INDEX")
+      v = srcData.indexOf(a.comment) - srcData.indexOf(b.comment);
+    else if (sortBy === "VOTE_UP_DESC")
+      v = b.comment.vote_up - a.comment.vote_up;
+    return v;
+  };
+  (function sortLevels(nodes) {
+    nodes.forEach((node) => {
+      node.children = node.children.sort(sortFunc);
+      sortLevels(node.children);
+    });
+  })(nodeList);
+  return nodeList;
+}
 const backendMinVersion = "2.1.4";
 class ListLite extends Component {
   constructor(ctx) {
     super(ctx);
     __publicField(this, "$commentsWrap");
-    __publicField(this, "comments", []);
+    __publicField(this, "commentList", []);
     __publicField(this, "data");
     __publicField(this, "isLoading", false);
     __publicField(this, "noCommentText", "\u65E0\u5185\u5BB9");
     __publicField(this, "flatMode", false);
+    __publicField(this, "nestSortBy", "DATE_DESC");
     __publicField(this, "pageMode", "pagination");
     __publicField(this, "pageSize", 20);
     __publicField(this, "scrollListenerAt");
@@ -5453,6 +5522,9 @@ class ListLite extends Component {
       });
     }, 30 * 1e3);
     this.ctx.on("unread-update", (data) => this.updateUnread(data.notifies));
+  }
+  get commentDataList() {
+    return this.commentList.map((c) => c.data);
   }
   fetchComments(offset) {
     return __async(this, null, function* () {
@@ -5619,7 +5691,7 @@ class ListLite extends Component {
     setError(this.$el, $err);
   }
   refreshUI() {
-    const isNoComment = this.comments.length <= 0;
+    const isNoComment = this.commentList.length <= 0;
     let $noComment = this.$commentsWrap.querySelector(".atk-list-no-comment");
     if (isNoComment) {
       if (!$noComment) {
@@ -5632,8 +5704,11 @@ class ListLite extends Component {
     }
     this.ctx.trigger("check-admin-show-el");
   }
-  createComment(data) {
-    const comment2 = new Comment(this.ctx, data);
+  createComment(cData, ctxData) {
+    if (!ctxData)
+      ctxData = this.commentDataList;
+    const comment2 = new Comment(this.ctx, cData);
+    comment2.flatMode = this.flatMode;
     comment2.afterRender = () => {
       if (this.renderComment)
         this.renderComment(comment2);
@@ -5642,6 +5717,7 @@ class ListLite extends Component {
       this.deleteComment(c);
       this.refreshUI();
     };
+    comment2.replyTo = cData.rid ? ctxData.find((c) => c.id === cData.rid) : void 0;
     return comment2;
   }
   importComments(srcData) {
@@ -5650,45 +5726,37 @@ class ListLite extends Component {
         this.putCommentFlatMode(commentData, srcData, "append");
       });
     } else {
-      this.importCommentsNesting(srcData);
+      this.importCommentsNest(srcData);
     }
   }
-  importCommentsNesting(srcData) {
-    const loadChildren = (parentC) => {
-      const children = srcData.filter((o) => o.rid === parentC.data.id);
-      children.forEach((childData) => {
-        const childC = this.createComment(childData);
-        childC.parent = parentC;
-        childC.render();
-        parentC.putChild(childC);
-        loadChildren(childC);
-      });
-    };
-    const rootComments = srcData.filter((o) => o.rid === 0);
-    rootComments.forEach((rootData) => {
-      const rootC = this.createComment(rootData);
+  importCommentsNest(srcData) {
+    const rootNodes = makeNestCommentNodeList(srcData, this.nestSortBy, this.conf.nestMax);
+    rootNodes.forEach((rootNode) => {
+      const rootC = this.createComment(rootNode.comment, srcData);
       rootC.render();
       this.$commentsWrap.appendChild(rootC.getEl());
       rootC.playFadeInAnim();
-      this.comments.push(rootC);
-      loadChildren(rootC);
+      this.commentList.push(rootC);
+      const that = this;
+      (function loadChildren(parentC, parentNode) {
+        parentNode.children.forEach((node) => {
+          const childD = node.comment;
+          const childC = that.createComment(childD, srcData);
+          childC.render();
+          parentC.putChild(childC);
+          that.commentList.push(childC);
+          loadChildren(childC, node);
+        });
+      })(rootC, rootNode);
       rootC.checkHeightLimit();
     });
   }
-  putCommentFlatMode(cData, srcData, insertMode) {
+  putCommentFlatMode(cData, ctxData, insertMode) {
     if (cData.is_collapsed)
       cData.is_allow_reply = false;
-    const comment2 = this.createComment(cData);
-    if (cData.rid !== 0) {
-      const rComment = srcData.find((o) => o.id === cData.rid);
-      if (rComment)
-        comment2.replyTo = rComment;
-    }
+    const comment2 = this.createComment(cData, ctxData);
     comment2.render();
-    if (insertMode === "append")
-      this.comments.push(comment2);
-    if (insertMode === "prepend")
-      this.comments.unshift(comment2);
+    this.commentList.push(comment2);
     if (cData.visible) {
       if (insertMode === "append")
         this.$commentsWrap.append(comment2.getEl());
@@ -5705,13 +5773,12 @@ class ListLite extends Component {
       if (commentData.rid === 0) {
         comment2.render();
         this.$commentsWrap.prepend(comment2.getEl());
-        this.comments.unshift(comment2);
+        this.commentList.push(comment2);
       } else {
         const parent = this.findComment(commentData.rid);
         if (parent) {
-          comment2.parent = parent;
           comment2.render();
-          parent.putChild(comment2);
+          parent.putChild(comment2, this.nestSortBy === "DATE_ASC" ? "append" : "prepend");
           comment2.getParents().forEach((p) => {
             if (p.$children)
               p.heightLimitRemove(p.$children);
@@ -5722,7 +5789,7 @@ class ListLite extends Component {
       scrollIntoView(comment2.getEl());
       comment2.playFadeInAnim();
     } else {
-      const comment2 = this.putCommentFlatMode(commentData, this.comments.map((c) => c.data), "prepend");
+      const comment2 = this.putCommentFlatMode(commentData, this.commentDataList, "prepend");
       scrollIntoView(comment2.getEl());
     }
     if (this.data)
@@ -5730,45 +5797,20 @@ class ListLite extends Component {
     this.refreshUI();
     this.ctx.trigger("comments-loaded");
   }
-  eachComment(commentList, action) {
-    if (commentList.length === 0)
-      return;
-    commentList.every((item) => {
-      if (action(item, commentList) === false)
-        return false;
-      this.eachComment(item.getChildren(), action);
-      return true;
-    });
+  findComment(id) {
+    return this.commentList.find((c) => c.data.id === id);
   }
-  findComment(id, src) {
-    if (!src)
-      src = this.comments;
-    let comment2 = null;
-    this.eachComment(src, (item) => {
-      if (item.data.id === id) {
-        comment2 = item;
-        return false;
-      }
-      return true;
-    });
-    return comment2;
-  }
-  deleteComment(comment2) {
-    let findComment;
-    if (typeof comment2 === "number") {
-      findComment = this.findComment(comment2);
+  deleteComment(_comment) {
+    let comment2;
+    if (typeof _comment === "number") {
+      const findComment = this.findComment(_comment);
       if (!findComment)
-        throw Error(`\u672A\u627E\u5230\u8BC4\u8BBA ${comment2}`);
+        throw Error(`\u672A\u627E\u5230\u8BC4\u8BBA ${_comment}`);
+      comment2 = findComment;
     } else
-      findComment = comment2;
-    findComment.getEl().remove();
-    this.eachComment(this.comments, (item, levelList) => {
-      if (item === findComment) {
-        levelList.splice(levelList.indexOf(item), 1);
-        return false;
-      }
-      return true;
-    });
+      comment2 = _comment;
+    comment2.getEl().remove();
+    this.commentList.splice(this.commentList.indexOf(comment2), 1);
     if (this.data)
       this.data.total -= 1;
     this.refreshUI();
@@ -5776,12 +5818,12 @@ class ListLite extends Component {
   clearAllComments() {
     this.$commentsWrap.innerHTML = "";
     this.data = void 0;
-    this.comments = [];
+    this.commentList = [];
   }
   updateUnread(notifies) {
     this.unread = notifies;
     if (this.unreadHighlight === true) {
-      this.eachComment(this.comments, (comment2) => {
+      this.commentList.forEach((comment2) => {
         const notify = this.unread.find((o) => o.comment_id === comment2.data.id);
         if (notify) {
           comment2.setUnread(true);
@@ -5825,6 +5867,8 @@ class List extends ListLite {
     __publicField(this, "$unreadBadge");
     __publicField(this, "$commentCount");
     __publicField(this, "$dropdownWrap");
+    __publicField(this, "goToCommentFounded", false);
+    __publicField(this, "goToCommentDelay", true);
     el.querySelector(".atk-list-body").append(this.$el);
     this.$el = el;
     let flatMode = false;
@@ -5893,36 +5937,55 @@ class List extends ListLite {
   }
   onLoad(data, offset) {
     super.onLoad(data, offset);
-    this.checkGoToCommentByUrlHash();
+    if (!this.goToCommentFounded)
+      this.checkGoToCommentByUrlHash();
+    if (this.ctx.conf.editorTravel === true) {
+      this.ctx.trigger("editor-travel-back");
+    }
   }
   checkGoToCommentByUrlHash() {
-    return __async(this, null, function* () {
-      let commentId = Number(getQueryParam("atk_comment"));
-      if (!commentId) {
-        const match = window.location.hash.match(/#atk-comment-([0-9]+)/);
-        if (!match || !match[1] || Number.isNaN(Number(match[1])))
-          return;
-        commentId = Number(match[1]);
-      }
-      if (!commentId)
+    let commentId = Number(getQueryParam("atk_comment"));
+    if (!commentId) {
+      const match = window.location.hash.match(/#atk-comment-([0-9]+)/);
+      if (!match || !match[1] || Number.isNaN(Number(match[1])))
         return;
-      const notifyKey = getQueryParam("atk_notify_key");
-      if (notifyKey) {
-        new Api(this.ctx).markRead(notifyKey).then(() => {
-          this.unread = this.unread.filter((o) => o.comment_id !== commentId);
-          this.ctx.trigger("unread-update", {
-            notifies: this.unread
-          });
+      commentId = Number(match[1]);
+    }
+    if (!commentId)
+      return;
+    const comment2 = this.findComment(commentId);
+    if (!comment2) {
+      if (this.readMoreBtn)
+        this.readMoreBtn.click();
+      else if (this.pagination)
+        this.pagination.next();
+      return;
+    }
+    const notifyKey = getQueryParam("atk_notify_key");
+    if (notifyKey) {
+      new Api(this.ctx).markRead(notifyKey).then(() => {
+        this.unread = this.unread.filter((o) => o.comment_id !== commentId);
+        this.ctx.trigger("unread-update", {
+          notifies: this.unread
         });
-      }
-      const comment2 = this.findComment(commentId);
-      if (!comment2)
-        return;
+      });
+    }
+    comment2.getParents().forEach((p) => {
+      if (p.$children)
+        p.heightLimitRemove(p.$children);
+    });
+    const goTo = () => {
       scrollIntoView(comment2.getEl(), false);
+      comment2.getEl().classList.remove("atk-flash-once");
       window.setTimeout(() => {
         comment2.getEl().classList.add("atk-flash-once");
-      }, 800);
-    });
+      }, 150);
+    };
+    if (!this.goToCommentDelay)
+      goTo();
+    else
+      window.setTimeout(() => goTo(), 350);
+    this.goToCommentFounded = true;
   }
   adminPageEditSave() {
     if (!this.data || !this.data.page)
@@ -6209,6 +6272,7 @@ const _Artalk = class {
   }
   initEventBind() {
     window.addEventListener("hashchange", () => {
+      this.list.goToCommentDelay = false;
       this.list.checkGoToCommentByUrlHash();
     });
     this.ctx.on("check-admin-show-el", () => {

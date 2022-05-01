@@ -97,14 +97,15 @@ const defaults$3 = {
   sendBtn: "\u53D1\u9001\u8BC4\u8BBA",
   darkMode: false,
   editorTravel: true,
+  flatMode: "auto",
+  nestMax: 2,
+  nestSort: "DATE_ASC",
   emoticons: "https://cdn.jsdelivr.net/gh/ArtalkJS/Emoticons/grps/default.json",
   vote: true,
   voteDown: false,
   uaBadge: true,
   listSort: true,
   pvEl: "#ArtalkPV",
-  flatMode: "auto",
-  nestMax: 2,
   gravatar: {
     default: "mp",
     mirror: "https://sdn.geekzu.org/avatar/"
@@ -5499,7 +5500,7 @@ class ListLite extends Component {
     __publicField(this, "isLoading", false);
     __publicField(this, "noCommentText", "\u65E0\u5185\u5BB9");
     __publicField(this, "flatMode", false);
-    __publicField(this, "nestSortBy", "DATE_DESC");
+    __publicField(this, "nestSortBy");
     __publicField(this, "pageMode", "pagination");
     __publicField(this, "pageSize", 20);
     __publicField(this, "scrollListenerAt");
@@ -5518,6 +5519,7 @@ class ListLite extends Component {
     this.$commentsWrap = this.$el.querySelector(".atk-list-comments-wrap");
     if (ctx.conf.noComment)
       this.noCommentText = ctx.conf.noComment;
+    this.nestSortBy = this.ctx.conf.nestSort || "DATE_ASC";
     window.setInterval(() => {
       this.$el.querySelectorAll("[data-atk-comment-date]").forEach((el) => {
         const date = el.getAttribute("data-atk-comment-date");

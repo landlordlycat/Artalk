@@ -6087,6 +6087,7 @@ class ListLite extends Component {
       this.refreshUI();
     };
     comment2.replyTo = cData.rid ? ctxData.find((c) => c.id === cData.rid) : void 0;
+    comment2.render();
     this.commentList.push(comment2);
     return comment2;
   }
@@ -6103,7 +6104,6 @@ class ListLite extends Component {
     const rootNodes = makeNestCommentNodeList(srcData, this.nestSortBy, this.conf.nestMax);
     rootNodes.forEach((rootNode) => {
       const rootC = this.createComment(rootNode.comment, srcData);
-      rootC.render();
       this.$commentsWrap.appendChild(rootC.getEl());
       rootC.playFadeInAnim();
       const that = this;
@@ -6111,7 +6111,6 @@ class ListLite extends Component {
         parentNode.children.forEach((node) => {
           const childD = node.comment;
           const childC = that.createComment(childD, srcData);
-          childC.render();
           parentC.putChild(childC);
           loadChildren(childC, node);
         });
@@ -6123,7 +6122,6 @@ class ListLite extends Component {
     if (cData.is_collapsed)
       cData.is_allow_reply = false;
     const comment2 = this.createComment(cData, ctxData);
-    comment2.render();
     if (cData.visible) {
       if (insertMode === "append")
         this.$commentsWrap.append(comment2.getEl());
@@ -6138,12 +6136,10 @@ class ListLite extends Component {
     if (!this.flatMode) {
       const comment2 = this.createComment(commentData);
       if (commentData.rid === 0) {
-        comment2.render();
         this.$commentsWrap.prepend(comment2.getEl());
       } else {
         const parent = this.findComment(commentData.rid);
         if (parent) {
-          comment2.render();
           parent.putChild(comment2, this.nestSortBy === "DATE_ASC" ? "append" : "prepend");
           comment2.getParents().forEach((p) => {
             if (p.$children)

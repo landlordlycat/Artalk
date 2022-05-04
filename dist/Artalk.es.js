@@ -3825,6 +3825,8 @@ class Api {
         conf.emoticons = conf.emoticons.trim();
         if (conf.emoticons.startsWith("[") || conf.emoticons.startsWith("{")) {
           conf.emoticons = JSON.parse(conf.emoticons);
+        } else if (conf.emoticons === "false") {
+          conf.emoticons = false;
         }
       }
       return conf;
@@ -4500,15 +4502,10 @@ class Editor extends Component {
     this.openedPlugName = null;
     this.$plugBtnWrap.innerHTML = "";
     this.LOADABLE_PLUG_LIST.forEach((PlugObj) => {
+      if (PlugObj.Name === "emoticons" && !this.conf.emoticons)
+        return;
       const btnElem = createElement(`<span class="atk-plug-btn" data-plug-name="${PlugObj.Name}">${PlugObj.BtnHTML}</span>`);
       this.$plugBtnWrap.appendChild(btnElem);
-      if (PlugObj.Name === "emoticons") {
-        const emoPlug = new PlugObj(this);
-        this.plugList[PlugObj.Name] = emoPlug;
-        window.setTimeout(() => {
-          emoPlug.loadEmoticonsData();
-        }, 1e3);
-      }
       btnElem.addEventListener("click", () => {
         let plug = this.plugList[PlugObj.Name];
         if (!plug) {
@@ -4543,6 +4540,13 @@ class Editor extends Component {
         btnElem.classList.add("active");
       });
     });
+    if (this.conf.emoticons) {
+      const emoPlug = new EmoticonsPlug(this);
+      this.plugList[EmoticonsPlug.Name] = emoPlug;
+      window.setTimeout(() => {
+        emoPlug.loadEmoticonsData();
+      }, 1e3);
+    }
     this.initImgUpload();
   }
   closePlug() {

@@ -6087,6 +6087,7 @@ class ListLite extends Component {
       this.refreshUI();
     };
     comment2.replyTo = cData.rid ? ctxData.find((c) => c.id === cData.rid) : void 0;
+    this.commentList.push(comment2);
     return comment2;
   }
   importComments(srcData) {
@@ -6105,7 +6106,6 @@ class ListLite extends Component {
       rootC.render();
       this.$commentsWrap.appendChild(rootC.getEl());
       rootC.playFadeInAnim();
-      this.commentList.push(rootC);
       const that = this;
       (function loadChildren(parentC, parentNode) {
         parentNode.children.forEach((node) => {
@@ -6113,7 +6113,6 @@ class ListLite extends Component {
           const childC = that.createComment(childD, srcData);
           childC.render();
           parentC.putChild(childC);
-          that.commentList.push(childC);
           loadChildren(childC, node);
         });
       })(rootC, rootNode);
@@ -6125,7 +6124,6 @@ class ListLite extends Component {
       cData.is_allow_reply = false;
     const comment2 = this.createComment(cData, ctxData);
     comment2.render();
-    this.commentList.push(comment2);
     if (cData.visible) {
       if (insertMode === "append")
         this.$commentsWrap.append(comment2.getEl());
@@ -6142,7 +6140,6 @@ class ListLite extends Component {
       if (commentData.rid === 0) {
         comment2.render();
         this.$commentsWrap.prepend(comment2.getEl());
-        this.commentList.push(comment2);
       } else {
         const parent = this.findComment(commentData.rid);
         if (parent) {

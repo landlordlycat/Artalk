@@ -98,7 +98,7 @@ const defaults$3 = {
   placeholder: "\u952E\u5165\u5185\u5BB9...",
   noComment: "\u300C\u6B64\u65F6\u65E0\u58F0\u80DC\u6709\u58F0\u300D",
   sendBtn: "\u53D1\u9001\u8BC4\u8BBA",
-  darkMode: false,
+  darkMode: "auto",
   editorTravel: true,
   flatMode: "auto",
   nestMax: 2,
@@ -6669,7 +6669,20 @@ const _Artalk = class {
     Layer.BodyOrgPaddingRight = document.body.style.paddingRight;
   }
   initDarkMode() {
+    if (this.conf.darkMode === "auto") {
+      const darkModeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+      darkModeMedia.addEventListener("change", (e) => {
+        this.setDarkMode(e.matches);
+      });
+      this.setDarkMode(darkModeMedia.matches);
+    } else {
+      this.setDarkMode(this.conf.darkMode || false);
+    }
+  }
+  setDarkMode(darkMode) {
     const darkModeClassName = "atk-dark-mode";
+    this.ctx.conf.darkMode = darkMode;
+    this.ctx.trigger("conf-updated");
     if (this.conf.darkMode) {
       this.$root.classList.add(darkModeClassName);
     } else {
@@ -6683,11 +6696,6 @@ const _Artalk = class {
         $layerWrap.classList.remove(darkModeClassName);
       }
     }
-  }
-  setDarkMode(darkMode) {
-    this.ctx.conf.darkMode = darkMode;
-    this.ctx.trigger("conf-updated");
-    this.initDarkMode();
   }
   initPV() {
     return __async(this, null, function* () {

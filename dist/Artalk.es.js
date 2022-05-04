@@ -1,4 +1,6 @@
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
@@ -14,6 +16,7 @@ var __spreadValues = (a, b) => {
     }
   return a;
 };
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
@@ -3120,63 +3123,54 @@ class Dialog {
 }
 function Fetch(ctx, input, init, timeout) {
   return __async(this, null, function* () {
+    var _a, _b;
     if (ctx.user.data.token) {
-      const requestHeaders = new Headers();
-      requestHeaders.set("Authorization", `Bearer ${ctx.user.data.token}`);
-      init.headers = requestHeaders;
+      const headers = new Headers(init.headers);
+      headers.set("Authorization", `Bearer ${ctx.user.data.token}`);
+      init.headers = headers;
     }
-    try {
-      let resp;
-      if (typeof timeout !== "number" && ctx.conf.reqTimeout === 0 || timeout === 0) {
-        resp = yield fetch(input, init);
-      } else {
-        resp = yield timeoutPromise(timeout || ctx.conf.reqTimeout || 15e3, fetch(input, init));
-      }
-      const noAccessCodes = [401, 400];
-      if (!resp.ok && !noAccessCodes.includes(resp.status))
-        throw new Error(`\u8BF7\u6C42\u54CD\u5E94 ${resp.status}`);
-      let json = yield resp.json();
-      const recall = (resolve, reject) => {
-        Fetch(ctx, input, init).then((d) => {
-          resolve(d);
-        }).catch((err) => {
-          reject(err);
+    const resp = yield timeoutFetch(input, timeout || ctx.conf.reqTimeout || 15e3, init);
+    const respHttpCode = resp.status;
+    const noAccessCodes = [401, 400];
+    const isNoAccess = noAccessCodes.includes(respHttpCode);
+    if (!resp.ok && !isNoAccess)
+      throw new Error(`\u8BF7\u6C42\u54CD\u5E94 ${respHttpCode}`);
+    let json = yield resp.json();
+    const recall = (resolve, reject) => {
+      Fetch(ctx, input, init).then((d) => {
+        resolve(d);
+      }).catch((e) => {
+        reject(e);
+      });
+    };
+    if ((_a = json.data) == null ? void 0 : _a.need_captcha) {
+      json = yield new Promise((resolve, reject) => {
+        ctx.trigger("checker-captcha", {
+          imgData: json.data.img_data,
+          iframe: json.data.iframe,
+          onSuccess: () => {
+            recall(resolve, reject);
+          },
+          onCancel: () => {
+            reject(json);
+          }
         });
-      };
-      if (json.data && json.data.need_captcha) {
-        json = yield new Promise((resolve, reject) => {
-          ctx.trigger("checker-captcha", {
-            imgData: json.data.img_data,
-            iframe: json.data.iframe,
-            onSuccess: () => {
-              recall(resolve, reject);
-            },
-            onCancel: () => {
-              reject(json);
-            }
-          });
+      });
+    } else if (((_b = json.data) == null ? void 0 : _b.need_login) || isNoAccess) {
+      json = yield new Promise((resolve, reject) => {
+        ctx.trigger("checker-admin", {
+          onSuccess: () => {
+            recall(resolve, reject);
+          },
+          onCancel: () => {
+            reject(json);
+          }
         });
-      } else if (json.data && json.data.need_login || noAccessCodes.includes(resp.status)) {
-        json = yield new Promise((resolve, reject) => {
-          ctx.trigger("checker-admin", {
-            onSuccess: () => {
-              recall(resolve, reject);
-            },
-            onCancel: () => {
-              reject(json);
-            }
-          });
-        });
-      }
-      if (!json.success)
-        throw json;
-      return json;
-    } catch (err) {
-      console.error(err);
-      if (err instanceof TypeError)
-        throw new Error(`\u7F51\u7EDC\u9519\u8BEF`);
-      throw err;
+      });
     }
+    if (!json.success)
+      throw json;
+    return json;
   });
 }
 function POST(ctx, url, data) {
@@ -3195,20 +3189,390 @@ function ToFormData(object) {
   Object.keys(object).forEach((key) => formData.append(key, String(object[key])));
   return formData;
 }
-function timeoutPromise(ms, promise) {
-  return new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
-      reject(new Error("\u8BF7\u6C42\u8D85\u65F6"));
-    }, ms);
-    promise.then((res) => {
-      clearTimeout(timeoutId);
-      resolve(res);
-    }, (err) => {
-      clearTimeout(timeoutId);
-      reject(err);
+function timeoutFetch(url, ms, opts) {
+  var _a;
+  const controller = new AbortController();
+  (_a = opts.signal) == null ? void 0 : _a.addEventListener("abort", () => controller.abort());
+  let promise = fetch(url, __spreadProps(__spreadValues({}, opts), { signal: controller.signal }));
+  if (ms > 0) {
+    const timer = setTimeout(() => controller.abort(), ms);
+    promise.finally(() => {
+      clearTimeout(timer);
     });
+  }
+  promise = promise.catch((err) => {
+    throw (err || {}).name === "AbortError" ? new Error("\u8BF7\u6C42\u8D85\u65F6\u6216\u610F\u5916\u7EC8\u6B62") : err;
   });
+  return promise;
 }
+(function(factory) {
+  factory();
+})(function() {
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor)
+        descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps)
+      _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps)
+      _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass)
+      _setPrototypeOf(subClass, superClass);
+  }
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf2(o2) {
+      return o2.__proto__ || Object.getPrototypeOf(o2);
+    };
+    return _getPrototypeOf(o);
+  }
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf2(o2, p2) {
+      o2.__proto__ = p2;
+      return o2;
+    };
+    return _setPrototypeOf(o, p);
+  }
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct)
+      return false;
+    if (Reflect.construct.sham)
+      return false;
+    if (typeof Proxy === "function")
+      return true;
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+      }));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function _assertThisInitialized(self2) {
+    if (self2 === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+    return self2;
+  }
+  function _possibleConstructorReturn(self2, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    }
+    return _assertThisInitialized(self2);
+  }
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived), result;
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+  function _superPropBase(object, property) {
+    while (!Object.prototype.hasOwnProperty.call(object, property)) {
+      object = _getPrototypeOf(object);
+      if (object === null)
+        break;
+    }
+    return object;
+  }
+  function _get(target, property, receiver) {
+    if (typeof Reflect !== "undefined" && Reflect.get) {
+      _get = Reflect.get;
+    } else {
+      _get = function _get2(target2, property2, receiver2) {
+        var base = _superPropBase(target2, property2);
+        if (!base)
+          return;
+        var desc = Object.getOwnPropertyDescriptor(base, property2);
+        if (desc.get) {
+          return desc.get.call(receiver2);
+        }
+        return desc.value;
+      };
+    }
+    return _get(target, property, receiver || target);
+  }
+  var Emitter = /* @__PURE__ */ function() {
+    function Emitter2() {
+      _classCallCheck(this, Emitter2);
+      Object.defineProperty(this, "listeners", {
+        value: {},
+        writable: true,
+        configurable: true
+      });
+    }
+    _createClass(Emitter2, [{
+      key: "addEventListener",
+      value: function addEventListener(type, callback, options) {
+        if (!(type in this.listeners)) {
+          this.listeners[type] = [];
+        }
+        this.listeners[type].push({
+          callback,
+          options
+        });
+      }
+    }, {
+      key: "removeEventListener",
+      value: function removeEventListener(type, callback) {
+        if (!(type in this.listeners)) {
+          return;
+        }
+        var stack = this.listeners[type];
+        for (var i = 0, l = stack.length; i < l; i++) {
+          if (stack[i].callback === callback) {
+            stack.splice(i, 1);
+            return;
+          }
+        }
+      }
+    }, {
+      key: "dispatchEvent",
+      value: function dispatchEvent(event) {
+        if (!(event.type in this.listeners)) {
+          return;
+        }
+        var stack = this.listeners[event.type];
+        var stackToCall = stack.slice();
+        for (var i = 0, l = stackToCall.length; i < l; i++) {
+          var listener = stackToCall[i];
+          try {
+            listener.callback.call(this, event);
+          } catch (e) {
+            Promise.resolve().then(function() {
+              throw e;
+            });
+          }
+          if (listener.options && listener.options.once) {
+            this.removeEventListener(event.type, listener.callback);
+          }
+        }
+        return !event.defaultPrevented;
+      }
+    }]);
+    return Emitter2;
+  }();
+  var AbortSignal = /* @__PURE__ */ function(_Emitter) {
+    _inherits(AbortSignal2, _Emitter);
+    var _super = _createSuper(AbortSignal2);
+    function AbortSignal2() {
+      var _this;
+      _classCallCheck(this, AbortSignal2);
+      _this = _super.call(this);
+      if (!_this.listeners) {
+        Emitter.call(_assertThisInitialized(_this));
+      }
+      Object.defineProperty(_assertThisInitialized(_this), "aborted", {
+        value: false,
+        writable: true,
+        configurable: true
+      });
+      Object.defineProperty(_assertThisInitialized(_this), "onabort", {
+        value: null,
+        writable: true,
+        configurable: true
+      });
+      return _this;
+    }
+    _createClass(AbortSignal2, [{
+      key: "toString",
+      value: function toString() {
+        return "[object AbortSignal]";
+      }
+    }, {
+      key: "dispatchEvent",
+      value: function dispatchEvent(event) {
+        if (event.type === "abort") {
+          this.aborted = true;
+          if (typeof this.onabort === "function") {
+            this.onabort.call(this, event);
+          }
+        }
+        _get(_getPrototypeOf(AbortSignal2.prototype), "dispatchEvent", this).call(this, event);
+      }
+    }]);
+    return AbortSignal2;
+  }(Emitter);
+  var AbortController2 = /* @__PURE__ */ function() {
+    function AbortController3() {
+      _classCallCheck(this, AbortController3);
+      Object.defineProperty(this, "signal", {
+        value: new AbortSignal(),
+        writable: true,
+        configurable: true
+      });
+    }
+    _createClass(AbortController3, [{
+      key: "abort",
+      value: function abort() {
+        var event;
+        try {
+          event = new Event("abort");
+        } catch (e) {
+          if (typeof document !== "undefined") {
+            if (!document.createEvent) {
+              event = document.createEventObject();
+              event.type = "abort";
+            } else {
+              event = document.createEvent("Event");
+              event.initEvent("abort", false, false);
+            }
+          } else {
+            event = {
+              type: "abort",
+              bubbles: false,
+              cancelable: false
+            };
+          }
+        }
+        this.signal.dispatchEvent(event);
+      }
+    }, {
+      key: "toString",
+      value: function toString() {
+        return "[object AbortController]";
+      }
+    }]);
+    return AbortController3;
+  }();
+  if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+    AbortController2.prototype[Symbol.toStringTag] = "AbortController";
+    AbortSignal.prototype[Symbol.toStringTag] = "AbortSignal";
+  }
+  function polyfillNeeded(self2) {
+    if (self2.__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL) {
+      console.log("__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL=true is set, will force install polyfill");
+      return true;
+    }
+    return typeof self2.Request === "function" && !self2.Request.prototype.hasOwnProperty("signal") || !self2.AbortController;
+  }
+  function abortableFetchDecorator(patchTargets) {
+    if (typeof patchTargets === "function") {
+      patchTargets = {
+        fetch: patchTargets
+      };
+    }
+    var _patchTargets = patchTargets, fetch2 = _patchTargets.fetch, _patchTargets$Request = _patchTargets.Request, NativeRequest = _patchTargets$Request === void 0 ? fetch2.Request : _patchTargets$Request, NativeAbortController = _patchTargets.AbortController, _patchTargets$__FORCE = _patchTargets.__FORCE_INSTALL_ABORTCONTROLLER_POLYFILL, __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL = _patchTargets$__FORCE === void 0 ? false : _patchTargets$__FORCE;
+    if (!polyfillNeeded({
+      fetch: fetch2,
+      Request: NativeRequest,
+      AbortController: NativeAbortController,
+      __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL
+    })) {
+      return {
+        fetch: fetch2,
+        Request
+      };
+    }
+    var Request = NativeRequest;
+    if (Request && !Request.prototype.hasOwnProperty("signal") || __FORCE_INSTALL_ABORTCONTROLLER_POLYFILL) {
+      Request = function Request2(input, init) {
+        var signal;
+        if (init && init.signal) {
+          signal = init.signal;
+          delete init.signal;
+        }
+        var request = new NativeRequest(input, init);
+        if (signal) {
+          Object.defineProperty(request, "signal", {
+            writable: false,
+            enumerable: false,
+            configurable: true,
+            value: signal
+          });
+        }
+        return request;
+      };
+      Request.prototype = NativeRequest.prototype;
+    }
+    var realFetch = fetch2;
+    var abortableFetch = function abortableFetch2(input, init) {
+      var signal = Request && Request.prototype.isPrototypeOf(input) ? input.signal : init ? init.signal : void 0;
+      if (signal) {
+        var abortError;
+        try {
+          abortError = new DOMException("Aborted", "AbortError");
+        } catch (err) {
+          abortError = new Error("Aborted");
+          abortError.name = "AbortError";
+        }
+        if (signal.aborted) {
+          return Promise.reject(abortError);
+        }
+        var cancellation = new Promise(function(_, reject) {
+          signal.addEventListener("abort", function() {
+            return reject(abortError);
+          }, {
+            once: true
+          });
+        });
+        if (init && init.signal) {
+          delete init.signal;
+        }
+        return Promise.race([cancellation, realFetch(input, init)]);
+      }
+      return realFetch(input, init);
+    };
+    return {
+      fetch: abortableFetch,
+      Request
+    };
+  }
+  (function(self2) {
+    if (!polyfillNeeded(self2)) {
+      return;
+    }
+    if (!self2.fetch) {
+      console.warn("fetch() is not available, cannot install abortcontroller-polyfill");
+      return;
+    }
+    var _abortableFetch = abortableFetchDecorator(self2), fetch2 = _abortableFetch.fetch, Request = _abortableFetch.Request;
+    self2.fetch = fetch2;
+    self2.Request = Request;
+    Object.defineProperty(self2, "AbortController", {
+      writable: true,
+      enumerable: false,
+      configurable: true,
+      value: AbortController2
+    });
+    Object.defineProperty(self2, "AbortSignal", {
+      writable: true,
+      enumerable: false,
+      configurable: true,
+      value: AbortSignal
+    });
+  })(typeof self !== "undefined" ? self : commonjsGlobal);
+});
 class Api {
   constructor(ctx) {
     __publicField(this, "ctx");
@@ -3281,7 +3645,6 @@ class Api {
   }
   userGet(name, email) {
     const ctrl = new AbortController();
-    const { signal } = ctrl;
     const params = {
       name,
       email,
@@ -3290,7 +3653,7 @@ class Api {
     const req = Fetch(this.ctx, `${this.baseURL}/user-get`, {
       method: "POST",
       body: ToFormData(params),
-      signal
+      signal: ctrl.signal
     }).then((json) => ({
       user: json.data.user,
       is_login: json.data.is_login,
@@ -4091,6 +4454,7 @@ class Editor extends Component {
             this.user.data.link = data.user.link;
             this.getInputEl("link").value = data.user.link;
           }
+        }).catch(() => {
         }).finally(() => {
           this.queryUserInfo.abortFunc = null;
         });

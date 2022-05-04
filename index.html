@@ -13,10 +13,12 @@
   <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
   <script>
     // VConsole will be exported to `window.VConsole` by default.
-    var vConsole = new window.VConsole();
+    if (navigator.userAgentData.mobile) {
+      var vConsole = new window.VConsole();
+    }
   </script>
-  <script type="module" crossorigin src="/assets/index.f6314e88.js"></script>
-  <link rel="stylesheet" href="/assets/index.2e1c01cd.css">
+  <script type="module" crossorigin src="/assets/index.a5b2f939.js"></script>
+  <link rel="stylesheet" href="/assets/index.311fa192.css">
 </head>
 <body>
   <div class="card billboard atk-fade-in">

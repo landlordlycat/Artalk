@@ -98,7 +98,7 @@ const defaults$3 = {
   placeholder: "\u952E\u5165\u5185\u5BB9...",
   noComment: "\u300C\u6B64\u65F6\u65E0\u58F0\u80DC\u6709\u58F0\u300D",
   sendBtn: "\u53D1\u9001\u8BC4\u8BBA",
-  darkMode: "auto",
+  darkMode: false,
   editorTravel: true,
   flatMode: "auto",
   nestMax: 2,

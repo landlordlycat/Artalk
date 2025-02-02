@@ -1,0 +1,21 @@
+CHANGELOG.md
+CHANGELOG.tpl.md
+CDN.html
+internal/template/notify_tpl/default.html
+
+# generated files
+# @link https://github.com/prettier/prettier/issues/3634
+pnpm-lock.yaml
+**/auto-imports.d.ts
+**/components.d.ts
+**/typed-router.d.ts
+**/vite.config.ts.timestamp-*
+ui/artalk/src/api/v2.ts
+docs/swagger/swagger.json
+docs/swagger/swagger.yaml
+docs/docs/**/*.md
+docs/docs/.vitepress/dist/**
+docs/docs/.vitepress/cache/**
+ui/artalk-sidebar/src/lib/md5.js
+ui/artalk/src/lib/detect.ts
+**/dist/**
